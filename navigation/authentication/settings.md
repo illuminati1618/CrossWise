@@ -49,7 +49,7 @@ window.updateSettings = async function() {
       message: 'settings-message',
       callback: () => {
         alert("You updated your username, so you will automatically be logged out. Be sure to remember your new username to log in!");
-        window.location.href = 'http://127.0.0.1:4887/personal_flocker_frontend/noauth'; // Updated redirect URL
+        window.location.href = 'http://127.0.0.1:8887/personal_flocker_frontend/noauth'; // Updated redirect URL
       }
     };
     try {

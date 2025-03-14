@@ -1,9 +1,9 @@
 title: DNHS Car Flocker
 description: "Social Media for Del Norte High School Cars"
-owner_name: Trevor Vick
-github_username: Tvick22
-github_repo: "personal_flocker_frontend"
-baseurl: "/personal_flocker_frontend"
+owner_name: Yash Parikh
+github_username: illuminati1618
+github_repo: "QUAV"
+baseurl: "/QUAV"
 future: true
 remote_theme: jekyll/minima
 minima:
