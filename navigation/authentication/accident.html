@@ -1,0 +1,168 @@
+---
+layout: base
+title: Road Accident Survival Rates
+permalink: /accident
+menu: nav/home.html
+---
+
+<style>
+    @import url("https://fonts.googleapis.com/css2?family=Orbitron&display=swap");
+
+    body {
+        font-family: "Orbitron", sans-serif;
+        background: url("https://source.unsplash.com/1920x1080/?car,road,accident")
+            no-repeat center center fixed;
+        background-size: cover;
+        color: #00ffff;
+        text-align: center;
+        overflow-y: auto;
+    }
+
+    .container {
+        margin-top: 50px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 30px;
+        border-radius: 15px;
+        width: 60%;
+        margin-left: auto;
+        margin-right: auto;
+        box-shadow: 0px 0px 20px #00ffff;
+        animation: fadeIn 2s ease-in-out;
+    }
+
+    label,
+    input,
+    select {
+        display: block;
+        margin: 15px auto;
+        font-size: 18px;
+        color: #00ffcc;
+    }
+
+    input,
+    select {
+        background: black;
+        color: #00ffff;
+        border: 2px solid #00ffff;
+        padding: 8px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    button {
+        background: linear-gradient(45deg, #ff00ff, #00ffff);
+        color: black;
+        font-size: 20px;
+        padding: 10px 25px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0px 0px 10px #00ffff;
+    }
+
+    button:hover {
+        background: linear-gradient(45deg, #ff0000, #00ff00);
+        box-shadow: 0px 0px 20px #ff0000;
+    }
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .result {
+        display: none;
+        margin-top: 20px;
+        font-size: 24px;
+        padding: 20px;
+        border-radius: 10px;
+        text-shadow: 0px 0px 10px #fff;
+    }
+
+    .survived {
+        color: #0f0;
+        text-shadow: 0px 0px 15px #0f0;
+    }
+
+    .died {
+        color: #f00;
+        text-shadow: 0px 0px 15px #f00;
+    }
+</style>
+
+<div class="container">
+    <h1>Road Accident Survival Predictor</h1>
+    <form id="accidentForm">
+        <label for="age">Age:</label>
+        <input id="age" type="number" min="0" required />
+
+        <label for="gender">Gender:</label>
+        <select id="gender" required>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+
+        <label for="speed">Speed of Impact (km/h):</label>
+        <input id="speed" type="number" min="0" required />
+
+        <label for="helmet">Helmet Used:</label>
+        <select id="helmet" required>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+
+        <label for="seatbelt">Seatbelt Used:</label>
+        <select id="seatbelt" required>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+
+        <button type="button" id="predictBtn">Check Survival</button>
+    </form>
+
+    <div id="result" class="result"></div>
+</div>
+
+<script type="module">
+    import {
+        pythonURI,
+        fetchOptions,
+    } from "{{ site.baseurl }}/assets/js/api/config.js";
+
+    document.getElementById("predictBtn").addEventListener("click", async () => {
+        const accidentData = {
+            Age: Number(document.getElementById("age").value),
+            Gender: document.getElementById("gender").value,
+            Speed_of_Impact: Number(document.getElementById("speed").value),
+            Helmet_Used: document.getElementById("helmet").value,
+            Seatbelt_Used: document.getElementById("seatbelt").value,
+        };
+
+        try {
+            const response = await fetch(`${pythonURI}/api/accident/predict`, {
+                ...fetchOptions,
+                method: "POST",
+                body: JSON.stringify(accidentData),
+            });
+            const data = await response.json();
+
+            const resultDiv = document.getElementById("result");
+            const survivalChance = data.survive * 100;
+
+            resultDiv.style.display = "block";
+            resultDiv.innerHTML =
+                survivalChance > 50
+                    ? `<h2 class='survived'>You Survived the Road Accident! 🎉</h2>`
+                    : `<h2 class='died'>You Didn't Survive the Road Accident... 💀</h2>`;
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    });
+</script>
