@@ -5,139 +5,183 @@ permalink: /titanic
 menu: nav/home.html
 ---
 
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Titanic Survival Predictor</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: url('https://wallpapercave.com/wp/wp2565021.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: white;
-            text-align: center;
-        }
-        .container {
-            margin-top: 50px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-            width: 50%;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        label, input, select {
-            display: block;
-            margin: 10px auto;
-            font-size: 18px;
-            color: black;
-        }
-        button {
-            background-color: gold;
-            color: black;
-            font-size: 20px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: orange;
-        }
-        .animation {
-            display: none;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Titanic Survival Predictor</h1>
-        <form id="titanicForm">
-            <label for="pclass">Passenger Class (1-3):</label>
-            <input type="number" id="pclass" min="1" max="3" required>
-            
-            <label for="sex">Sex:</label>
-            <select id="sex">
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-            </select>
-            
-            <label for="age">Age:</label>
-            <input type="number" id="age" min="0" required>
-            
-            <label for="sibsp">Siblings/Spouses aboard:</label>
-            <input type="number" id="sibsp" min="0" required>
-            
-            <label for="parch">Parents/Children aboard:</label>
-            <input type="number" id="parch" min="0" required>
-            
-            <label for="fare">Fare:</label>
-            <input type="number" id="fare" min="0" step="0.01" required>
-            
-            <label for="embarked">Embark Port:</label>
-            <select id="embarked">
-                <option value="C">Cherbourg</option>
-                <option value="Q">Queenstown</option>
-                <option value="S">Southampton</option>
-            </select>
-            
-            <label for="alone">Alone?</label>
-            <select id="alone">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-            </select>
-            
-            <button type="button" id="predictBtn">Check Survival</button>
-        </form>
-        
-        <div id="result" class="animation"></div>
-    </div>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Orbitron&display=swap");
 
-    <script type="module">
-        import { pythonURI, fetchOptions } from '{{ site.baseurl }}/assets/js/api/config.js';
+  body {
+    font-family: "Orbitron", sans-serif;
+    background: url("https://source.unsplash.com/1920x1080/?ocean,ship")
+      no-repeat center center fixed;
+    background-size: cover;
+    color: #00ffff;
+    text-align: center;
+    overflow-y: auto;
+  }
 
-        document.getElementById("predictBtn").addEventListener("click", async function() {
-            const passengerData = {
-                pclass: document.getElementById('pclass').value,
-                sex: document.getElementById('sex').value,
-                age: document.getElementById('age').value,
-                sibsp: document.getElementById('sibsp').value,
-                parch: document.getElementById('parch').value,
-                fare: document.getElementById('fare').value,
-                embarked: document.getElementById('embarked').value,
-                alone: document.getElementById('alone').value === "true"
-            };
+  .container {
+    margin-top: 50px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    border-radius: 15px;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0px 0px 20px #00ffff;
+    animation: fadeIn 2s ease-in-out;
+  }
 
-            try {
-                const response = await fetch(`${pythonURI}/api/titanic/predict`, {
-                    ...fetchOptions,
-                    method: "POST",
-                    body: JSON.stringify(passengerData)
-                });
+  label,
+  input,
+  select {
+    display: block;
+    margin: 15px auto;
+    font-size: 18px;
+    color: #00ffcc;
+  }
 
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
+  input,
+  select {
+    background: black;
+    color: #00ffff;
+    border: 2px solid #00ffff;
+    padding: 8px;
+    border-radius: 5px;
+    text-align: center;
+  }
 
-                const data = await response.json();
-                const resultDiv = document.getElementById('result');
-                const survivalChance = data.survive * 100;
-                
-                if (survivalChance > 50) {
-                    resultDiv.innerHTML = `<h2 style='color: #0f0;'>You Survived! 🎉</h2>
-                        <img src='https://media.giphy.com/media/3o7TKr0L3vyK7GfYbm/giphy.gif' width='300'>`;
-                } else {
-                    resultDiv.innerHTML = `<h2 style='color: #f00;'>You Drowned... 💀</h2>
-                        <img src='https://media.giphy.com/media/3o7TKP6Hg6bd42hSRa/giphy.gif' width='300'>`;
-                }
-                resultDiv.style.display = "block";
-            } catch (error) {
-                console.error("Error predicting survival", error);
-            }
+  button {
+    background: linear-gradient(45deg, #ff00ff, #00ffff);
+    color: black;
+    font-size: 20px;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0px 0px 10px #00ffff;
+  }
+
+  button:hover {
+    background: linear-gradient(45deg, #ff0000, #00ff00);
+    box-shadow: 0px 0px 20px #ff0000;
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .result {
+    display: none;
+    margin-top: 20px;
+    font-size: 24px;
+    padding: 20px;
+    border-radius: 10px;
+    text-shadow: 0px 0px 10px #fff;
+  }
+
+  .survived {
+    color: #0f0;
+    text-shadow: 0px 0px 15px #0f0;
+  }
+
+  .drowned {
+    color: #f00;
+    text-shadow: 0px 0px 15px #f00;
+  }
+</style>
+
+<div class="container">
+  <h1>Titanic Survival Predictor</h1>
+  <form id="titanicForm">
+    <label for="pclass">Passenger Class (1-3):</label>
+    <input type="number" id="pclass" min="1" max="3" required />
+
+    <label for="sex">Sex:</label>
+    <select id="sex">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+
+    <label for="age">Age:</label>
+    <input type="number" id="age" min="0" required />
+
+    <label for="sibsp">Siblings/Spouses aboard:</label>
+    <input type="number" id="sibsp" min="0" required />
+
+    <label for="parch">Parents/Children aboard:</label>
+    <input type="number" id="parch" min="0" required />
+
+    <label for="fare">Fare:</label>
+    <input type="number" id="fare" min="0" step="0.01" required />
+
+    <label for="embarked">Embark Port:</label>
+    <select id="embarked">
+      <option value="C">Cherbourg</option>
+      <option value="Q">Queenstown</option>
+      <option value="S">Southampton</option>
+    </select>
+
+    <label for="alone">Alone?</label>
+    <select id="alone">
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
+
+    <button type="button" id="predictBtn">Check Survival</button>
+  </form>
+
+  <div id="result" class="result"></div>
+</div>
+
+<script type="module">
+  import {
+    pythonURI,
+    fetchOptions,
+  } from "{{ site.baseurl }}/assets/js/api/config.js";
+
+  document
+    .getElementById("predictBtn")
+    .addEventListener("click", async function () {
+      const passengerData = {
+        pclass: document.getElementById("pclass").value,
+        sex: document.getElementById("sex").value,
+        age: document.getElementById("age").value,
+        sibsp: document.getElementById("sibsp").value,
+        parch: document.getElementById("parch").value,
+        fare: document.getElementById("fare").value,
+        embarked: document.getElementById("embarked").value,
+        alone: document.getElementById("alone").value === "true",
+      };
+
+      try {
+        const response = await fetch(`${pythonURI}/api/titanic/predict`, {
+          ...fetchOptions,
+          method: "POST",
+          body: JSON.stringify(passengerData),
         });
-    </script>
-</body>
-</html>
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        const resultDiv = document.getElementById("result");
+        const survivalChance = data.survive * 100;
+
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML =
+          survivalChance > 50
+            ? `<h2 class='survived'>You Survived! 🎉</h2>`
+            : `<h2 class='drowned'>You Drowned... 💀</h2>`;
+      } catch (error) {
+        console.error("Error predicting survival", error);
+      }
+    });
+</script>
