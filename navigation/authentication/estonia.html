@@ -1,0 +1,167 @@
+---
+layout: base
+title: Estonia
+permalink: /estonia
+menu: nav/home.html
+---
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Orbitron&display=swap");
+
+  body {
+    font-family: "Orbitron", sans-serif;
+    background: url("https://source.unsplash.com/1920x1080/?sea,shipwreck")
+      no-repeat center center fixed;
+    background-size: cover;
+    color: #00ffff;
+    text-align: center;
+    overflow-y: auto;
+  }
+
+  .container {
+    margin-top: 50px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    border-radius: 15px;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0px 0px 20px #00ffff;
+    animation: fadeIn 2s ease-in-out;
+  }
+
+  label,
+  input,
+  select {
+    display: block;
+    margin: 15px auto;
+    font-size: 18px;
+    color: #00ffcc;
+  }
+
+  input,
+  select {
+    background: black;
+    color: #00ffff;
+    border: 2px solid #00ffff;
+    padding: 8px;
+    border-radius: 5px;
+    text-align: center;
+  }
+
+  button {
+    background: linear-gradient(45deg, #ff00ff, #00ffff);
+    color: black;
+    font-size: 20px;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0px 0px 10px #00ffff;
+  }
+
+  button:hover {
+    background: linear-gradient(45deg, #ff0000, #00ff00);
+    box-shadow: 0px 0px 20px #ff0000;
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .result {
+    display: none;
+    margin-top: 20px;
+    font-size: 24px;
+    padding: 20px;
+    border-radius: 10px;
+    text-shadow: 0px 0px 10px #fff;
+  }
+
+  .survived {
+    color: #0f0;
+    text-shadow: 0px 0px 15px #0f0;
+  }
+
+  .drowned {
+    color: #f00;
+    text-shadow: 0px 0px 15px #f00;
+  }
+</style>
+
+<div class="container">
+  <h1>Estonia Survival Predictor</h1>
+  <form id="estoniaForm">
+    <label for="sex">Sex:</label>
+    <select id="sex">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+
+    <label for="age">Age:</label>
+    <input type="number" id="age" min="0" required />
+
+    <label for="category">Category:</label>
+    <select id="category">
+      <option value="P">Passenger</option>
+      <option value="C">Crew</option>
+    </select>
+
+    <label for="country">Country:</label>
+    <input type="text" id="country" required />
+
+    <button type="button" id="predictBtn">Check Survival</button>
+  </form>
+
+  <div id="result" class="result"></div>
+</div>
+
+<script type="module">
+  import {
+    pythonURI,
+    fetchOptions,
+  } from "{{ site.baseurl }}/assets/js/api/config.js";
+
+  document
+    .getElementById("predictBtn")
+    .addEventListener("click", async function () {
+      const passengerData = {
+        sex: document.getElementById("sex").value,
+        age: document.getElementById("age").value,
+        category: document.getElementById("category").value,
+        country: document.getElementById("country").value,
+      };
+
+      try {
+        const response = await fetch(`${pythonURI}/api/estonia/predict`, {
+          ...fetchOptions,
+          method: "POST",
+          body: JSON.stringify(passengerData),
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        const resultDiv = document.getElementById("result");
+        const survivalChance = data.survive * 100;
+
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML =
+          survivalChance > 50
+            ? `<h2 class='survived'>You Survived! 🎉</h2>`
+            : `<h2 class='drowned'>You Did Not Survive... 💀</h2>`;
+      } catch (error) {
+        console.error("Error predicting survival", error);
+      }
+    });
+</script>
