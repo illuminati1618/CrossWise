@@ -3,7 +3,7 @@ layout: needsAuth
 title: vinStore
 permalink: /vinStore
 search_exclude: true
-menu: nav/home.html 
+menu: nav/home.html
 ---
 
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">

@@ -42,9 +42,9 @@ permalink: /make_post
         </button>
       </div>
     </div>
+
   </div>
 </div>
-
 
 <script type="module">
   import { convertToBase64, createPost } from "{{site.baseurl}}/assets/js/api/posts.js";

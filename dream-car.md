@@ -1,6 +1,6 @@
 ---
 layout: base
-title: Dream Car 
+title: Dream Car
 search_exclude: true
 menu: nav/home.html
 ---
@@ -25,4 +25,3 @@ menu: nav/home.html
         </a>
     </div>
 </section>
-

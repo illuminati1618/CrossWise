@@ -25,12 +25,3 @@ menu: nav/home.html
         </a>
     </div>
 </section>
-
-
-
-
-
-
-
-
-

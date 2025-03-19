@@ -3,6 +3,7 @@ layout: base
 menu: nav/home.html
 permalink: /allPosts
 ---
+
 <div id="posts-container" class="py-10 space-y-6"></div>
 
 <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.19/dist/full.min.css" rel="stylesheet" type="text/css" />

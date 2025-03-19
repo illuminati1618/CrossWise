@@ -121,6 +121,7 @@ permalink: /Chat
             background-color: #218838;
         }
     </style>
+
 </head>
 <body>
     <div class="chat-container">
@@ -147,7 +148,7 @@ permalink: /Chat
             <input type="text" id="messageInput" placeholder="Type your message..." required>
             <button type="submit" class="send-button">Send</button>
         </form>
-    </div>        
+    </div>
 
     <script type="module">
         import { getAllChat, postChat, deleteChat, updateChat } from "{{site.baseurl}}/assets/js/api/carChat.js";
@@ -254,10 +255,11 @@ permalink: /Chat
                 e.preventDefault(); // Prevent page refresh
                 await submitMessage();
             });
-            
+
             // Initial display of messages
             displayMessages();
         });
     </script>
+
 </body>
 </html>
