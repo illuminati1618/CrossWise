@@ -152,11 +152,11 @@ menu: nav/home.html
     `,
 
     cancer: `
-      <label for="age">Age:</label>
-      <input type="number" id="age" min="0" required />
+  <label for="age">Age:</label>
+  <input type="number" id="age" min="0" required />
 
-      <label for="stage">Cancer Stage (1-4):</label>
-      <input type="number" id="stage" min="1" max="4" required />
+  <label for="year">Year of Diagnosis:</label>
+  <input type="number" id="year" min="1900" required />
     `,
 
     estonia: `
@@ -221,8 +221,8 @@ menu: nav/home.html
       };
     } else if (scenario === "cancer") {
       data = {
-        Age: document.getElementById("age").value,
-        Stage: document.getElementById("stage").value,
+        age: Number(document.getElementById("age").value),
+        year: Number(document.getElementById("year").value) - 1900, // Subtracting 1900 from year
       };
     } else if (scenario === "estonia") {
       data = {
