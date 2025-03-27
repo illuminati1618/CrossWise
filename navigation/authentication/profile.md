@@ -311,7 +311,7 @@ show_reading_time: false
 </style>
 
 <header class="heading">
-    <h1>Prism</h1>
+    <h1>CrossWise</h1>
     <p>You can control your settings from here!</p>
 </header>
 

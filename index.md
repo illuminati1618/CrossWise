@@ -180,6 +180,14 @@ show_reading_time: false
                     <h3>Notifications</h3>
                     <p>Get alerts when wait times change significantly or when unexpected delays occur.</p>
                 </div>
+
+                <a href="{{site.baseurl}}/livefeed" style="text-decoration: none; color: inherit;">
+                <div class="feature-card">
+                    <div class="feature-icon">🎥</div>
+                    <h3>Live Feed</h3>
+                    <p>View the border crossing live for any final decisions or unexpected immediate changes.</p>
+                </div>
+                </a>
             </div>
         </section>
 

@@ -1,0 +1,79 @@
+---
+layout: base
+title: Live Feed
+permalink: /livefeed
+---
+
+
+<header class="heading">
+    <h1>Live Feed</h1>
+    <p>Live San Ysidro border crossing camera. Shows latest conditions of the crossing.</p>
+</header>
+
+<title>San Ysidro Border Camera Feed</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        text-align: center;
+        padding: 2rem;
+    }
+    video {
+        width: 90%;
+        max-width: 800px;
+        margin-top: 1rem;
+        border: 4px solid #444;
+        border-radius: 8px;
+    }
+</style>
+
+<body>
+    <h1>San Ysidro Border Cam (Latest Available Clip)</h1>
+    <p>Searching for the most recent video...</p>
+    <video id="borderVideo" controls autoplay muted></video>
+  
+    <script>
+        const video = document.getElementById("borderVideo");
+        const now = new Date();
+        const pad = (n) => n.toString().padStart(2, '0');
+
+        const year = now.getFullYear();
+        const month = pad(now.getMonth() + 1);
+        const day = pad(now.getDate());
+        const datePart = `${year}_${month}_${day}`;
+
+        const baseURL = "https://www.bordertraffic.com/videoclips/free_california-baja_sanysidro-tijuana_passengerlines_0_255_";
+
+        let attempts = [];
+
+        // Try from current time -10 mins to current time +10 mins
+        for (let i = -10; i <= 10; i++) {
+            const trial = new Date(now.getTime() + i * 60000); // +/- minutes
+            const hr = pad(trial.getHours());
+            const min = pad(trial.getMinutes());
+            const url = `${baseURL}${datePart}_${hr}_${min}.mp4`;
+            attempts.push(url);
+            console.log(url);
+        }
+
+        let current = 0;
+
+        function tryNextVideo() {
+            if (current >= attempts.length) {
+                document.body.innerHTML += "<p><strong>No recent video found.</strong></p>";
+                return;
+            }
+            video.src = attempts[current];
+            current++;
+        }
+
+        video.onerror = tryNextVideo;
+
+        video.onloadeddata = () => {
+            document.querySelector("p").textContent = "Now playing most recent working video:";
+        };
+
+        tryNextVideo();
+    </script>
+</body>
