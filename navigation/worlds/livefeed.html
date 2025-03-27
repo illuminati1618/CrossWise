@@ -4,76 +4,199 @@ title: Live Feed
 permalink: /livefeed
 ---
 
-
 <header class="heading">
-    <h1>Live Feed</h1>
-    <p>Live San Ysidro border crossing camera. Shows latest conditions of the crossing.</p>
+  <h1 style="font-size: 2.5rem;">🚦 Live Feed</h1>
+  <p style="font-size: 1.2rem;">San Ysidro border crossing camera — see the latest traffic conditions below.</p>
 </header>
 
-<title>San Ysidro Border Camera Feed</title>
-
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f2f2f2;
-        text-align: center;
-        padding: 2rem;
-    }
-    video {
-        width: 90%;
-        max-width: 800px;
-        margin-top: 1rem;
-        border: 4px solid #444;
-        border-radius: 8px;
-    }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 2rem;
+    color: #222;
+  }
+
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  .video-section {
+    flex: 2 1 600px;
+    max-width: 1000px;
+    background: linear-gradient(to right, #1eb7a6, #329bd6);
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+  }
+
+  .table-section {
+    flex: 1 1 250px;
+    max-width: 350px;
+    max-height: 700px;
+    overflow-y: auto;
+    background: linear-gradient(to right, #1eb7a6, #329bd6);
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+  }
+
+  video {
+    width: 100%;
+    height: auto;
+    border: 3px solid #0077cc;
+    border-radius: 8px;
+  }
+
+  #current-time {
+    font-size: 1.3rem;
+    margin: 1rem 0;
+    color: #0077cc;
+    font-weight: bold;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+
+  th, td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+
+  th {
+    background-color: #0077cc;
+    color: white;
+    position: sticky;
+    top: 0;
+  }
+
+  tr:hover {
+    background-color: #f0f8ff;
+  }
+
+  a {
+    color: #0077cc;
+    text-decoration: none;
+    transition: 0.2s;
+  }
+
+  a:hover {
+    text-decoration: underline;
+    color: #004b87;
+  }
 </style>
 
-<body>
-    <h1>San Ysidro Border Cam (Latest Available Clip)</h1>
-    <p>Searching for the most recent video...</p>
+<div class="container">
+  <div class="video-section">
+    <div id="current-time">Searching for the latest working video...</div>
     <video id="borderVideo" controls autoplay muted></video>
-  
-    <script>
-        const video = document.getElementById("borderVideo");
-        const now = new Date();
-        const pad = (n) => n.toString().padStart(2, '0');
+  </div>
 
-        const year = now.getFullYear();
-        const month = pad(now.getMonth() + 1);
-        const day = pad(now.getDate());
-        const datePart = `${year}_${month}_${day}`;
+  <div class="table-section">
+    <h2>🕒 Previous Working Videos</h2>
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>Timestamp (click to view)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filled dynamically -->
+      </tbody>
+    </table>
+  </div>
+</div>
 
-        const baseURL = "https://www.bordertraffic.com/videoclips/free_california-baja_sanysidro-tijuana_passengerlines_0_255_";
+<script>
+  const video = document.getElementById("borderVideo");
+  const historyTable = document.querySelector("#historyTable tbody");
+  const currentDisplay = document.getElementById("current-time");
 
-        let attempts = [];
+  const now = new Date();
+  const pad = (n) => n.toString().padStart(2, '0');
+  const baseURL = "https://www.bordertraffic.com/videoclips/free_california-baja_sanysidro-tijuana_passengerlines_0_255_";
 
-        // Try from current time -10 mins to current time +10 mins
-        for (let i = -10; i <= 10; i++) {
-            const trial = new Date(now.getTime() + i * 60000); // +/- minutes
-            const hr = pad(trial.getHours());
-            const min = pad(trial.getMinutes());
-            const url = `${baseURL}${datePart}_${hr}_${min}.mp4`;
-            attempts.push(url);
-            console.log(url);
-        }
+  const year = now.getFullYear();
+  const month = pad(now.getMonth() + 1);
+  const day = pad(now.getDate());
+  const datePart = `${year}_${month}_${day}`;
 
-        let current = 0;
+  let attempts = [];
 
-        function tryNextVideo() {
-            if (current >= attempts.length) {
-                document.body.innerHTML += "<p><strong>No recent video found.</strong></p>";
-                return;
-            }
-            video.src = attempts[current];
-            current++;
-        }
+  for (let i = 0; i <= 300; i++) {
+    const trial = new Date(now.getTime() - i * 60000);
+    const hr = pad(trial.getHours());
+    const min = pad(trial.getMinutes());
+    const timeLabel = `${hr}:${min}`;
+    const timeCode = `${hr}_${min}`;
+    const url = `${baseURL}${datePart}_${timeCode}.mp4`;
+    attempts.push({ url, timeLabel, timeCode });
+  }
 
-        video.onerror = tryNextVideo;
+  const successfulVideos = [];
 
-        video.onloadeddata = () => {
-            document.querySelector("p").textContent = "Now playing most recent working video:";
+  function tryMainVideo(index = 0) {
+    if (index >= attempts.length) {
+      currentDisplay.textContent = "No working videos found in the past 300 minutes.";
+      return;
+    }
+
+    video.src = attempts[index].url;
+    video.onerror = () => tryMainVideo(index + 1);
+    video.onloadeddata = () => {
+      const { url, timeLabel, timeCode } = attempts[index];
+      currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${timeLabel}`;
+      addToTable(url, timeLabel, timeCode, true);
+    };
+  }
+
+  function addToTable(url, timeLabel, timeCode, highlight = false) {
+    if (successfulVideos.find(v => v.timeCode === timeCode)) return;
+    successfulVideos.push({ url, timeLabel, timeCode });
+
+    // Clear and re-render table in chronological order (oldest at bottom)
+    historyTable.innerHTML = ""; // Clear table
+
+    // Sort successful videos by timeCode (chronological order)
+    const sorted = successfulVideos.sort((a, b) => a.timeCode.localeCompare(b.timeCode));
+
+    sorted.forEach(({ url, timeLabel, timeCode }) => {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        const link = document.createElement("a");
+        link.href = "#";
+        link.textContent = `${timeLabel} (${timeCode})`;
+        link.onclick = (e) => {
+        e.preventDefault();
+        video.src = url;
+        currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${timeLabel}`;
         };
 
-        tryNextVideo();
-    </script>
-</body>
+        cell.appendChild(link);
+        row.appendChild(cell);
+        historyTable.appendChild(row);
+    });
+    }
+
+
+  function scanAllPastVideos() {
+    attempts.forEach(({ url, timeLabel, timeCode }) => {
+      const testVideo = document.createElement("video");
+      testVideo.src = url;
+      testVideo.muted = true;
+      testVideo.onloadeddata = () => {
+        addToTable(url, timeLabel, timeCode);
+      };
+    });
+  }
+
+  tryMainVideo();
+  scanAllPastVideos();
+</script>
