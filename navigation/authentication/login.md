@@ -155,7 +155,6 @@ show_reading_time: false
             });
     }
 
-    // Call relevant database functions on the page load
     window.onload = function() {
          pythonDatabase();
     };
