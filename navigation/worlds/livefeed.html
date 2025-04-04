@@ -5,57 +5,66 @@ permalink: /livefeed
 ---
 
 <header class="heading">
-  <h1 style="font-size: 2.5rem;">🚦 Live Feed</h1>
-  <p style="font-size: 1.2rem;">San Ysidro border crossing camera — see the latest traffic conditions below.</p>
+  <h1 class="text-4xl font-bold text-center">🚦 Live Feed</h1>
+  <p class="text-lg text-center text-gray-700">San Ysidro border crossing camera — see the latest traffic conditions below.</p>
 </header>
 
 <style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 2rem;
-    color: #222;
-  }
-
-  .container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+  .grid-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
     gap: 2rem;
+    padding: 2rem;
   }
 
-  .video-section {
-    flex: 2 1 600px;
-    max-width: 1000px;
+  .card {
     background: linear-gradient(to right, #1eb7a6, #329bd6);
-    border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    transition: transform 0.2s;
   }
 
-  .table-section {
-    flex: 1 1 250px;
-    max-width: 350px;
-    max-height: 700px;
-    overflow-y: auto;
-    background: linear-gradient(to right, #1eb7a6, #329bd6);
-    border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    padding: 1.5rem;
+  .card:hover {
+    transform: translateY(-5px);
   }
 
   video {
     width: 100%;
     height: auto;
-    border: 3px solid #0077cc;
-    border-radius: 8px;
+    border: 4px solid #0e7490;
+    border-radius: 12px;
   }
 
   #current-time {
-    font-size: 1.3rem;
-    margin: 1rem 0;
-    color: #0077cc;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: #083344;
     font-weight: bold;
+  }
+
+  .btn-timelapse {
+    display: block;
+    margin: 2rem auto 0;
+    background-color: #0e7490;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-timelapse:hover {
+    background-color: #0c4a6e;
+  }
+
+  .status {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 1rem;
+    color: #065f46;
   }
 
   table {
@@ -66,41 +75,34 @@ permalink: /livefeed
 
   th, td {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #e2e8f0;
     text-align: left;
   }
 
   th {
-    background-color: #0077cc;
+    background-color: #0e7490;
     color: white;
     position: sticky;
     top: 0;
   }
 
   tr:hover {
-    background-color: #f0f8ff;
-  }
-
-  a {
-    color: #0077cc;
-    text-decoration: none;
-    transition: 0.2s;
-  }
-
-  a:hover {
-    text-decoration: underline;
-    color: #004b87;
+    background-color: #e0f2fe;
   }
 </style>
 
-<div class="container">
-  <div class="video-section">
+<div class="grid-container">
+  <div class="card">
     <div id="current-time">Searching for the latest working video...</div>
     <video id="borderVideo" controls autoplay muted></video>
+    <button id="generateTimelapseBtn" class="btn-timelapse">
+      ⏱️ Generate Timelapse (Past 5 hours)
+    </button>
+    <p id="timelapseStatus" class="status"></p>
   </div>
 
-  <div class="table-section">
-    <h2>🕒 Previous Working Videos</h2>
+  <div class="card">
+    <h2 class="text-xl font-semibold">🕒 Previous Working Videos</h2>
     <table id="historyTable">
       <thead>
         <tr>
@@ -114,7 +116,9 @@ permalink: /livefeed
   </div>
 </div>
 
-<script>
+<script type="module">
+  import { pythonURI, fetchOptions } from "{{ site.baseurl }}/assets/js/api/config.js";
+
   const video = document.getElementById("borderVideo");
   const historyTable = document.querySelector("#historyTable tbody");
   const currentDisplay = document.getElementById("current-time");
@@ -161,10 +165,7 @@ permalink: /livefeed
     if (successfulVideos.find(v => v.timeCode === timeCode)) return;
     successfulVideos.push({ url, timeLabel, timeCode });
 
-    // Clear and re-render table in chronological order (oldest at bottom)
-    historyTable.innerHTML = ""; // Clear table
-
-    // Sort successful videos by timeCode (chronological order)
+    historyTable.innerHTML = "";
     const sorted = successfulVideos.sort((a, b) => a.timeCode.localeCompare(b.timeCode));
 
     sorted.forEach(({ url, timeLabel, timeCode }) => {
@@ -183,8 +184,7 @@ permalink: /livefeed
         row.appendChild(cell);
         historyTable.appendChild(row);
     });
-    }
-
+  }
 
   function scanAllPastVideos() {
     attempts.forEach(({ url, timeLabel, timeCode }) => {
@@ -196,6 +196,39 @@ permalink: /livefeed
       };
     });
   }
+
+  document.getElementById("generateTimelapseBtn").addEventListener("click", async () => {
+    const status = document.getElementById("timelapseStatus");
+    status.textContent = "⏳ Generating timelapse... please wait";
+
+    const urls = successfulVideos.map(v => v.url);
+
+    if (urls.length === 0) {
+      status.textContent = "⚠️ No videos available to generate timelapse.";
+      return;
+    }
+
+    try {
+      const response = await fetch(`${pythonURI}/api/timelapse/`, {
+        ...fetchOptions,
+        method: "POST",
+        body: JSON.stringify({ videos: urls }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        status.textContent = `❌ Failed: ${error.error || "Unknown error"}`;
+        return;
+      }
+
+      const blob = await response.blob();
+      const videoURL = URL.createObjectURL(blob);
+      status.innerHTML = `✅ Timelapse ready: <a href="${videoURL}" target="_blank">Click to view</a>`;
+    } catch (err) {
+      console.error("Timelapse generation failed:", err);
+      status.textContent = "❌ Timelapse generation failed due to a network or server error.";
+    }
+  });
 
   tryMainVideo();
   scanAllPastVideos();
