@@ -131,6 +131,11 @@ show_reading_time: false
                     <h3 class="text-lg font-bold text-accent">Notifications</h3>
                     <p class="text-gray-400">Get alerts when wait times change significantly or when unexpected delays occur.</p>
                 </div>
+                <div class="bg-dark p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-bold text-accent">Live Feed</h3>
+                    <p class="text-gray-400">Get the direct view of the border and make an informed decision of when to cross.</p>
+                    <a href="{{ site.baseurl }}/livefeed" class="mt-4 inline-block bg-accent text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600">View Live Feed</a>
+                </div>
             </div>
         </section>
 

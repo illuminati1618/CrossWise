@@ -1,12 +1,12 @@
 ---
-layout: base
+layout: tailwind
 title: Live Feed
 permalink: /livefeed
 ---
 
 <header class="heading">
-  <h1 class="text-4xl font-bold text-center">🚦 Live Feed</h1>
-  <p class="text-lg text-center text-gray-700">San Ysidro border crossing camera — see the latest traffic conditions below.</p>
+  <h1 class="text-4xl font-bold text-center text-accent">🚦 Live Feed</h1>
+  <p class="text-lg text-center text-gray-400">San Ysidro border crossing camera — see the latest traffic conditions below.</p>
 </header>
 
 <style>
@@ -18,35 +18,37 @@ permalink: /livefeed
   }
 
   .card {
-    background: linear-gradient(to right, #1eb7a6, #329bd6);
+    background-color: var(--color-darker);
+    border: 1px solid #3c4c60;
     border-radius: 1rem;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     padding: 2rem;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
   }
 
   .card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
   }
 
   video {
     width: 100%;
     height: auto;
-    border: 4px solid #0e7490;
+    border: 2px solid var(--color-accent);
     border-radius: 12px;
   }
 
   #current-time {
     font-size: 1.25rem;
     margin-bottom: 1rem;
-    color: #083344;
+    color: var(--color-accent);
     font-weight: bold;
   }
 
   .btn-timelapse {
     display: block;
     margin: 2rem auto 0;
-    background-color: #0e7490;
+    background-color: var(--color-accent);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -57,14 +59,14 @@ permalink: /livefeed
   }
 
   .btn-timelapse:hover {
-    background-color: #0c4a6e;
+    background-color: #2a6db0;
   }
 
   .status {
     text-align: center;
     font-weight: bold;
     margin-top: 1rem;
-    color: #065f46;
+    color: var(--color-success);
   }
 
   table {
@@ -75,19 +77,19 @@ permalink: /livefeed
 
   th, td {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #3c4c60;
     text-align: left;
   }
 
   th {
-    background-color: #0e7490;
-    color: white;
+    background-color: var(--color-dark);
+    color: var(--color-accent);
     position: sticky;
     top: 0;
   }
 
   tr:hover {
-    background-color: #e0f2fe;
+    background-color: #2a2e38;
   }
 </style>
 
@@ -102,7 +104,7 @@ permalink: /livefeed
   </div>
 
   <div class="card">
-    <h2 class="text-xl font-semibold">🕒 Previous Working Videos</h2>
+    <h2 class="text-xl font-semibold text-accent">🕒 Previous Working Videos</h2>
     <table id="historyTable">
       <thead>
         <tr>
