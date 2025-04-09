@@ -1,143 +1,51 @@
 ---
-layout: base
+layout: tailwind
 title: Titanic
 permalink: /titanic
 menu: nav/ml.html
 ---
 
-<style>
-  @import url("https://fonts.googleapis.com/css2?family=Orbitron&display=swap");
+<div class="max-w-3xl mx-auto mt-10 bg-dark p-6 rounded-lg shadow-lg text-gray-200">
+  <h1 class="text-3xl font-bold text-accent mb-6 text-center">Titanic Survival Predictor</h1>
+  <form id="titanicForm" class="space-y-4">
+    <label for="pclass" class="block text-sm font-medium text-gray-300">Passenger Class (1-3):</label>
+    <input type="number" id="pclass" min="1" max="3" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent" />
 
-  body {
-    font-family: "Orbitron", sans-serif;
-    background: url("https://source.unsplash.com/1920x1080/?ocean,ship")
-      no-repeat center center fixed;
-    background-size: cover;
-    color: #00ffff;
-    text-align: center;
-    overflow-y: auto;
-  }
-
-  .container {
-    margin-top: 50px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 30px;
-    border-radius: 15px;
-    width: 60%;
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: 0px 0px 20px #00ffff;
-    animation: fadeIn 2s ease-in-out;
-  }
-
-  label,
-  input,
-  select {
-    display: block;
-    margin: 15px auto;
-    font-size: 18px;
-    color: #00ffcc;
-  }
-
-  input,
-  select {
-    background: black;
-    color: #00ffff;
-    border: 2px solid #00ffff;
-    padding: 8px;
-    border-radius: 5px;
-    text-align: center;
-  }
-
-  button {
-    background: linear-gradient(45deg, #ff00ff, #00ffff);
-    color: black;
-    font-size: 20px;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0px 0px 10px #00ffff;
-  }
-
-  button:hover {
-    background: linear-gradient(45deg, #ff0000, #00ff00);
-    box-shadow: 0px 0px 20px #ff0000;
-  }
-
-  @keyframes fadeIn {
-    0% {
-      opacity: 0;
-      transform: translateY(-30px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .result {
-    display: none;
-    margin-top: 20px;
-    font-size: 24px;
-    padding: 20px;
-    border-radius: 10px;
-    text-shadow: 0px 0px 10px #fff;
-  }
-
-  .survived {
-    color: #0f0;
-    text-shadow: 0px 0px 15px #0f0;
-  }
-
-  .drowned {
-    color: #f00;
-    text-shadow: 0px 0px 15px #f00;
-  }
-</style>
-
-<div class="container">
-  <h1>Titanic Survival Predictor</h1>
-  <form id="titanicForm">
-    <label for="pclass">Passenger Class (1-3):</label>
-    <input type="number" id="pclass" min="1" max="3" required />
-
-    <label for="sex">Sex:</label>
-    <select id="sex">
+    <label for="sex" class="block text-sm font-medium text-gray-300">Sex:</label>
+    <select id="sex" style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent">
       <option value="male">Male</option>
       <option value="female">Female</option>
     </select>
 
-    <label for="age">Age:</label>
-    <input type="number" id="age" min="0" required />
+    <label for="age" class="block text-sm font-medium text-gray-300">Age:</label>
+    <input type="number" id="age" min="0" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent" />
 
-    <label for="sibsp">Siblings/Spouses aboard:</label>
-    <input type="number" id="sibsp" min="0" required />
+    <label for="sibsp" class="block text-sm font-medium text-gray-300">Siblings/Spouses aboard:</label>
+    <input type="number" id="sibsp" min="0" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent" />
 
-    <label for="parch">Parents/Children aboard:</label>
-    <input type="number" id="parch" min="0" required />
+    <label for="parch" class="block text-sm font-medium text-gray-300">Parents/Children aboard:</label>
+    <input type="number" id="parch" min="0" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent" />
 
-    <label for="fare">Fare:</label>
-    <input type="number" id="fare" min="0" step="0.01" required />
+    <label for="fare" class="block text-sm font-medium text-gray-300">Fare:</label>
+    <input type="number" id="fare" min="0" step="0.01" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent" />
 
-    <label for="embarked">Embark Port:</label>
-    <select id="embarked">
+    <label for="embarked" class="block text-sm font-medium text-gray-300">Embark Port:</label>
+    <select id="embarked" style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent">
       <option value="C">Cherbourg</option>
       <option value="Q">Queenstown</option>
       <option value="S">Southampton</option>
     </select>
 
-    <label for="alone">Alone?</label>
-    <select id="alone">
+    <label for="alone" class="block text-sm font-medium text-gray-300">Alone?</label>
+    <select id="alone" style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent">
       <option value="true">Yes</option>
       <option value="false">No</option>
     </select>
 
-    <button type="button" id="predictBtn">Check Survival</button>
+    <button type="button" id="predictBtn" class="w-full py-2 px-4 bg-accent text-white rounded-md hover:bg-blue-600">Check Survival</button>
   </form>
 
-  <div id="result" class="result"></div>
+  <div id="result" class="mt-6 text-center text-lg font-semibold text-gray-200"></div>
 </div>
 
 <script type="module">

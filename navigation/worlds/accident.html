@@ -1,133 +1,41 @@
 ---
-layout: base
+layout: tailwind
 title: Road Accident Survival Rates
 permalink: /accident
 menu: nav/ml.html
 ---
 
-<style>
-  @import url("https://fonts.googleapis.com/css2?family=Orbitron&display=swap");
+<div class="max-w-3xl mx-auto mt-10 bg-dark p-6 rounded-lg shadow-lg text-gray-200">
+  <h1 class="text-3xl font-bold text-accent mb-6 text-center">Road Accident Survival Predictor</h1>
+  <form id="accidentForm" class="space-y-4">
+    <label for="age" class="block text-sm font-medium text-gray-300">Age:</label>
+    <input id="age" type="number" min="0" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent" />
 
-  body {
-    font-family: "Orbitron", sans-serif;
-    background: url("https://source.unsplash.com/1920x1080/?car,road,accident")
-      no-repeat center center fixed;
-    background-size: cover;
-    color: #00ffff;
-    text-align: center;
-    overflow-y: auto;
-  }
-
-  .container {
-    margin-top: 50px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 30px;
-    border-radius: 15px;
-    width: 60%;
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: 0px 0px 20px #00ffff;
-    animation: fadeIn 2s ease-in-out;
-  }
-
-  label,
-  input,
-  select {
-    display: block;
-    margin: 15px auto;
-    font-size: 18px;
-    color: #00ffcc;
-  }
-
-  input,
-  select {
-    background: black;
-    color: #00ffff;
-    border: 2px solid #00ffff;
-    padding: 8px;
-    border-radius: 5px;
-    text-align: center;
-  }
-
-  button {
-    background: linear-gradient(45deg, #ff00ff, #00ffff);
-    color: black;
-    font-size: 20px;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0px 0px 10px #00ffff;
-  }
-
-  button:hover {
-    background: linear-gradient(45deg, #ff0000, #00ff00);
-    box-shadow: 0px 0px 20px #ff0000;
-  }
-
-  @keyframes fadeIn {
-    0% {
-      opacity: 0;
-      transform: translateY(-30px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .result {
-    display: none;
-    margin-top: 20px;
-    font-size: 24px;
-    padding: 20px;
-    border-radius: 10px;
-    text-shadow: 0px 0px 10px #fff;
-  }
-
-  .survived {
-    color: #0f0;
-    text-shadow: 0px 0px 15px #0f0;
-  }
-
-  .died {
-    color: #f00;
-    text-shadow: 0px 0px 15px #f00;
-  }
-</style>
-
-<div class="container">
-  <h1>Road Accident Survival Predictor</h1>
-  <form id="accidentForm">
-    <label for="age">Age:</label>
-    <input id="age" type="number" min="0" required />
-
-    <label for="gender">Gender:</label>
-    <select id="gender" required>
+    <label for="gender" class="block text-sm font-medium text-gray-300">Gender:</label>
+    <select id="gender" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent">
       <option value="male">Male</option>
       <option value="female">Female</option>
     </select>
 
-    <label for="speed">Speed of Impact (km/h):</label>
-    <input id="speed" type="number" min="0" required />
+    <label for="speed" class="block text-sm font-medium text-gray-300">Speed of Impact (km/h):</label>
+    <input id="speed" type="number" min="0" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent" />
 
-    <label for="helmet">Helmet Used:</label>
-    <select id="helmet" required>
+    <label for="helmet" class="block text-sm font-medium text-gray-300">Helmet Used:</label>
+    <select id="helmet" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent">
       <option value="yes">Yes</option>
       <option value="no">No</option>
     </select>
 
-    <label for="seatbelt">Seatbelt Used:</label>
-    <select id="seatbelt" required>
+    <label for="seatbelt" class="block text-sm font-medium text-gray-300">Seatbelt Used:</label>
+    <select id="seatbelt" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent">
       <option value="yes">Yes</option>
       <option value="no">No</option>
     </select>
 
-    <button type="button" id="predictBtn">Check Survival</button>
+    <button type="button" id="predictBtn" class="w-full py-2 px-4 bg-accent text-white rounded-md hover:bg-blue-600">Check Survival</button>
   </form>
 
-  <div id="result" class="result"></div>
+  <div id="result" class="mt-6 text-center text-lg font-semibold"></div>
 </div>
 
 <script type="module">

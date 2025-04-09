@@ -1,5 +1,5 @@
 ---
-layout: posts 
+layout: tailwind 
 title: Directions 
 search_exclude: true
 permalink: /directions/
@@ -10,44 +10,44 @@ menu: nav/directions.html
 
 Find the best driving route from San Diego to Tijuana with clean directions and border wait times — styled just like the rest of your app.
 
-<div style="width: 100%; margin-top: 20px;">
+<div class="w-full mt-6">
   <!-- Full-width Map -->
-  <div id="map" style="width: 100%; height: 500px; border-radius: 12px; margin-bottom: 30px;"></div>
+  <div id="map" class="w-full h-96 rounded-lg mb-8 border-2 border-gray-700 shadow-lg"></div>
 
   <!-- Flex container for directions + border wait -->
-  <div style="display: flex; flex-wrap: wrap; gap: 24px;">
+  <div class="flex flex-wrap gap-6">
 
     <!-- Directions Panel -->
-    <div style="flex: 2; min-width: 300px;">
-      <form id="route-form" style="margin-bottom: 20px;">
-        <label><strong>Start (U.S. Side):</strong></label><br />
-        <input id="start" type="text" placeholder="e.g. San Ysidro Transit Center" style="width: 100%; padding: 10px; background: #1a2736; color: white; border: 1px solid #3c4c60; border-radius: 6px;" /><br /><br />
+    <div class="flex-2 min-w-[300px]">
+      <form id="route-form" class="mb-6">
+        <label class="block text-sm font-medium text-gray-200 mb-2">Start (U.S. Side):</label>
+        <input id="start" type="text" placeholder="e.g. San Ysidro Transit Center" style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent mb-4" />
 
-        <label><strong>Destination (Tijuana Side):</strong></label><br />
-        <input id="end" type="text" placeholder="e.g. Hotel Lucerna Tijuana" style="width: 100%; padding: 10px; background: #1a2736; color: white; border: 1px solid #3c4c60; border-radius: 6px;" /><br /><br />
+        <label class="block text-sm font-medium text-gray-200 mb-2">Destination (Tijuana Side):</label>
+        <input id="end" type="text" placeholder="e.g. Hotel Lucerna Tijuana" style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent mb-4" />
 
-        <button type="submit" style="padding: 10px 20px; background: #4f89e3; color: white; border: none; border-radius: 6px;">Get Directions</button>
+        <button type="submit" class="w-full py-2 px-4 bg-accent text-white rounded-md hover:bg-blue-600">Get Directions</button>
       </form>
 
-      <div id="directions-panel" style="background-color: #1a2736; border-radius: 12px; padding: 15px; color: #e2e8f0; font-size: 14px; line-height: 1.6; max-height: 450px; overflow-y: auto;"></div>
+      <div id="directions-panel" class="bg-dark rounded-lg p-4 text-gray-200 text-sm leading-relaxed max-h-96 overflow-y-auto"></div>
     </div>
 
     <!-- Border Wait Time Panel -->
-    <div style="flex: 1; min-width: 260px; background: #243248; padding: 20px; border-radius: 12px; color: white;">
-      <h3 style="margin-top: 0; color: #77c4fe;">Current Border Wait</h3>
+    <div class="flex-1 min-w-[260px] bg-dark p-6 rounded-lg text-gray-200">
+      <h3 class="text-lg font-semibold text-accent mb-4">Current Border Wait</h3>
 
-      <div style="background: #1f2937; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-        <strong style="color: #77c4fe;">San Ysidro</strong><br />
-        🚗 Standard: <span style="color: orange;">45 min</span><br />
-        🛂 SENTRI: <span style="color: #41ff9b;">10 min</span><br />
-        🚶 Pedestrian: <span style="color: orange;">35 min</span><br />
+      <div class="bg-darker rounded-md p-4 mb-4">
+        <strong class="text-accent">San Ysidro</strong><br />
+        🚗 Standard: <span class="text-warning">45 min</span><br />
+        🛂 SENTRI: <span class="text-success">10 min</span><br />
+        🚶 Pedestrian: <span class="text-warning">35 min</span><br />
       </div>
 
-      <div style="background: #1f2937; border-radius: 8px; padding: 12px;">
-        <strong style="color: #77c4fe;">Otay Mesa</strong><br />
-        🚗 Standard: <span style="color: red;">75 min</span><br />
-        🛂 SENTRI: <span style="color: #41ff9b;">15 min</span><br />
-        🚶 Pedestrian: <span style="color: orange;">30 min</span><br />
+      <div class="bg-darker rounded-md p-4">
+        <strong class="text-accent">Otay Mesa</strong><br />
+        🚗 Standard: <span class="text-red-500">75 min</span><br />
+        🛂 SENTRI: <span class="text-success">15 min</span><br />
+        🚶 Pedestrian: <span class="text-warning">30 min</span><br />
       </div>
     </div>
   </div>
@@ -96,9 +96,8 @@ Find the best driving route from San Diego to Tijuana with clean directions and 
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9AQtE_WlHC0RvWvZ8BoP2ypr3EByvRDs&callback=initMap"></script>
 
 <style>
-  /* Page Background + Typography */
+  /* Removed custom gradient background */
   body {
-    background: linear-gradient(180deg, #1f2a38 0%, #141c26 100%);
     color: #f0f4f8;
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
@@ -112,7 +111,7 @@ Find the best driving route from San Diego to Tijuana with clean directions and 
 
   /* Form Inputs */
   input[type="text"] {
-    background-color: #1a2736;
+    background-color: #1E1E1E;
     color: white;
     border: 1px solid #3c4c60;
     border-radius: 6px;

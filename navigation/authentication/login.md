@@ -1,75 +1,74 @@
 ---
-layout: login 
+layout: tailwind 
 title: Login
 permalink: /login
 search_exclude: true
 show_reading_time: false 
 ---
-
-<div class="login-container">
+<div class="flex flex-col md:flex-row justify-center items-center min-h-screen bg-darker text-gray-200">
     <!-- Python Login Form -->
-    <div class="login-card">
-        <h1 id="pythonTitle">User Login (Python/Flask)</h1>
-        <form id="pythonForm" onsubmit="pythonLogin(); return false;">
-            <p>
-                <label>
+    <div class="bg-dark p-8 rounded-lg shadow-lg m-6 w-full md:w-1/2">
+        <h1 id="pythonTitle" class="text-2xl font-bold text-accent mb-6">User Login (Python/Flask)</h1>
+        <form id="pythonForm" onsubmit="pythonLogin(); return false;" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium">
                     GitHub ID:
-                    <input type="text" name="uid" id="uid" required>
+                    <input type="text" name="uid" id="uid" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
                 </label>
-            </p>
-            <p>
-                <label>
+            </div>
+            <div>
+                <label class="block text-sm font-medium">
                     Password:
-                    <input type="password" name="password" id="password" required>
+                    <input type="password" name="password" id="password" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
                 </label>
-            </p>
-            <p>
-                <button type="submit">Login</button>
-            </p>
-            <p id="message" style="color: red;"></p>
+            </div>
+            <div>
+                <button type="submit" class="w-full bg-accent text-white py-3 px-4 rounded-md hover:bg-blue-600">Login</button>
+            </div>
+            <p id="message" class="text-sm text-red-500"></p>
         </form>
 
         <!-- Facial Recognition Login Button -->
-        <p style="text-align: center; margin-top: 10px;">
-            <button onclick="recognizeFace()" style="background-color: #4f89e3; color: white; padding: 8px 16px; border-radius: 6px;">
+        <div class="text-center mt-6">
+            <button onclick="recognizeFace()" class="bg-blue-500 text-white py-3 px-6 rounded-md hover:bg-blue-600">
                 Login with Face
             </button>
-        </p>
-        <p id="faceLoginMessage" style="text-align: center; color: green;"></p>
+        </div>
+        <p id="faceLoginMessage" class="text-sm text-green-500 text-center mt-4"></p>
     </div>
 
     <!-- Signup Form -->
-    <div class="signup-card">
-        <h1 id="signupTitle">Sign Up</h1>
-        <form id="signupForm" onsubmit="signup(); return false;">
-            <p>
-                <label>
+    <div class="bg-dark p-8 rounded-lg shadow-lg m-6 w-full md:w-1/2">
+        <h1 id="signupTitle" class="text-2xl font-bold text-accent mb-6">Sign Up</h1>
+        <form id="signupForm" onsubmit="signup(); return false;" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium">
                     Name:
-                    <input type="text" name="name" id="name" required>
+                    <input type="text" name="name" id="name" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
                 </label>
-            </p>
-            <p>
-                <label>
+            </div>
+            <div>
+                <label class="block text-sm font-medium">
                     GitHub ID:
-                    <input type="text" name="signupUid" id="signupUid" required>
+                    <input type="text" name="signupUid" id="signupUid" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
                 </label>
-            </p>
-            <p>
-                <label>
+            </div>
+            <div>
+                <label class="block text-sm font-medium">
                     Password:
-                    <input type="password" name="signupPassword" id="signupPassword" required>
+                    <input type="password" name="signupPassword" id="signupPassword" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
                 </label>
-            </p>
-            <p>
-                <label>
+            </div>
+            <div>
+                <label class="block text-sm font-medium">
                     Interests:
-                    <input type="text" name="interests" id="interests" placeholder="e.g., Soccer, Pool, Computer Science" required>
+                    <input type="text" name="interests" id="interests" placeholder="e.g., Soccer, Pool, Computer Science" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
                 </label>
-            </p>
-            <p>
-                <button type="submit">Sign Up</button>
-            </p>
-            <p id="signupMessage" style="color: green;"></p>
+            </div>
+            <div>
+                <button type="submit" class="w-full bg-accent text-white py-3 px-4 rounded-md hover:bg-blue-600">Sign Up</button>
+            </div>
+            <p id="signupMessage" class="text-sm text-green-500"></p>
         </form>
     </div>
 </div>

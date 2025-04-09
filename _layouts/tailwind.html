@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: 'en' }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ page.title | escape }}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              dark: "var(--color-dark)",
+              darker: "var(--color-darker)",
+              accent: "var(--color-accent)",
+              success: "var(--color-success)",
+              warning: "var(--color-warning)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Custom Styles -->
+    <style>
+      :root {
+        --color-dark: #121212;
+        --color-darker: #1E1E1E;
+        --color-accent: #4285F4;
+        --color-success: #34A853;
+        --color-warning: #FBBC05;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--color-darker); /* Restore intended background color */
+        color: #f0f4f8; /* Ensure text color is light for readability */
+        text-shadow: none; /* Remove text-shadow globally */
+      }
+
+      h1, h2, h3, p, label, input, select, button, option {
+        text-shadow: none !important; /* Explicitly remove text-shadow */
+        background: transparent; /* Ensure no unwanted background highlights */
+        color: inherit; /* Ensure text color matches the theme */
+      }
+
+      select, option {
+        background-color: var(--color-darker); /* Apply grey background to dropdowns */
+        color: #f0f4f8; /* Ensure text is readable */
+        border: 1px solid #3c4c60; /* Add subtle border */
+      }
+
+      ::selection {
+        background: var(--color-accent); /* Customize text selection background */
+        color: white; /* Customize text selection text color */
+      }
+    </style>
+  </head>
+  <body class="bg-darker text-gray-200">
+    <!-- Header -->
+    <header class="bg-dark shadow-md py-6">
+      <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-accent">CrossWise</h1>
+        <nav class="space-x-6">
+          <a href="{{ site.baseurl }}/" class="text-gray-200 hover:text-accent">Home</a>
+          <a href="{{ site.baseurl }}/ml/" class="text-gray-200 hover:text-accent">Machine Learning</a>
+          <a href="{{ site.baseurl }}/search" class="text-gray-200 hover:text-accent">Search</a>
+          <a href="{{ site.baseurl }}/directions" class="text-gray-200 hover:text-accent">Directions</a>
+          <a href="{{ site.baseurl }}/login" class="text-gray-200 hover:text-accent">Login</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-10 space-y-12">
+      {{ content }}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark border-t border-gray-700 py-6 mt-12">
+      <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-400">
+        © {{ site.time | date: "%Y" }} CrossWise — All rights reserved.
+      </div>
+    </footer>
+  </body>
+</html>

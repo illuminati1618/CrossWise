@@ -1,127 +1,35 @@
 ---
-layout: base
+layout: tailwind
 title: Estonia
 permalink: /estonia
 menu: nav/ml.html
 ---
 
-<style>
-  @import url("https://fonts.googleapis.com/css2?family=Orbitron&display=swap");
-
-  body {
-    font-family: "Orbitron", sans-serif;
-    background: url("https://source.unsplash.com/1920x1080/?sea,shipwreck")
-      no-repeat center center fixed;
-    background-size: cover;
-    color: #00ffff;
-    text-align: center;
-    overflow-y: auto;
-  }
-
-  .container {
-    margin-top: 50px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 30px;
-    border-radius: 15px;
-    width: 60%;
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: 0px 0px 20px #00ffff;
-    animation: fadeIn 2s ease-in-out;
-  }
-
-  label,
-  input,
-  select {
-    display: block;
-    margin: 15px auto;
-    font-size: 18px;
-    color: #00ffcc;
-  }
-
-  input,
-  select {
-    background: black;
-    color: #00ffff;
-    border: 2px solid #00ffff;
-    padding: 8px;
-    border-radius: 5px;
-    text-align: center;
-  }
-
-  button {
-    background: linear-gradient(45deg, #ff00ff, #00ffff);
-    color: black;
-    font-size: 20px;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0px 0px 10px #00ffff;
-  }
-
-  button:hover {
-    background: linear-gradient(45deg, #ff0000, #00ff00);
-    box-shadow: 0px 0px 20px #ff0000;
-  }
-
-  @keyframes fadeIn {
-    0% {
-      opacity: 0;
-      transform: translateY(-30px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .result {
-    display: none;
-    margin-top: 20px;
-    font-size: 24px;
-    padding: 20px;
-    border-radius: 10px;
-    text-shadow: 0px 0px 10px #fff;
-  }
-
-  .survived {
-    color: #0f0;
-    text-shadow: 0px 0px 15px #0f0;
-  }
-
-  .drowned {
-    color: #f00;
-    text-shadow: 0px 0px 15px #f00;
-  }
-</style>
-
-<div class="container">
-  <h1>Estonia Survival Predictor</h1>
-  <form id="estoniaForm">
-    <label for="sex">Sex:</label>
-    <select id="sex">
+<div class="max-w-3xl mx-auto mt-10 bg-dark p-6 rounded-lg shadow-lg text-gray-200">
+  <h1 class="text-3xl font-bold text-accent mb-6 text-center">Estonia Survival Predictor</h1>
+  <form id="estoniaForm" class="space-y-4">
+    <label for="sex" class="block text-sm font-medium text-gray-300">Sex:</label>
+    <select id="sex" class="w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-gray-200">
       <option value="male">Male</option>
       <option value="female">Female</option>
     </select>
 
-    <label for="age">Age:</label>
-    <input type="number" id="age" min="0" required />
+    <label for="age" class="block text-sm font-medium text-gray-300">Age:</label>
+    <input type="number" id="age" min="0" required class="w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-gray-200" />
 
-    <label for="category">Category:</label>
-    <select id="category">
+    <label for="category" class="block text-sm font-medium text-gray-300">Category:</label>
+    <select id="category" class="w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-gray-200">
       <option value="P">Passenger</option>
       <option value="C">Crew</option>
     </select>
 
-    <label for="country">Country:</label>
-    <input type="text" id="country" required />
+    <label for="country" class="block text-sm font-medium text-gray-300">Country:</label>
+    <input type="text" id="country" required class="w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-gray-200" />
 
-    <button type="button" id="predictBtn">Check Survival</button>
+    <button type="button" id="predictBtn" class="w-full py-2 px-4 bg-accent text-white rounded-md hover:bg-blue-600">Check Survival</button>
   </form>
 
-  <div id="result" class="result"></div>
+  <div id="result" class="mt-6 text-center text-lg font-semibold"></div>
 </div>
 
 <script type="module">
