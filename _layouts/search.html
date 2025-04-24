@@ -1,27 +1,50 @@
 ---
-layout: tailwind 
+layout: tailwind
 ---
+
 <div class="home">
+  <script
+    type="text/javascript"
+    src="{{ '/assets/js/search.js' | relative_url }}"
+  ></script>
+  <script
+    type="text/javascript"
+    src="{{ '/assets/js/vendor/lunr.min.js' | relative_url }}"
+  ></script>
+  <script
+    id="search-config"
+    data-baseurl="{{ site.baseurl | default: '' }}"
+  ></script>
 
-<script type="text/javascript" src="{{ '/assets/js/search.js' | relative_url }}"></script>
-<script type="text/javascript" src="{{ '/assets/js/vendor/lunr.min.js' | relative_url }}"></script>
-<script id="search-config" data-baseurl="{{ site.baseurl | default: '' }}"></script>
-
-<div class="search max-w-3xl mx-auto mt-10">
+  <div class="search max-w-3xl mx-auto mt-10">
     <div class="search-input-wrap relative">
-        <input type="text" 
-               class="js-search-input search-input block w-full p-4 pl-10 bg-darker border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent" 
-               tabindex="0" 
-               placeholder="Search {{ site.title }}" 
-               aria-label="Search {{ site.title }}" 
-               autocomplete="off">
-        <svg class="absolute left-3 top-3 h-6 w-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z" />
-        </svg>
+      <input
+        type="text"
+        class="js-search-input search-input block w-full p-4 pl-10 bg-darker border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+        tabindex="0"
+        placeholder="Search {{ site.title }}"
+        aria-label="Search {{ site.title }}"
+        autocomplete="off"
+      />
+      <svg
+        class="absolute left-3 top-3 h-6 w-6 text-gray-500"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"
+        />
+      </svg>
     </div>
-    <div class="js-search-results search-results-wrap mt-4 bg-dark border border-gray-700 rounded-lg p-4 text-gray-200"></div>
-</div>
+    <div
+      class="js-search-results search-results-wrap mt-4 bg-dark border border-gray-700 rounded-lg p-4 text-gray-200"
+    ></div>
+  </div>
 
-{%- include post_category_blocks.html -%}
-
+  {%- include post_category_blocks.html -%}
 </div>

@@ -6,7 +6,9 @@ permalink: /livefeed
 
 <header class="heading">
   <h1 class="text-4xl font-bold text-center text-accent">🚦 Live Feed</h1>
-  <p class="text-lg text-center text-gray-400">San Ysidro border crossing camera — see the latest traffic conditions below.</p>
+  <p class="text-lg text-center text-gray-400">
+    San Ysidro border crossing camera — see the latest traffic conditions below.
+  </p>
 </header>
 
 <style>
@@ -23,7 +25,9 @@ permalink: /livefeed
     border-radius: 1rem;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     padding: 2rem;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
   }
 
   .card:hover {
@@ -75,7 +79,8 @@ permalink: /livefeed
     margin-top: 1rem;
   }
 
-  th, td {
+  th,
+  td {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid #3c4c60;
     text-align: left;
@@ -104,7 +109,9 @@ permalink: /livefeed
   </div>
 
   <div class="card">
-    <h2 class="text-xl font-semibold text-accent">🕒 Previous Working Videos</h2>
+    <h2 class="text-xl font-semibold text-accent">
+      🕒 Previous Working Videos
+    </h2>
     <table id="historyTable">
       <thead>
         <tr>
@@ -119,15 +126,19 @@ permalink: /livefeed
 </div>
 
 <script type="module">
-  import { pythonURI, fetchOptions } from "{{ site.baseurl }}/assets/js/api/config.js";
+  import {
+    pythonURI,
+    fetchOptions,
+  } from "{{ site.baseurl }}/assets/js/api/config.js";
 
   const video = document.getElementById("borderVideo");
   const historyTable = document.querySelector("#historyTable tbody");
   const currentDisplay = document.getElementById("current-time");
 
   const now = new Date();
-  const pad = (n) => n.toString().padStart(2, '0');
-  const baseURL = "https://www.bordertraffic.com/videoclips/free_california-baja_sanysidro-tijuana_passengerlines_0_255_";
+  const pad = (n) => n.toString().padStart(2, "0");
+  const baseURL =
+    "https://www.bordertraffic.com/videoclips/free_california-baja_sanysidro-tijuana_passengerlines_0_255_";
 
   const year = now.getFullYear();
   const month = pad(now.getMonth() + 1);
@@ -150,7 +161,8 @@ permalink: /livefeed
 
   function tryMainVideo(index = 0) {
     if (index >= attempts.length) {
-      currentDisplay.textContent = "No working videos found in the past 300 minutes.";
+      currentDisplay.textContent =
+        "No working videos found in the past 300 minutes.";
       return;
     }
 
@@ -164,27 +176,29 @@ permalink: /livefeed
   }
 
   function addToTable(url, timeLabel, timeCode, highlight = false) {
-    if (successfulVideos.find(v => v.timeCode === timeCode)) return;
+    if (successfulVideos.find((v) => v.timeCode === timeCode)) return;
     successfulVideos.push({ url, timeLabel, timeCode });
 
     historyTable.innerHTML = "";
-    const sorted = successfulVideos.sort((a, b) => a.timeCode.localeCompare(b.timeCode));
+    const sorted = successfulVideos.sort((a, b) =>
+      a.timeCode.localeCompare(b.timeCode),
+    );
 
     sorted.forEach(({ url, timeLabel, timeCode }) => {
-        const row = document.createElement("tr");
-        const cell = document.createElement("td");
-        const link = document.createElement("a");
-        link.href = "#";
-        link.textContent = `${timeLabel} (${timeCode})`;
-        link.onclick = (e) => {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      const link = document.createElement("a");
+      link.href = "#";
+      link.textContent = `${timeLabel} (${timeCode})`;
+      link.onclick = (e) => {
         e.preventDefault();
         video.src = url;
         currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${timeLabel}`;
-        };
+      };
 
-        cell.appendChild(link);
-        row.appendChild(cell);
-        historyTable.appendChild(row);
+      cell.appendChild(link);
+      row.appendChild(cell);
+      historyTable.appendChild(row);
     });
   }
 
@@ -199,38 +213,41 @@ permalink: /livefeed
     });
   }
 
-  document.getElementById("generateTimelapseBtn").addEventListener("click", async () => {
-    const status = document.getElementById("timelapseStatus");
-    status.textContent = "⏳ Generating timelapse... please wait";
+  document
+    .getElementById("generateTimelapseBtn")
+    .addEventListener("click", async () => {
+      const status = document.getElementById("timelapseStatus");
+      status.textContent = "⏳ Generating timelapse... please wait";
 
-    const urls = successfulVideos.map(v => v.url);
+      const urls = successfulVideos.map((v) => v.url);
 
-    if (urls.length === 0) {
-      status.textContent = "⚠️ No videos available to generate timelapse.";
-      return;
-    }
-
-    try {
-      const response = await fetch(`${pythonURI}/api/timelapse/`, {
-        ...fetchOptions,
-        method: "POST",
-        body: JSON.stringify({ videos: urls }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        status.textContent = `❌ Failed: ${error.error || "Unknown error"}`;
+      if (urls.length === 0) {
+        status.textContent = "⚠️ No videos available to generate timelapse.";
         return;
       }
 
-      const blob = await response.blob();
-      const videoURL = URL.createObjectURL(blob);
-      status.innerHTML = `✅ Timelapse ready: <a href="${videoURL}" target="_blank">Click to view</a>`;
-    } catch (err) {
-      console.error("Timelapse generation failed:", err);
-      status.textContent = "❌ Timelapse generation failed due to a network or server error.";
-    }
-  });
+      try {
+        const response = await fetch(`${pythonURI}/api/timelapse/`, {
+          ...fetchOptions,
+          method: "POST",
+          body: JSON.stringify({ videos: urls }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          status.textContent = `❌ Failed: ${error.error || "Unknown error"}`;
+          return;
+        }
+
+        const blob = await response.blob();
+        const videoURL = URL.createObjectURL(blob);
+        status.innerHTML = `✅ Timelapse ready: <a href="${videoURL}" target="_blank">Click to view</a>`;
+      } catch (err) {
+        console.error("Timelapse generation failed:", err);
+        status.textContent =
+          "❌ Timelapse generation failed due to a network or server error.";
+      }
+    });
 
   tryMainVideo();
   scanAllPastVideos();

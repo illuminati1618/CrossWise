@@ -135,4 +135,3 @@ show_reading_time: false
             transform: rotate(360deg);
         }
         }
-

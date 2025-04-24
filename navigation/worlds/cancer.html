@@ -5,51 +5,90 @@ permalink: /cancer
 menu: nav/ml.html
 ---
 
-<div class="max-w-3xl mx-auto mt-10 bg-dark p-6 rounded-lg shadow-lg text-gray-200">
-  <h1 class="text-3xl font-bold text-accent mb-6 text-center">Cancer Survival Predictor</h1>
+<div
+  class="max-w-3xl mx-auto mt-10 bg-dark p-6 rounded-lg shadow-lg text-gray-200"
+>
+  <h1 class="text-3xl font-bold text-accent mb-6 text-center">
+    Cancer Survival Predictor
+  </h1>
   <form id="cancerForm" class="space-y-4">
-    <label for="age" class="block text-sm font-medium text-gray-300">Age:</label>
-    <input id="age" type="number" min="0" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent" />
+    <label for="age" class="block text-sm font-medium text-gray-300"
+      >Age:</label
+    >
+    <input
+      id="age"
+      type="number"
+      min="0"
+      required
+      style="
+        background-color: #1e1e1e;
+        color: #f0f4f8;
+        border: 1px solid #3c4c60;
+        border-radius: 6px;
+      "
+      class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent"
+    />
 
-    <label for="year" class="block text-sm font-medium text-gray-300">Year of Diagnosis:</label>
-    <input id="year" type="number" min="1900" max="2021" required style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent" />
+    <label for="year" class="block text-sm font-medium text-gray-300"
+      >Year of Diagnosis:</label
+    >
+    <input
+      id="year"
+      type="number"
+      min="1900"
+      max="2021"
+      required
+      style="
+        background-color: #1e1e1e;
+        color: #f0f4f8;
+        border: 1px solid #3c4c60;
+        border-radius: 6px;
+      "
+      class="w-full p-3 focus:outline-none focus:ring-2 focus:ring-accent"
+    />
 
-    <button type="button" id="predictBtn" class="w-full py-2 px-4 bg-accent text-white rounded-md hover:bg-blue-600">Check Survival</button>
+    <button
+      type="button"
+      id="predictBtn"
+      class="w-full py-2 px-4 bg-accent text-white rounded-md hover:bg-blue-600"
+    >
+      Check Survival
+    </button>
   </form>
 
   <div id="result" class="mt-6 text-center text-lg font-semibold"></div>
 </div>
 
 <script type="module">
-    import {
-        pythonURI,
-        fetchOptions,
-    } from "{{ site.baseurl }}/assets/js/api/config.js";
+  import {
+    pythonURI,
+    fetchOptions,
+  } from "{{ site.baseurl }}/assets/js/api/config.js";
 
-    document.getElementById("predictBtn").addEventListener("click", async () => {
-        const cancerData = {
-            age: Number(document.getElementById("age").value),
-            year: Number(document.getElementById("year").value) - 1900,
-        };
+  document.getElementById("predictBtn").addEventListener("click", async () => {
+    const cancerData = {
+      age: Number(document.getElementById("age").value),
+      year: Number(document.getElementById("year").value) - 1900,
+    };
 
-        try {
-            const response = await fetch(`${pythonURI}/api/cancer/predict`, {
-                ...fetchOptions,
-                method: "POST",
-                body: JSON.stringify(cancerData),
-            });
-            const data = await response.json();
+    try {
+      const response = await fetch(`${pythonURI}/api/cancer/predict`, {
+        ...fetchOptions,
+        method: "POST",
+        body: JSON.stringify(cancerData),
+      });
+      const data = await response.json();
 
-            const resultDiv = document.getElementById("result");
-            const survivalChance = data.survive * 100;
+      const resultDiv = document.getElementById("result");
+      const survivalChance = data.survive * 100;
 
-            resultDiv.style.display = "block";
-            resultDiv.innerHTML =
-                survivalChance > 50
-                    ? `<h2 class='survived'>You Survived (Breast Cancer)! 🎉</h2>`
-                    : `<h2 class='drowned'>You Died (of Breast Cancer)... 💀</h2>`;
-        } catch (error) {
-            console.error("Error:", error);
-        }
-    });
+      resultDiv.style.display = "block";
+      resultDiv.innerHTML =
+        survivalChance > 50
+          ? `<h2 class='survived'>You Survived (Breast Cancer)! 🎉</h2>`
+          : `<h2 class='drowned'>You Died (of Breast Cancer)... 💀</h2>`;
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  });
 </script>

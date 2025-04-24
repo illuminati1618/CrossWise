@@ -1,6 +1,6 @@
 ---
-layout: tailwind 
-title: Directions 
+layout: tailwind
+title: Directions
 search_exclude: true
 permalink: /directions/
 menu: nav/directions.html
@@ -50,6 +50,7 @@ Find the best driving route from San Diego to Tijuana with clean directions and 
         🚶 Pedestrian: <span class="text-warning">30 min</span><br />
       </div>
     </div>
+
   </div>
 </div>
 

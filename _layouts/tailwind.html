@@ -1,6 +1,7 @@
 ---
 layout: null
 ---
+
 <html lang="{{ page.lang | default: site.lang | default: 'en' }}">
   <head>
     <meta charset="UTF-8" />
@@ -26,39 +27,57 @@ layout: null
     </script>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Custom Styles -->
     <style>
       :root {
         --color-dark: #121212;
-        --color-darker: #1E1E1E;
-        --color-accent: #4285F4;
-        --color-success: #34A853;
-        --color-warning: #FBBC05;
+        --color-darker: #1e1e1e;
+        --color-accent: #4285f4;
+        --color-success: #34a853;
+        --color-warning: #fbbc05;
       }
 
       body {
-        font-family: 'Inter', sans-serif;
-        background-color: var(--color-darker); /* Restore intended background color */
+        font-family: "Inter", sans-serif;
+        background-color: var(
+          --color-darker
+        ); /* Restore intended background color */
         color: #f0f4f8; /* Ensure text color is light for readability */
         text-shadow: none; /* Remove text-shadow globally */
       }
 
-      h1, h2, h3, p, label, input, select, button, option {
+      h1,
+      h2,
+      h3,
+      p,
+      label,
+      input,
+      select,
+      button,
+      option {
         text-shadow: none !important; /* Explicitly remove text-shadow */
         background: transparent; /* Ensure no unwanted background highlights */
         color: inherit; /* Ensure text color matches the theme */
       }
 
-      select, option {
-        background-color: var(--color-darker); /* Apply grey background to dropdowns */
+      select,
+      option {
+        background-color: var(
+          --color-darker
+        ); /* Apply grey background to dropdowns */
         color: #f0f4f8; /* Ensure text is readable */
         border: 1px solid #3c4c60; /* Add subtle border */
       }
 
       ::selection {
-        background: var(--color-accent); /* Customize text selection background */
+        background: var(
+          --color-accent
+        ); /* Customize text selection background */
         color: white; /* Customize text selection text color */
       }
     </style>
@@ -69,20 +88,40 @@ layout: null
       <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
         <h1 class="text-3xl font-bold text-accent">CrossWise</h1>
         <nav class="space-x-6">
-          <a href="{{ site.baseurl }}/" class="text-gray-200 hover:text-accent">Home</a>
-          <a href="{{ site.baseurl }}/ml/" class="text-gray-200 hover:text-accent">Machine Learning</a>
-          <a href="{{ site.baseurl }}/search" class="text-gray-200 hover:text-accent">Search</a>
-          <a href="{{ site.baseurl }}/directions" class="text-gray-200 hover:text-accent">Directions</a>
-          <a href="{{ site.baseurl }}/help" class="text-gray-200 hover:text-accent">Help</a>
-          <a href="{{ site.baseurl }}/login" class="text-gray-200 hover:text-accent">Login</a>
+          <a href="{{ site.baseurl }}/" class="text-gray-200 hover:text-accent"
+            >Home</a
+          >
+          <a
+            href="{{ site.baseurl }}/ml/"
+            class="text-gray-200 hover:text-accent"
+            >Machine Learning</a
+          >
+          <a
+            href="{{ site.baseurl }}/search"
+            class="text-gray-200 hover:text-accent"
+            >Search</a
+          >
+          <a
+            href="{{ site.baseurl }}/directions"
+            class="text-gray-200 hover:text-accent"
+            >Directions</a
+          >
+          <a
+            href="{{ site.baseurl }}/help"
+            class="text-gray-200 hover:text-accent"
+            >Help</a
+          >
+          <a
+            href="{{ site.baseurl }}/login"
+            class="text-gray-200 hover:text-accent"
+            >Login</a
+          >
         </nav>
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-10 space-y-12">
-      {{ content }}
-    </main>
+    <main class="max-w-7xl mx-auto px-4 py-10 space-y-12">{{ content }}</main>
 
     <!-- Footer -->
     <footer class="bg-dark border-t border-gray-700 py-6 mt-12">

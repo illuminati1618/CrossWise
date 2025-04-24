@@ -6,7 +6,6 @@ search_exclude: true
 show_reading_time: false
 ---
 
-
 <div class="cutscene-container">
     <div class="cutscene">
         <!-- Welcome message animation -->
@@ -137,4 +136,3 @@ show_reading_time: false
             transform: rotate(360deg);
         }
         }
-

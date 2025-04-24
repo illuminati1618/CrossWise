@@ -5,10 +5,26 @@ permalink: /survival
 menu: nav/ml.html
 ---
 
-<div class="max-w-3xl mx-auto mt-10 bg-dark p-6 rounded-lg shadow-lg text-gray-200">
-  <h1 class="text-3xl font-bold text-accent mb-6 text-center">Survival Prediction</h1>
-  <label for="scenario" class="block text-sm font-medium text-gray-300">Select a Scenario:</label>
-  <select id="scenario" class="w-full p-3" style="background-color: #1E1E1E; color: #f0f4f8; border: 1px solid #3c4c60; border-radius: 6px;" class="focus:outline-none focus:ring-2 focus:ring-accent mb-4">
+<div
+  class="max-w-3xl mx-auto mt-10 bg-dark p-6 rounded-lg shadow-lg text-gray-200"
+>
+  <h1 class="text-3xl font-bold text-accent mb-6 text-center">
+    Survival Prediction
+  </h1>
+  <label for="scenario" class="block text-sm font-medium text-gray-300"
+    >Select a Scenario:</label
+  >
+  <select
+    id="scenario"
+    class="w-full p-3"
+    style="
+      background-color: #1e1e1e;
+      color: #f0f4f8;
+      border: 1px solid #3c4c60;
+      border-radius: 6px;
+    "
+    class="focus:outline-none focus:ring-2 focus:ring-accent mb-4"
+  >
     <option value="accident">Road Accident</option>
     <option value="cancer">Cancer</option>
     <option value="estonia">Estonia Crash</option>
@@ -19,8 +35,17 @@ menu: nav/ml.html
     <!-- Dynamically loaded form elements will inherit styles -->
   </div>
 
-  <button type="button" id="predictBtn" class="w-full py-2 px-4 bg-accent text-white rounded-md hover:bg-blue-600">Check Survival</button>
-  <div id="result" class="mt-6 text-center text-lg font-semibold text-gray-200"></div>
+  <button
+    type="button"
+    id="predictBtn"
+    class="w-full py-2 px-4 bg-accent text-white rounded-md hover:bg-blue-600"
+  >
+    Check Survival
+  </button>
+  <div
+    id="result"
+    class="mt-6 text-center text-lg font-semibold text-gray-200"
+  ></div>
 </div>
 
 <script type="module">

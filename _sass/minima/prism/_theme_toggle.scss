@@ -20,134 +20,144 @@ $dark-nav-text: #ffffff;
 
 // Theme switching styles
 body {
-    &[data-theme="light"] {
-        background-color: $light-background !important;
-        color: $light-text !important;
+  &[data-theme="light"] {
+    background-color: $light-background !important;
+    color: $light-text !important;
 
-        // Header specific styles
-        .site-header, header, nav {
-            background-color: $light-header-bg !important;
-            border-bottom: 1px solid $light-border !important;
-        }
-
-        // Navigation links
-        .site-nav {
-            background-color: $light-header-bg !important;
-            
-            .page-link {
-                color: $light-nav-text !important;
-                
-                &:hover {
-                    color: $light-link !important;
-                }
-            }
-        }
-
-        // Site title
-        .site-title {
-            color: $light-nav-text !important;
-            
-            &:hover {
-                text-decoration: none;
-                color: $light-link !important;
-            }
-        }
-
-        // Navigation menu
-        .menu-icon {
-            > svg path {
-                fill: $light-nav-text !important;
-            }
-        }
-
-        // Rest of your light theme styles...
-        h1, h2, h3, h4, h5, h6 {
-            color: $light-heading !important;
-        }
-
-        a {
-            color: $light-link !important;
-            
-            &:hover {
-                color: darken($light-link, 10%) !important;
-            }
-        }
-
-        .highlight {
-            background-color: $light-code-bg !important;
-        }
-
-        pre, code {
-            background-color: $light-code-bg !important;
-            color: $light-text !important;
-        }
-
-        // Add other light theme overrides as needed
+    // Header specific styles
+    .site-header,
+    header,
+    nav {
+      background-color: $light-header-bg !important;
+      border-bottom: 1px solid $light-border !important;
     }
 
-    &[data-theme="dark"] {
-        // Header specific styles for dark theme
-        .site-header, header, nav {
-            background-color: $dark-header-bg !important;
-            border-bottom: 1px solid $dark-border !important;
-        }
+    // Navigation links
+    .site-nav {
+      background-color: $light-header-bg !important;
 
-        .site-nav {
-            background-color: $dark-header-bg !important;
-            
-            .page-link {
-                color: $dark-nav-text !important;
-                
-                &:hover {
-                    color: $dark-link !important;
-                }
-            }
-        }
+      .page-link {
+        color: $light-nav-text !important;
 
-        .site-title {
-            color: $dark-nav-text !important;
-            
-            &:hover {
-                text-decoration: none;
-                color: $dark-link !important;
-            }
+        &:hover {
+          color: $light-link !important;
         }
-
-        .menu-icon {
-            > svg path {
-                fill: $dark-nav-text !important;
-            }
-        }
-        
-        // Your existing dark theme styles will apply by default
+      }
     }
+
+    // Site title
+    .site-title {
+      color: $light-nav-text !important;
+
+      &:hover {
+        text-decoration: none;
+        color: $light-link !important;
+      }
+    }
+
+    // Navigation menu
+    .menu-icon {
+      > svg path {
+        fill: $light-nav-text !important;
+      }
+    }
+
+    // Rest of your light theme styles...
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: $light-heading !important;
+    }
+
+    a {
+      color: $light-link !important;
+
+      &:hover {
+        color: darken($light-link, 10%) !important;
+      }
+    }
+
+    .highlight {
+      background-color: $light-code-bg !important;
+    }
+
+    pre,
+    code {
+      background-color: $light-code-bg !important;
+      color: $light-text !important;
+    }
+
+    // Add other light theme overrides as needed
+  }
+
+  &[data-theme="dark"] {
+    // Header specific styles for dark theme
+    .site-header,
+    header,
+    nav {
+      background-color: $dark-header-bg !important;
+      border-bottom: 1px solid $dark-border !important;
+    }
+
+    .site-nav {
+      background-color: $dark-header-bg !important;
+
+      .page-link {
+        color: $dark-nav-text !important;
+
+        &:hover {
+          color: $dark-link !important;
+        }
+      }
+    }
+
+    .site-title {
+      color: $dark-nav-text !important;
+
+      &:hover {
+        text-decoration: none;
+        color: $dark-link !important;
+      }
+    }
+
+    .menu-icon {
+      > svg path {
+        fill: $dark-nav-text !important;
+      }
+    }
+
+    // Your existing dark theme styles will apply by default
+  }
 }
 
 // Additional header-specific responsive styles
 @media screen and (max-width: 600px) {
-    body[data-theme="light"] {
-        .site-nav {
-            background-color: $light-header-bg !important;
-            border: 1px solid $light-border !important;
-            
-            .menu-icon {
-                > svg path {
-                    fill: $light-nav-text !important;
-                }
-            }
-        }
-    }
+  body[data-theme="light"] {
+    .site-nav {
+      background-color: $light-header-bg !important;
+      border: 1px solid $light-border !important;
 
-    body[data-theme="dark"] {
-        .site-nav {
-            background-color: $dark-header-bg !important;
-            border: 1px solid $dark-border !important;
-            
-            .menu-icon {
-                > svg path {
-                    fill: $dark-nav-text !important;
-                }
-            }
+      .menu-icon {
+        > svg path {
+          fill: $light-nav-text !important;
         }
+      }
     }
-} 
+  }
+
+  body[data-theme="dark"] {
+    .site-nav {
+      background-color: $dark-header-bg !important;
+      border: 1px solid $dark-border !important;
+
+      .menu-icon {
+        > svg path {
+          fill: $dark-nav-text !important;
+        }
+      }
+    }
+  }
+}
