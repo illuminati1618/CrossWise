@@ -5,6 +5,10 @@ hide: true
 show_reading_time: false
 ---
 
+<script type="module">
+    import { login, pythonURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+</script>
+
 <div class="max-w-7xl mx-auto px-4 py-10">
     <header class="mb-8">
         <h1 class="text-4xl font-bold text-accent">BorderCross</h1>
@@ -22,18 +26,18 @@ show_reading_time: false
                     <div class="mt-4 space-y-2">
                         <div class="flex justify-between">
                             <span class="text-gray-300">Standard Vehicles</span>
-                            <span class="text-yellow-400">45 min</span>
+                            <span id="standard-vehicles-wait" class="text-yellow-400">Loading...</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-300">SENTRI</span>
-                            <span class="text-green-400">10 min</span>
+                            <span id="sentri-wait" class="text-green-400">Loading...</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-300">Pedestrian</span>
-                            <span class="text-yellow-400">35 min</span>
+                            <span id="pedestrian-wait" class="text-yellow-400">Loading...</span>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-500 mt-4">Last updated: 10 minutes ago</p>
+                    <p class="text-sm text-gray-500 mt-4">Last updated: <span id="last-updated">Loading...</span></p>
                 </div>
 
                 <div class="bg-dark p-6 rounded-lg shadow-md">
@@ -42,18 +46,18 @@ show_reading_time: false
                     <div class="mt-4 space-y-2">
                         <div class="flex justify-between">
                             <span class="text-gray-300">Standard Vehicles</span>
-                            <span class="text-red-400">75 min</span>
+                            <span id="otay-standard-vehicles-wait" class="text-red-400">Loading...</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-300">SENTRI</span>
-                            <span class="text-green-400">15 min</span>
+                            <span id="otay-sentri-wait" class="text-green-400">Loading...</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-300">Pedestrian</span>
-                            <span class="text-yellow-400">30 min</span>
+                            <span id="otay-pedestrian-wait" class="text-yellow-400">Loading...</span>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-500 mt-4">Last updated: 12 minutes ago</p>
+                    <p class="text-sm text-gray-500 mt-4">Last updated: <span id="otay-last-updated">Loading...</span></p>
                 </div>
             </div>
         </section>
@@ -150,3 +154,55 @@ show_reading_time: false
         </section>
     </div>
 </div>
+
+<script type="module">
+    import { pythonURI, fetchOptions } from './assets/js/api/config.js';
+
+    // Fetch current wait times from API
+    async function fetchWaitTimes() {
+        try {
+            const response = await fetch(pythonURI + "/api/proxy/waittimes", fetchOptions);
+            const data = await response.json();
+
+            // Update San Ysidro wait times
+            const sanYsidro = data.find(port => port.port_name === 'San Ysidro' && port.border === 'Mexican Border');
+            if (sanYsidro) {
+                document.getElementById('standard-vehicles-wait').textContent =
+                    sanYsidro.passenger_vehicle_lanes.standard_lanes.delay_minutes + ' minutes';
+                document.getElementById('sentri-wait').textContent =
+                    sanYsidro.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes + ' minutes';
+                document.getElementById('pedestrian-wait').textContent =
+                    sanYsidro.pedestrian_lanes.standard_lanes.delay_minutes + ' minutes';
+                const now = new Date();
+                document.getElementById('last-updated').textContent =
+                    now.toLocaleTimeString() + ' on ' + now.toLocaleDateString();
+            }
+
+            // Update Otay Mesa wait times
+            const otayMesa = data.find(port => port.port_name === 'Otay Mesa' && port.border === 'Mexican Border');
+            if (otayMesa) {
+                document.getElementById('otay-standard-vehicles-wait').textContent =
+                    otayMesa.passenger_vehicle_lanes.standard_lanes.delay_minutes + ' minutes';
+                document.getElementById('otay-sentri-wait').textContent =
+                    otayMesa.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes + ' minutes';
+                document.getElementById('otay-pedestrian-wait').textContent =
+                    otayMesa.pedestrian_lanes.standard_lanes.delay_minutes + ' minutes';
+                const now = new Date();
+                document.getElementById('otay-last-updated').textContent =
+                    now.toLocaleTimeString() + ' on ' + now.toLocaleDateString();
+            }
+        } catch (error) {
+            console.error('Error fetching wait times:', error);
+            document.getElementById('standard-vehicles-wait').textContent = 'Unavailable';
+            document.getElementById('sentri-wait').textContent = 'Unavailable';
+            document.getElementById('pedestrian-wait').textContent = 'Unavailable';
+            document.getElementById('otay-standard-vehicles-wait').textContent = 'Unavailable';
+            document.getElementById('otay-sentri-wait').textContent = 'Unavailable';
+            document.getElementById('otay-pedestrian-wait').textContent = 'Unavailable';
+        }
+    }
+
+    // Initial fetch and periodic updates
+    fetchWaitTimes();
+    setInterval(fetchWaitTimes, 5 * 60 * 1000); // Refresh every 5 minutes
+</script>
