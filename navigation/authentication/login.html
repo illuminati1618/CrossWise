@@ -19,7 +19,7 @@ show_reading_time: false
             <div>
                 <label class="block text-sm font-medium">
                     Password:
-                    <input type="password" name="password" id="password" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
+                    <input type="password" name="password" id="password" autocomplete="current-password" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
                 </label>
             </div>
             <div>
@@ -50,13 +50,13 @@ show_reading_time: false
             <div>
                 <label class="block text-sm font-medium">
                     GitHub ID:
-                    <input type="text" name="signupUid" id="signupUid" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
+                    <input type="text" name="signupUid" id="signupUid" autocomplete="username" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
                 </label>
             </div>
             <div>
                 <label class="block text-sm font-medium">
                     Password:
-                    <input type="password" name="signupPassword" id="signupPassword" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
+                    <input type="password" name="signupPassword" id="signupPassword" autocomplete="new-password" required class="mt-1 block w-full p-3 bg-darker border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent">
                 </label>
             </div>
             <div>
@@ -183,7 +183,7 @@ show_reading_time: false
 
     // Text Sign Up
     window.signup = function() {
-        const signupButton = document.querySelector(".signup-card button");
+        const signupButton = document.querySelector("#signupForm button");
 
         signupButton.disabled = true;
         signupButton.style.backgroundColor = '#d3d3d3';
