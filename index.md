@@ -158,6 +158,35 @@ show_reading_time: false
 <script type="module">
     import { pythonURI, fetchOptions } from './assets/js/api/config.js';
 
+    // Function to set color based on wait time
+    function getWaitTimeColor(minutes) {
+        if (!minutes || isNaN(parseInt(minutes))) {
+            return 'text-gray-400'; // Default color for no data
+        }
+        
+        const waitTime = parseInt(minutes);
+        if (waitTime <= 30) {
+            return 'text-green-400'; // Green for <= 30 minutes
+        } else if (waitTime <= 89) {
+            return 'text-yellow-400'; // Yellow for 31-89 minutes
+        } else {
+            return 'text-red-400'; // Red for >= 90 minutes
+        }
+    }
+
+    // Function to update wait time element with proper coloring
+    function updateWaitTimeDisplay(elementId, minutes) {
+        const element = document.getElementById(elementId);
+        if (!minutes || minutes === '') {
+            element.textContent = 'No data';
+            element.className = 'text-gray-400';
+            return;
+        }
+        
+        element.textContent = minutes + ' minutes';
+        element.className = getWaitTimeColor(minutes);
+    }
+
     // Fetch current wait times from API
     async function fetchWaitTimes() {
         try {
@@ -167,12 +196,14 @@ show_reading_time: false
             // Update San Ysidro wait times
             const sanYsidro = data.find(port => port.port_name === 'San Ysidro' && port.border === 'Mexican Border');
             if (sanYsidro) {
-                document.getElementById('standard-vehicles-wait').textContent =
-                    sanYsidro.passenger_vehicle_lanes.standard_lanes.delay_minutes + ' minutes';
-                document.getElementById('sentri-wait').textContent =
-                    sanYsidro.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes + ' minutes';
-                document.getElementById('pedestrian-wait').textContent =
-                    sanYsidro.pedestrian_lanes.standard_lanes.delay_minutes + ' minutes';
+                const stdVehicleWait = sanYsidro.passenger_vehicle_lanes.standard_lanes.delay_minutes;
+                const sentriWait = sanYsidro.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes;
+                const pedestrianWait = sanYsidro.pedestrian_lanes.standard_lanes.delay_minutes;
+                
+                updateWaitTimeDisplay('standard-vehicles-wait', stdVehicleWait);
+                updateWaitTimeDisplay('sentri-wait', sentriWait);
+                updateWaitTimeDisplay('pedestrian-wait', pedestrianWait);
+                
                 const now = new Date();
                 document.getElementById('last-updated').textContent =
                     now.toLocaleTimeString() + ' on ' + now.toLocaleDateString();
@@ -186,27 +217,13 @@ show_reading_time: false
             );
             
             if (otayMesa) {
-                // Only display if the data fields actually have values
-                if (otayMesa.passenger_vehicle_lanes.standard_lanes.delay_minutes) {
-                    document.getElementById('otay-standard-vehicles-wait').textContent =
-                        otayMesa.passenger_vehicle_lanes.standard_lanes.delay_minutes + ' minutes';
-                } else {
-                    document.getElementById('otay-standard-vehicles-wait').textContent = 'No data';
-                }
+                const stdVehicleWait = otayMesa.passenger_vehicle_lanes.standard_lanes.delay_minutes;
+                const sentriWait = otayMesa.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes;
+                const pedestrianWait = otayMesa.pedestrian_lanes.standard_lanes.delay_minutes;
                 
-                if (otayMesa.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes) {
-                    document.getElementById('otay-sentri-wait').textContent =
-                        otayMesa.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes + ' minutes';
-                } else {
-                    document.getElementById('otay-sentri-wait').textContent = 'No data';
-                }
-                
-                if (otayMesa.pedestrian_lanes.standard_lanes.delay_minutes) {
-                    document.getElementById('otay-pedestrian-wait').textContent =
-                        otayMesa.pedestrian_lanes.standard_lanes.delay_minutes + ' minutes';
-                } else {
-                    document.getElementById('otay-pedestrian-wait').textContent = 'No data';
-                }
+                updateWaitTimeDisplay('otay-standard-vehicles-wait', stdVehicleWait);
+                updateWaitTimeDisplay('otay-sentri-wait', sentriWait);
+                updateWaitTimeDisplay('otay-pedestrian-wait', pedestrianWait);
                 
                 const now = new Date();
                 document.getElementById('otay-last-updated').textContent =
