@@ -178,15 +178,36 @@ show_reading_time: false
                     now.toLocaleTimeString() + ' on ' + now.toLocaleDateString();
             }
 
-            // Update Otay Mesa wait times
-            const otayMesa = data.find(port => port.port_name === 'Otay Mesa' && port.border === 'Mexican Border');
+            // Update Otay Mesa wait times - filter for Passenger crossing specifically
+            const otayMesa = data.find(port => 
+                port.port_name === 'Otay Mesa' && 
+                port.border === 'Mexican Border' && 
+                port.crossing_name === 'Passenger'
+            );
+            
             if (otayMesa) {
-                document.getElementById('otay-standard-vehicles-wait').textContent =
-                    otayMesa.passenger_vehicle_lanes.standard_lanes.delay_minutes + ' minutes';
-                document.getElementById('otay-sentri-wait').textContent =
-                    otayMesa.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes + ' minutes';
-                document.getElementById('otay-pedestrian-wait').textContent =
-                    otayMesa.pedestrian_lanes.standard_lanes.delay_minutes + ' minutes';
+                // Only display if the data fields actually have values
+                if (otayMesa.passenger_vehicle_lanes.standard_lanes.delay_minutes) {
+                    document.getElementById('otay-standard-vehicles-wait').textContent =
+                        otayMesa.passenger_vehicle_lanes.standard_lanes.delay_minutes + ' minutes';
+                } else {
+                    document.getElementById('otay-standard-vehicles-wait').textContent = 'No data';
+                }
+                
+                if (otayMesa.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes) {
+                    document.getElementById('otay-sentri-wait').textContent =
+                        otayMesa.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes + ' minutes';
+                } else {
+                    document.getElementById('otay-sentri-wait').textContent = 'No data';
+                }
+                
+                if (otayMesa.pedestrian_lanes.standard_lanes.delay_minutes) {
+                    document.getElementById('otay-pedestrian-wait').textContent =
+                        otayMesa.pedestrian_lanes.standard_lanes.delay_minutes + ' minutes';
+                } else {
+                    document.getElementById('otay-pedestrian-wait').textContent = 'No data';
+                }
+                
                 const now = new Date();
                 document.getElementById('otay-last-updated').textContent =
                     now.toLocaleTimeString() + ' on ' + now.toLocaleDateString();
