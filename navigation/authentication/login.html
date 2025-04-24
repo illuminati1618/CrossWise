@@ -9,7 +9,7 @@ show_reading_time: false
     <!-- Python Login Form -->
     <div class="bg-dark p-8 rounded-lg shadow-lg m-6 w-full md:w-1/2">
         <h1 id="pythonTitle" class="text-2xl font-bold text-accent mb-6">User Login (Python/Flask)</h1>
-        <form id="pythonForm" onsubmit="pythonLogin(); return false;" class="space-y-6">
+        <div id="pythonForm" class="space-y-6">
             <div>
                 <label class="block text-sm font-medium">
                     GitHub ID:
@@ -26,7 +26,7 @@ show_reading_time: false
                 <button type="submit" class="w-full bg-accent text-white py-3 px-4 rounded-md hover:bg-blue-600">Login</button>
             </div>
             <p id="message" class="text-sm text-red-500"></p>
-        </form>
+        </div>
 
         <!-- Facial Recognition Login Button -->
         <div class="text-center mt-6">
@@ -40,7 +40,7 @@ show_reading_time: false
     <!-- Signup Form -->
     <div class="bg-dark p-8 rounded-lg shadow-lg m-6 w-full md:w-1/2">
         <h1 id="signupTitle" class="text-2xl font-bold text-accent mb-6">Sign Up</h1>
-        <form id="signupForm" onsubmit="signup(); return false;" class="space-y-6">
+        <div id="signupForm"  class="space-y-6">
             <div>
                 <label class="block text-sm font-medium">
                     Name:
@@ -69,7 +69,7 @@ show_reading_time: false
                 <button type="submit" class="w-full bg-accent text-white py-3 px-4 rounded-md hover:bg-blue-600">Sign Up</button>
             </div>
             <p id="signupMessage" class="text-sm text-green-500"></p>
-        </form>
+        </div>
 
         <!-- Facial Recognition Sign Up -->
         <p style="text-align: center; margin-top: 10px;">
