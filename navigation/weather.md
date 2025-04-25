@@ -21,8 +21,13 @@ Hourly weather scores for each day in the last 7 days.
   <canvas id="weekly-chart" width="400" height="200"></canvas>
 </div>
 
+<!-- Add Chart.js Library -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
 <script type="module">
-    import {
+  //import { Chart } from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js';
+  import {
     login,
     pythonURI,
     fetchOptions,
@@ -30,7 +35,7 @@ Hourly weather scores for each day in the last 7 days.
 
   const backendURL = `${pythonURI}/api/weather-data`;
 
-  // Helper to format datetime string as ISO
+  // Helper function to format datetime string as ISO
   function formatDate(date) {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -41,18 +46,17 @@ Hourly weather scores for each day in the last 7 days.
   }
 
   async function fetchWeatherScore(datetimeStr) {
+    const body = { mode: 'datetime', datetime: datetimeStr }; // Construct the request body
+    console.log("Sending body:", body); // Debugging statement
     const response = await fetch(backendURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        mode: 'datetime',
-        datetime: datetimeStr
-      })
+      body: JSON.stringify(body),
     });
     const data = await response.json();
+    console.log("Received response:", data); // Debugging statement
     return { datetime: data.datetime, score: data.weather_score };
   }
-
 
   async function fetchMonthlyData() {
     const today = new Date();
@@ -91,32 +95,55 @@ Hourly weather scores for each day in the last 7 days.
     renderChart('weekly-chart', sorted.map(r => r.datetime), sorted.map(r => r.score), 'Hourly Weather Score', 'line');
   }
 
-  function renderChart(canvasId, labels, data, label, type) {
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    new Chart(ctx, {
-      type: type,
-      data: {
-        labels: labels,
-        datasets: [{
-          label: label,
-          data: data,
-          borderColor: type === 'line' ? 'rgba(255, 159, 64, 1)' : 'rgba(75, 192, 192, 1)',
-          backgroundColor: type === 'bar' ? 'rgba(75, 192, 192, 0.2)' : 'transparent',
-          borderWidth: 1,
-          fill: false,
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 4
-          }
-        }
-      }
-    });
+function renderChart(canvasId, labels, data, label, type) {
+  // Ensure the canvas element exists
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) {
+    console.error(`Canvas with ID "${canvasId}" not found`);
+    return;
   }
+  const ctx = canvas.getContext('2d');
+
+  // Validate labels and data arrays
+  if (!Array.isArray(labels) || !Array.isArray(data)) {
+    console.error("Labels or data are not arrays");
+    return;
+  }
+  if (labels.length !== data.length) {
+    console.error("Labels and data arrays have different lengths");
+    return;
+  }
+
+  // Check if Chart.js is loaded
+  if (typeof Chart === 'undefined') {
+    console.error("Chart.js library is not loaded");
+    return;
+  }
+
+  // Render the chart
+  new Chart(ctx, {
+    type: type,
+    data: {
+      labels: labels,
+      datasets: [{
+        label: label,
+        data: data,
+        borderColor: type === 'line' ? 'rgba(255, 159, 64, 1)' : 'rgba(75, 192, 192, 1)',
+        backgroundColor: type === 'bar' ? 'rgba(75, 192, 192, 0.2)' : 'transparent',
+        borderWidth: 1,
+      }],
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 4,
+        },
+      },
+    },
+  });
+}
 
   fetchMonthlyData();
   fetchWeeklyHourlyData();
