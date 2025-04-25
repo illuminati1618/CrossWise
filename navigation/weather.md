@@ -21,7 +21,7 @@ Hourly weather scores for each day in the last 7 days.
   <canvas id="weekly-chart" width="400" height="200"></canvas>
 </div>
 
-<script>
+<script type="module">
     import {
     login,
     pythonURI,
