@@ -108,10 +108,13 @@ show_reading_time: false
                     <option value="week">This Week</option>
                     <option value="month">This Month</option>
                 </select>
-                <button class="bg-accent text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600">Update Chart</button>
+                <button id="update-chart-btn" class="bg-accent text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600">Update Chart</button>
             </div>
-            <div class="mt-6 text-center text-gray-400">
-                <p>Wait time chart for San Ysidro crossing will appear here</p>
+            <div id="chart-container" class="mt-6">
+                <div id="loading-message" class="text-center text-gray-400">
+                    <p>Click "Update Chart" to view historical wait time data</p>
+                </div>
+                <div id="chart-display" class="mt-4 w-full overflow-x-auto" style="min-height: 600px;"></div>
             </div>
         </section>
 
@@ -244,4 +247,58 @@ show_reading_time: false
     // Initial fetch and periodic updates
     fetchWaitTimes();
     setInterval(fetchWaitTimes, 5 * 60 * 1000); // Refresh every 5 minutes
+    
+    // Set up the historical chart functionality
+    document.getElementById('update-chart-btn').addEventListener('click', async function() {
+        // Show loading message
+        const loadingMessage = document.getElementById('loading-message');
+        const chartDisplay = document.getElementById('chart-display');
+        
+        loadingMessage.textContent = 'Loading chart...';
+        chartDisplay.innerHTML = ''; // Clear previous chart
+        
+        try {
+            // Get selected values (not actually using these in the API call yet, but could be added as parameters later)
+            const selectedPort = document.getElementById('chart-port').value;
+            const selectedPeriod = document.getElementById('chart-period').value;
+            
+            // Fetch the visualization HTML from the API
+            const response = await fetch(pythonURI + '/api/visualization', fetchOptions);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch chart: ${response.status}`);
+            }
+            
+            // Get the HTML content
+            const htmlContent = await response.text();
+            
+            // Create an iframe to isolate the chart's styles and scripts
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '600px';
+            iframe.style.border = 'none';
+            
+            // Insert the iframe into the chart container
+            chartDisplay.appendChild(iframe);
+            
+            // Once the iframe is loaded, write the HTML content to it
+            iframe.onload = function() {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(htmlContent);
+                doc.close();
+                loadingMessage.textContent = '';
+            };
+            
+            // Set a source to trigger the load event
+            iframe.src = 'about:blank';
+            
+        } catch (error) {
+            console.error('Error loading chart:', error);
+            loadingMessage.textContent = 'Error loading chart. Please try again later.';
+            
+            // For debugging purposes
+            console.log('Error details:', error);
+        }
+    });
 </script>
