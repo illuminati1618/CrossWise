@@ -22,7 +22,13 @@ Hourly weather scores for each day in the last 7 days.
 </div>
 
 <script>
-  const backendURL = 'api/weather-data';
+    import {
+    login,
+    pythonURI,
+    fetchOptions,
+  } from "{{site.baseurl}}/assets/js/api/config.js";
+
+  const backendURL = `${pythonURI}/api/weather-data`;
 
   // Helper to format datetime string as ISO
   function formatDate(date) {
@@ -36,7 +42,7 @@ Hourly weather scores for each day in the last 7 days.
 
   async function fetchWeatherScore(datetimeStr) {
     const response = await fetch(backendURL, {
-      method: 'GET',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         mode: 'datetime',
@@ -46,6 +52,7 @@ Hourly weather scores for each day in the last 7 days.
     const data = await response.json();
     return { datetime: data.datetime, score: data.weather_score };
   }
+
 
   async function fetchMonthlyData() {
     const today = new Date();
