@@ -138,7 +138,7 @@ function renderChart(canvasId, labels, data, label, type) {
       scales: {
         y: {
           beginAtZero: true,
-          max: 4,
+          max: 7,
         },
       },
     },
