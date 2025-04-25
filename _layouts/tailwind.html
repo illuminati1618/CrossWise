@@ -2,6 +2,8 @@
 layout: null
 ---
 
+<script type="module" src="{{ site.baseurl }}/assets/js/api/login.js"></script>
+
 <html lang="{{ page.lang | default: site.lang | default: 'en' }}">
   <head>
     <meta charset="UTF-8" />
@@ -80,6 +82,10 @@ layout: null
         ); /* Customize text selection background */
         color: white; /* Customize text selection text color */
       }
+
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
     </style>
   </head>
   <body class="bg-darker text-gray-200">
@@ -111,11 +117,13 @@ layout: null
             class="text-gray-200 hover:text-accent"
             >Help</a
           >
-          <a
-            href="{{ site.baseurl }}/login"
-            class="text-gray-200 hover:text-accent"
-            >Login</a
+            <span
+            id="loginArea"
+            class="inline-flex items-center text-gray-200 hover:text-accent trigger"
+            data-baseurl="{{ site.baseurl }}"
           >
+            <a href="{{ site.baseurl }}/login">Login</a>
+          </span>               
         </nav>
       </div>
     </header>

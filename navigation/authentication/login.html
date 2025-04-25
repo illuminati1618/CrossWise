@@ -6,9 +6,7 @@ search_exclude: true
 show_reading_time: false
 ---
 
-<div
-  class="flex flex-col md:flex-row justify-center items-center min-h-screen bg-darker text-gray-200"
->
+<div class="flex flex-col md:flex-row justify-center items-center min-h-screen bg-darker text-gray-200">
   <!-- Python Login Form -->
   <div class="bg-dark p-8 rounded-lg shadow-lg m-6 w-full md:w-1/2">
     <h1 id="pythonTitle" class="text-2xl font-bold text-accent mb-6">
@@ -66,6 +64,11 @@ show_reading_time: false
       class="text-sm text-green-500 text-center mt-4"
     ></p>
   </div>
+
+  <div id="cameraPreviewContainer" class="text-center my-4">
+    <video id="cameraPreview" autoplay playsinline class="mx-auto rounded-md shadow-md" width="300" height="225"></video>
+  </div>
+  
 
   <!-- Signup Form -->
   <div class="bg-dark p-8 rounded-lg shadow-lg m-6 w-full md:w-1/2">
@@ -236,9 +239,10 @@ show_reading_time: false
 
   // Capture Image from Webcam
   async function captureImage() {
-    const video = document.createElement("video");
-    video.style.display = "none";
-    document.body.appendChild(video);
+    const video = document.getElementById("cameraPreview");
+    const previewContainer = document.getElementById("cameraPreviewContainer");
+
+    previewContainer.style.display = "block";
 
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = stream;
@@ -253,10 +257,13 @@ show_reading_time: false
     const base64 = canvas.toDataURL().split(",")[1];
 
     stream.getTracks().forEach((track) => track.stop());
-    video.remove();
+
+    video.srcObject = null;
+    previewContainer.style.display = "none";
 
     return base64;
   }
+
 
   // Text Sign Up
   window.signup = function () {

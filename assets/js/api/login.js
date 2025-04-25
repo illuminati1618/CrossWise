@@ -13,16 +13,15 @@ document.addEventListener("DOMContentLoaded", function () {
       const loginArea = document.getElementById("loginArea");
       if (data) {
         // Update the login area based on the data
-        // User is authenticated, replace "Login" with User's name
         loginArea.innerHTML = `
-                    <div class="dropdown">
-                        <button class="dropbtn">${data.name}</button>
-                        <div class="dropdown-content">
-                            <a href="${baseurl}/logout">Logout</a>
-                            <a href="${baseurl}/profile">Profile</a>
-                        </div>
-                    </div>
-                `;
+        <div class="relative inline-block group">
+          <button class="text-accent font-semibold">Welcome, ${data.name}</button>
+          <div class="absolute hidden group-hover:flex flex-col bg-dark mt-0 rounded shadow-lg z-10">
+            <a href="#" onclick="logout()" class="px-4 py-2 hover:bg-darker">Logout</a>
+            <a href="${baseurl}/profile" class="px-4 py-2 hover:bg-darker">Profile</a>
+          </div>
+        </div>
+      `;            
       } else {
         // User is not authenticated, then "Login" link is shown
         loginArea.innerHTML = `<a href="${baseurl}/login">Login</a>`;
