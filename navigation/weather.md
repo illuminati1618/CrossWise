@@ -36,7 +36,7 @@ Hourly weather scores for each day in the last 7 days.
 
   async function fetchWeatherScore(datetimeStr) {
     const response = await fetch(backendURL, {
-      method: 'POST',
+      method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         mode: 'datetime',
