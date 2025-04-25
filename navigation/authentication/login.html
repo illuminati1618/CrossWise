@@ -226,10 +226,14 @@ show_reading_time: false
 
       const result = await response.json();
 
+      console.log("resilt", result);
+
       if (result.success) {
         messageBox.textContent = "✅ Facial signup complete!";
       } else {
-        messageBox.textContent = `❌ Signup failed: ${result.message || "Try again"}`;
+        messageBox.textContent = `❌ Signup failed: ${
+          result.message || "Try again"
+        }`;
       }
     } catch (error) {
       console.error("Facial Signup Error:", error);
@@ -301,8 +305,9 @@ show_reading_time: false
       })
       .catch((error) => {
         console.error("Signup Error:", error);
-        document.getElementById("signupMessage").textContent =
-          `Signup Error: ${error.message}`;
+        document.getElementById(
+          "signupMessage"
+        ).textContent = `Signup Error: ${error.message}`;
         signupButton.disabled = false;
         signupButton.style.backgroundColor = "";
       });
@@ -327,8 +332,9 @@ show_reading_time: false
       })
       .catch((error) => {
         console.error("Python Database Error:", error);
-        document.getElementById("message").textContent =
-          `Python Database Error: ${error.message}`;
+        document.getElementById(
+          "message"
+        ).textContent = `Python Database Error: ${error.message}`;
       });
   }
 </script>

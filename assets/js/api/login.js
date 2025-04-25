@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="relative inline-block group">
           <button class="text-accent font-semibold">Welcome, ${data.name}</button>
           <div class="absolute hidden group-hover:flex flex-col bg-dark mt-0 rounded shadow-lg z-10">
-            <a href="#" onclick="logout()" class="px-4 py-2 hover:bg-darker">Logout</a>
+            <a href="${baseurl}/logout" class="px-4 py-2 hover:bg-darker">Logout</a>
             <a href="${baseurl}/profile" class="px-4 py-2 hover:bg-darker">Profile</a>
           </div>
         </div>
