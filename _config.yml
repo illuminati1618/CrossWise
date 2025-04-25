@@ -21,6 +21,7 @@ header_pages:
   - navigation/search.md
   - navigation/machinelearning.md
   - navigation/directions.md
+  - navigatuon/calender.md
 
 defaults:
   - scope:
