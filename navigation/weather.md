@@ -22,7 +22,7 @@ Hourly weather scores for each day in the last 7 days.
 </div>
 
 <script>
-  const backendURL = 'http://127.0.0.1:3167/api/weather-data';
+  const backendURL = 'api/weather-data';
 
   // Helper to format datetime string as ISO
   function formatDate(date) {
