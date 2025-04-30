@@ -150,6 +150,12 @@ menu: nav/calender.html
     
     // Function to parse CSV data
     function parseCSV(csv) {
+        // Check if csv is a string
+        if (typeof csv !== 'string') {
+            console.error('CSV data is not a string:', csv);
+            return {};
+        }
+        
         const lines = csv.split('\n');
         const headers = lines[0].split(',');
         
@@ -181,78 +187,47 @@ menu: nav/calender.html
         
         return events;
     }
-    
-    // Function to load CSV data from an embedded string
-    // This allows the calendar to work even without fetch
-    function loadCSVData() {
-        // Embed your CSV data here
-        const csvData = `Title,Dates
+    // Function to load CSV data from a file
+    async function loadCSVData() {
+        try {
+            const response = await fetch('{{site.baseurl}}/assets/calendar_parsedevents.csv');
+            if (!response.ok) {
+                throw new Error(`Failed to load calendar data: ${response.status} ${response.statusText}`);
+            }
+            return await response.text();
+        } catch (error) {
+            console.error('Error loading calendar data:', error);
+            // Fallback data in case the fetch fails
+            return `Title,Dates
 Bike the Bay,8/25/2024
-San Diego Bayfair,9/13/2024
-San Diego Bayfair,9/14/2024
-San Diego Bayfair,9/15/2024
-ENVZN24 Urban Art Takeover ,9/14/2024
-USA Ultimate National Championships,10/24/2024
-USA Ultimate National Championships,10/25/2024
-USA Ultimate National Championships,10/26/2024
-USA Ultimate National Championships,10/27/2024
-CONCACAF W Gold Cup,2/21/2024
-CONCACAF W Gold Cup,2/22/2024
-CONCACAF W Gold Cup,2/23/2024
-CONCACAF W Gold Cup,2/24/2024
-CONCACAF W Gold Cup,2/25/2024
-CONCACAF W Gold Cup,2/26/2024
-CONCACAF W Gold Cup,2/27/2024
-CONCACAF W Gold Cup,2/28/2024
-CONCACAF W Gold Cup,2/29/2024
-CONCACAF W Gold Cup,3/1/2024
-CONCACAF W Gold Cup,3/2/2024
-CONCACAF W Gold Cup,3/3/2024
-CONCACAF W Gold Cup,3/4/2024
-CONCACAF W Gold Cup,3/5/2024
-CONCACAF W Gold Cup,3/6/2024
-CONCACAF W Gold Cup,3/7/2024
-CONCACAF W Gold Cup,3/8/2024
-CONCACAF W Gold Cup,3/9/2024
-CONCACAF W Gold Cup,3/10/2024
-Fleet Week San Diego 2024,11/1/2024
-Fleet Week San Diego 2024,11/2/2024
-Fleet Week San Diego 2024,11/3/2024
-Fleet Week San Diego 2024,11/4/2024
-Fleet Week San Diego 2024,11/5/2024
-Fleet Week San Diego 2024,11/6/2024
-Fleet Week San Diego 2024,11/7/2024
-Fleet Week San Diego 2024,11/8/2024
-Fleet Week San Diego 2024,11/9/2024
-Fleet Week San Diego 2024,11/10/2024
-Fleet Week San Diego 2024,11/11/2024
-San Diego International Auto Show,12/28/2024
-San Diego International Auto Show,12/29/2024
-San Diego International Auto Show,12/30/2024
-San Diego International Auto Show,12/31/2024
-San Diego International Auto Show,1/1/2025
-San Diego Surf Film Festival,2/17/2024
-San Diego Surf Film Festival,2/18/2024
-San Diego Surf Film Festival,2/19/2024
-Julian StarFest,8/2/2024
-Julian StarFest,8/3/2024
-Julian StarFest,8/4/2024
-United States Police & Fire Championships,6/8/2024
-United States Police & Fire Championships,6/9/2024
-United States Police & Fire Championships,6/10/2024
-United States Police & Fire Championships,6/11/2024
-United States Police & Fire Championships,6/12/2024
-United States Police & Fire Championships,6/13/2024
-United States Police & Fire Championships,6/14/2024
-United States Police & Fire Championships,6/15/2024
-Coronado Island Film Festival,11/6/2024
-Coronado Island Film Festival,11/7/2024
-Coronado Island Film Festival,11/8/2024
-Coronado Island Film Festival,11/9/2024
-Coronado Island Film Festival,11/10/2024
-Heart of PB Restaurant Walk,9/18/2024`;
-
-        return csvData;
+San Diego Bayfair,9/13/2024`;
+        }
+    }
+    
+    // Modified initialization to handle async data loading
+    async function initCalendar() {
+        try {
+            // Show loading message
+            loadingMessage.style.display = 'block';
+            calendarWrapper.style.display = 'none';
+            
+            // Load and parse CSV data
+            const csvData = await loadCSVData();
+            events = parseCSV(csvData);
+            
+            // Hide loading message and show calendar
+            loadingMessage.style.display = 'none';
+            calendarWrapper.style.display = 'block';
+            
+            // Render calendar
+            renderCalendar();
+        } catch (error) {
+            // Show error message
+            loadingMessage.style.display = 'none';
+            errorMessage.textContent = `Error initializing calendar: ${error.message}`;
+            errorMessage.style.display = 'block';
+            console.error(error);
+        }
     }
     
     // Calendar functions
@@ -346,28 +321,6 @@ Heart of PB Restaurant Walk,9/18/2024`;
         }
     }
     
-    // Initialize calendar
-    function initCalendar() {
-        try {
-            // Try to load and parse CSV data
-            const csvData = loadCSVData();
-            events = parseCSV(csvData);
-            
-            // Hide loading message and show calendar
-            loadingMessage.style.display = 'none';
-            calendarWrapper.style.display = 'block';
-            
-            // Render calendar
-            renderCalendar();
-        } catch (error) {
-            // Show error message
-            loadingMessage.style.display = 'none';
-            errorMessage.textContent = `Error initializing calendar: ${error.message}`;
-            errorMessage.style.display = 'block';
-            console.error(error);
-        }
-    }
-    
     // Add event listeners for navigation
     document.getElementById('prev-month').addEventListener('click', () => {
         currentDate.setMonth(currentDate.getMonth() - 1);
@@ -385,5 +338,11 @@ Heart of PB Restaurant Walk,9/18/2024`;
     });
     
     // Initialize the calendar when the page loads
-    window.addEventListener('DOMContentLoaded', initCalendar);
+    window.addEventListener('DOMContentLoaded', () => {
+        initCalendar().catch(error => {
+            console.error('Calendar initialization failed:', error);
+            errorMessage.textContent = `Could not load calendar: ${error.message}`;
+            errorMessage.style.display = 'block';
+        });
+    });
 </script>
