@@ -168,9 +168,9 @@ show_reading_time: false
                 <summary class="text-2xl font-semibold text-gray-200 mb-6 cursor-pointer">Useful Links</summary>
                 <div class="mt-6">
                     <div class="grid grid-cols-3 gap-6">
-                        <button class="bg-accent text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600">Historical Data</button>
+                        <button onclick="window.location.href='{{ site.baseurl }}/historicaldata'" class="bg-accent text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600">Historical Data</button>
                         <button class="bg-accent text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600">Advanced Prediction Tools</button>
-                        <button class="bg-accent text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600">Your Profile</button>
+                        <button onclick="window.location.href='{{ site.baseurl }}/profile'" class="bg-accent text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600">Your Profile</button>
                     </div>
                 </div>
             </details>
