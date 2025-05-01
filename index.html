@@ -296,7 +296,7 @@ show_reading_time: false
             const selectedPeriod = document.getElementById('chart-period').value;
             
             // Fetch the visualization HTML from the API
-            const response = await fetch(`${pythonURI}/api/visualization`);
+            const response = await fetch(pythonURI + '/api/visualization', fetchOptions);
 
 
             
