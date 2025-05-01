@@ -1,9 +1,9 @@
 ---
 layout: tailwind
-title: Calender
+title: Calendar
 search_exclude: true
-permalink: /calender/
-menu: nav/calender.html
+permalink: /calendar/
+menu: nav/calendar.html
 ---
 
 <div class="bg-dark rounded-lg shadow-md p-6 mb-8">
