@@ -149,7 +149,7 @@ Find the best driving route from San Diego to Tijuana with clean directions and 
 
   /* Directions Panel */
   #directions-panel {
-    background-color: #1a2736;
+    background-color:rgb(250, 251, 251);
     border-radius: 12px;
     padding: 15px;
     margin-top: 20px;
