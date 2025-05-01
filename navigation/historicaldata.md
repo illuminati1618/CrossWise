@@ -57,7 +57,7 @@ permalink: /historicaldata/
             const selectedPeriod = document.getElementById('chart-period').value;
             
             // Fetch the visualization HTML from the API
-            const response = await fetch(pythonURI + '/api/visualization', fetchOptions);
+            const response = await fetch(`${pythonURI}/api/visualization`);
             
             if (!response.ok) {
                 throw new Error(`Failed to fetch chart: ${response.status}`);
