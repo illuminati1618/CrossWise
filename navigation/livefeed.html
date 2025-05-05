@@ -230,8 +230,8 @@ permalink: /livefeed
         const response = await fetch(`${pythonURI}/api/timelapse/`, {
           method: "POST",
           headers: {
-    "Content-Type": "application/json",  // <-- This is the missing part
-  },
+            "Content-Type": "application/json",  // <-- This is the missing part
+            },
           body: JSON.stringify({ videos: urls }),
         });
 
