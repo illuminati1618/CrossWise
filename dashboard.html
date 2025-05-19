@@ -12,44 +12,38 @@ show_reading_time: false
     <p class="text-lg text-gray-400">All-in-one monitoring for San Ysidro and Otay Mesa border crossings</p>
   </header>
 
-  <!-- Top Stats Row -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-darker rounded-lg shadow-md p-6">
-      <h2 class="text-xl font-bold mb-2 text-accent">Current Wait Times</h2>
-      <div class="flex justify-between items-center">
-        <div>
-          <p class="text-gray-400">San Ysidro:</p>
-          <p id="sanYsidroWait" class="text-2xl font-bold text-white">--</p>
-        </div>
-        <div>
-          <p class="text-gray-400">Otay Mesa:</p>
-          <p id="otayMesaWait" class="text-2xl font-bold text-white">--</p>
-        </div>
+<!-- Top Stats Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+  <div class="bg-darker rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-bold mb-2 text-accent">Current Wait Times</h2>
+    <div class="flex justify-between items-center">
+      <div>
+        <p class="text-gray-400">San Ysidro:</p>
+        <p id="sanYsidroWait" class="text-2xl font-bold text-white">--</p>
       </div>
-    </div>
-    
-    <div class="bg-darker rounded-lg shadow-md p-6">
-      <h2 class="text-xl font-bold mb-2 text-accent">Current Weather</h2>
-      <div class="flex justify-between items-center">
-        <div>
-          <p class="text-gray-400">Temperature:</p>
-          <p id="currentTemp" class="text-2xl font-bold text-white">--°F</p>
-        </div>
-        <div>
-          <p class="text-gray-400">Conditions:</p>
-          <p id="currentConditions" class="text-2xl font-bold text-white">--</p>
-        </div>
-      </div>
-    </div>
-    
-    <div class="bg-darker rounded-lg shadow-md p-6">
-      <h2 class="text-xl font-bold mb-2 text-accent">Weather Score</h2>
-      <div class="text-center">
-        <p id="weatherScore" class="text-4xl font-bold text-white">--</p>
-        <p class="text-gray-400 mt-2">Out of 7</p>
+      <div>
+        <p class="text-gray-400">Otay Mesa:</p>
+        <p id="otayMesaWait" class="text-2xl font-bold text-white">--</p>
       </div>
     </div>
   </div>
+  
+  <div class="bg-darker rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-bold mb-2 text-accent">Current Weather</h2>
+    <div class="flex justify-between items-center">
+      <div>
+        <p class="text-gray-400">Temperature:</p>
+        <p id="currentTemp" class="text-2xl font-bold text-white">--°F</p>
+      </div>
+      <div>
+        <p class="text-gray-400">Conditions:</p>
+        <p id="currentConditions" class="text-2xl font-bold text-white">--</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
 
   <!-- Main Content Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -96,7 +90,7 @@ show_reading_time: false
       <!-- Weather Overview -->
       <div class="bg-darker rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-2xl font-bold mb-4 text-accent">Weather Overview</h2>
-        <h3 class="text-lg font-semibold mb-2 text-gray-200">Weekly Weather Score</h3>
+        <h3 class="text-lg font-semibold mb-2 text-gray-200">Average Weekly Temperatures</h3>
         <div>
           <canvas id="weekly-chart" width="100%" height="150"></canvas>
         </div>
@@ -267,133 +261,134 @@ show_reading_time: false
     scanAllPastVideos();
   }
 
-  /* 
-   * Weather Data Component
-   */
-  function initWeatherData() {
-    const weatherScore = document.getElementById('weatherScore');
-    const currentTemp = document.getElementById('currentTemp');
-    const currentConditions = document.getElementById('currentConditions');
-    
-    // Format date helper function
-    function formatDate(date) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      const h = String(date.getHours()).padStart(2, '0');
-      const min = String(date.getMinutes()).padStart(2, '0');
-      return `${y}-${m}-${d}T${h}:${min}`;
-    }
+function initWeatherData() {
+  const currentTemp = document.getElementById('currentTemp');
+  const currentConditions = document.getElementById('currentConditions');
 
-    // Fetch current weather and score
-    async function fetchCurrentWeather() {
-      const now = new Date();
-      const datetimeStr = formatDate(now);
-      
-      try {
-        const response = await fetch(`${pythonURI}/api/weather-data`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: 'datetime', datetime: datetimeStr }),
-        });
-        
-        const data = await response.json();
-        weatherScore.textContent = data.weather_score.toFixed(1);
-        
-        // This is a mock - you would need to add temperature and conditions to your API
-        currentTemp.textContent = `${Math.round(data.temperature || 72)}°F`;
-        currentConditions.textContent = data.conditions || 'Sunny';
-      } catch (error) {
-        console.error("Error fetching current weather:", error);
-        weatherScore.textContent = "Error";
-      }
-    }
+  // Format date helper function
+ function formatDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const h = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  console.log(`Formatted date: ${y}-${m}-${d}T${h}:${min}`);
+  return `${y}-${m}-${d}T${h}:${min}`;
+}
 
-    // Fetch weekly weather data for chart
-    async function fetchWeeklyData() {
-      const today = new Date();
-      const promises = [];
 
-      for (let day = 0; day < 7; day++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - day);
-        date.setHours(12, 0, 0, 0); // Noon each day
-        const datetimeStr = formatDate(date);
-        promises.push(fetchWeatherScore(datetimeStr));
-      }
+  // Fetch current weather and update UI
+  async function fetchCurrentWeather() {
+    const now = new Date();
+    const datetimeStr = formatDate(now);
 
-      try {
-        const results = await Promise.all(promises);
-        const sorted = results.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-        
-        // Format dates for display
-        const labels = sorted.map(r => {
-          const date = new Date(r.datetime);
-          return date.toLocaleDateString('en-US', { weekday: 'short' });
-        });
-        
-        renderWeeklyChart(labels, sorted.map(r => r.score));
-      } catch (error) {
-        console.error("Error fetching weekly weather data:", error);
-      }
-    }
-
-    async function fetchWeatherScore(datetimeStr) {
+    try {
       const response = await fetch(`${pythonURI}/api/weather-data`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'datetime', datetime: datetimeStr }),
       });
+
       const data = await response.json();
-      return { datetime: data.datetime, score: data.weather_score };
-    }
+      const avgTempF = Math.round(data.avg_temp_c *( 9 / 5) + 32,2);
+      const precipitation = data.precipitation_mm;
 
-    function renderWeeklyChart(labels, data) {
-      const ctx = document.getElementById('weekly-chart').getContext('2d');
-      
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Weather Score',
-            data: data,
-            borderColor: 'rgba(255, 159, 64, 1)',
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            tension: 0.3,
-            pointBackgroundColor: 'rgba(255, 159, 64, 1)',
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 7,
-              grid: {
-                color: 'rgba(255, 255, 255, 0.1)',
-              },
-            },
-            x: {
-              grid: {
-                display: false,
-              },
-            },
-          },
-          plugins: {
-            legend: {
-              display: false,
-            },
-          },
-        },
-      });
+      currentTemp.textContent = `${avgTempF}°F`;
+      currentConditions.textContent = precipitation < 0.5 ? 'Clear' : 'Rainy';
+    } catch (error) {
+      console.error("Error fetching current weather:", error);
+      currentTemp.textContent = "--";
+      currentConditions.textContent = "Unavailable";
     }
-
-    fetchCurrentWeather();
-    fetchWeeklyData();
   }
+
+  // Fetch daily weather for a specific datetime string
+  async function fetchDailyWeather(datetimeStr) {
+    const response = await fetch(`${pythonURI}/api/weather-data`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'datetime', datetime: datetimeStr }),
+    });
+    return await response.json();
+  }
+
+  // Fetch weekly weather data and render chart
+  async function fetchWeeklyData() {
+  const today = new Date();
+  const promises = [];
+
+  for (let day = 0; day < 7; day++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + day);  // Forward days from today
+    date.setHours(12, 0, 0, 0);
+    const datetimeStr = formatDate(date);
+    promises.push(fetchDailyWeather(datetimeStr));
+  }
+
+  try {
+    const results = await Promise.all(promises);
+
+    const filteredResults = results.filter(r => typeof r.avg_temp_c === 'number');
+
+    filteredResults.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+
+    const labels = filteredResults.map(r => {
+      const date = new Date(r.datetime);
+      return date.toLocaleDateString('en-US', { weekday: 'short' });
+    });
+
+    const tempsF = filteredResults.map(r => Math.round(r.avg_temp_c * 9 / 5 + 32));
+
+    renderWeeklyChart(labels, tempsF);
+  } catch (error) {
+    console.error("Error fetching weekly weather data:", error);
+  }
+}
+
+
+
+  // Render weekly temperature chart
+  function renderWeeklyChart(labels, data) {
+    const ctx = document.getElementById('weekly-chart').getContext('2d');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Avg Temp (°F)',
+          data: data,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: 0.3,
+          pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: false,
+            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          },
+          x: {
+            grid: { display: false },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+        },
+      },
+    });
+  }
+
+  // Kick things off
+  fetchCurrentWeather();
+  fetchWeeklyData();
+}
+
 
   /* 
    * Wait Time Data Component
