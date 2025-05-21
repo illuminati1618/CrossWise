@@ -9,6 +9,7 @@ permalink: /livefeed
   <p class="text-lg text-center text-gray-400">
     San Ysidro border crossing camera — see the latest traffic conditions below.
   </p>
+  <div class="text-center text-gray-400 mt-2" id="liveClock"></div>
 </header>
 
 <style>
@@ -25,9 +26,7 @@ permalink: /livefeed
     border-radius: 1rem;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     padding: 2rem;
-    transition:
-      transform 0.2s,
-      box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
   }
 
   .card:hover {
@@ -51,7 +50,7 @@ permalink: /livefeed
 
   .btn-timelapse {
     display: block;
-    margin: 2rem auto 0;
+    margin: 1rem auto;
     background-color: var(--color-accent);
     color: white;
     border: none;
@@ -96,31 +95,42 @@ permalink: /livefeed
   tr:hover {
     background-color: #2a2e38;
   }
+
+  body.bg-white {
+    background-color: white;
+    color: black;
+  }
 </style>
 
 <div class="grid-container">
   <div class="card">
     <div id="current-time">Searching for the latest working video...</div>
     <video id="borderVideo" controls autoplay muted></video>
-    <button id="generateTimelapseBtn" class="btn-timelapse">
-      ⏱️ Generate Timelapse (Past 5 hours)
-    </button>
+
+    <div class="text-center mt-4">
+      <label class="text-gray-300 mr-2">Speed:</label>
+      <select id="playbackSpeed" class="bg-gray-800 text-white p-1 rounded">
+        <option value="0.5">0.5x</option>
+        <option value="1" selected>1x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2">2x</option>
+      </select>
+    </div>
+
+    <button id="generateTimelapseBtn" class="btn-timelapse">⏱️ Generate Timelapse (Past 5 hours)</button>
+
     <p id="timelapseStatus" class="status"></p>
   </div>
 
   <div class="card">
-    <h2 class="text-xl font-semibold text-accent">
-      🕒 Previous Working Videos
-    </h2>
+    <h2 class="text-xl font-semibold text-accent">🕒 Previous Working Videos</h2>
     <table id="historyTable">
       <thead>
         <tr>
           <th>Timestamp (click to view)</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Filled dynamically -->
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
 </div>
@@ -134,6 +144,7 @@ permalink: /livefeed
   const video = document.getElementById("borderVideo");
   const historyTable = document.querySelector("#historyTable tbody");
   const currentDisplay = document.getElementById("current-time");
+  const status = document.getElementById("timelapseStatus");
 
   const now = new Date();
   const pad = (n) => n.toString().padStart(2, "0");
@@ -145,8 +156,7 @@ permalink: /livefeed
   const day = pad(now.getDate());
   const datePart = `${year}_${month}_${day}`;
 
-  let attempts = [];
-
+  const attempts = [];
   for (let i = 0; i <= 300; i++) {
     const trial = new Date(now.getTime() - i * 60000);
     const hr = pad(trial.getHours());
@@ -161,8 +171,7 @@ permalink: /livefeed
 
   function tryMainVideo(index = 0) {
     if (index >= attempts.length) {
-      currentDisplay.textContent =
-        "No working videos found in the past 300 minutes.";
+      currentDisplay.textContent = "No working videos found in the past 300 minutes.";
       return;
     }
 
@@ -181,7 +190,7 @@ permalink: /livefeed
 
     historyTable.innerHTML = "";
     const sorted = successfulVideos.sort((a, b) =>
-      a.timeCode.localeCompare(b.timeCode),
+      a.timeCode.localeCompare(b.timeCode)
     );
 
     sorted.forEach(({ url, timeLabel, timeCode }) => {
@@ -213,43 +222,67 @@ permalink: /livefeed
     });
   }
 
-  document
-    .getElementById("generateTimelapseBtn")
-    .addEventListener("click", async () => {
-      const status = document.getElementById("timelapseStatus");
-      status.textContent = "⏳ Generating timelapse... please wait";
+  document.getElementById("generateTimelapseBtn").addEventListener("click", async () => {
+    status.textContent = "⏳ Generating timelapse... please wait";
 
-      const urls = successfulVideos.map((v) => v.url);
+    const urls = successfulVideos.map((v) => v.url);
+    if (urls.length === 0) {
+      status.textContent = "⚠️ No videos available to generate timelapse.";
+      return;
+    }
 
-      if (urls.length === 0) {
-        status.textContent = "⚠️ No videos available to generate timelapse.";
+    try {
+      const response = await fetch(`${pythonURI}/api/timelapse/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ videos: urls }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        status.textContent = `❌ Failed: ${error.error || "Unknown error"}`;
         return;
       }
 
-      try {
-        const response = await fetch(`${pythonURI}/api/timelapse/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",  // <-- This is the missing part
-            },
-          body: JSON.stringify({ videos: urls }),
+      const blob = await response.blob();
+      const videoURL = URL.createObjectURL(blob);
+      video.src = videoURL;
+      video.load();
+
+      const base = new Date(successfulVideos[0].timeLabel);
+      successfulVideos.forEach((entry) => {
+        const t = new Date(entry.timeLabel);
+        entry.offset = (t - base) / 1000;
+      });
+
+      video.onloadedmetadata = () => {
+        historyTable.querySelectorAll("a").forEach((link, i) => {
+          link.onclick = (e) => {
+            e.preventDefault();
+            video.currentTime = successfulVideos[i].offset;
+            currentDisplay.innerHTML = `🎥 <strong>Jumped to:</strong> ${successfulVideos[i].timeLabel}`;
+          };
         });
+      };
 
-        if (!response.ok) {
-          const error = await response.json();
-          status.textContent = `❌ Failed: ${error.error || "Unknown error"}`;
-          return;
-        }
+      status.innerHTML = `
+        ✅ Timelapse ready: <a href="${videoURL}" target="_blank">Click to view</a>
+        <br/><a href="${videoURL}" download="timelapse.mp4" class="btn-timelapse mt-2">⬇️ Download Timelapse</a>`;
+    } catch (err) {
+      console.error("Timelapse generation failed:", err);
+      status.textContent = "❌ Timelapse generation failed due to a network or server error.";
+    }
+  });
 
-        const blob = await response.blob();
-        const videoURL = URL.createObjectURL(blob);
-        status.innerHTML = `✅ Timelapse ready: <a href="${videoURL}" target="_blank">Click to view</a>`;
-      } catch (err) {
-        console.error("Timelapse generation failed:", err);
-        status.textContent =
-          "❌ Timelapse generation failed due to a network or server error.";
-      }
-    });
+  document.getElementById("playbackSpeed").addEventListener("change", (e) => {
+    video.playbackRate = parseFloat(e.target.value);
+  });
+
+  setInterval(() => {
+    const t = new Date();
+    document.getElementById("liveClock").textContent =
+      `🕓 Local Time: ${t.toLocaleTimeString()}`;
+  }, 1000);
 
   tryMainVideo();
   scanAllPastVideos();
