@@ -1,0 +1,172 @@
+---
+layout: tailwind
+title: Border Crossing Feedback
+permalink: /crosswiseforms
+menu: nav/border_feedback.html
+---
+
+<div class="max-w-3xl mx-auto mt-10 bg-dark p-8 rounded-lg shadow-lg text-gray-200">
+  <h1 class="text-3xl font-bold text-accent mb-6 text-center">CrossWise Border Ticket</h1>
+  <p class="text-gray-400 mb-8 text-center">Share your border crossing experience to help improve our wait time predictions</p>
+  
+  <form id="borderFeedbackForm" class="space-y-6">
+    <div>
+      <label for="time_cross" class="block text-sm font-medium text-gray-300 mb-2">
+        When did you cross the border?
+      </label>
+      <input 
+        type="datetime-local" 
+        id="time_cross" 
+        name="time_cross" 
+        required
+        class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
+      />
+    </div>
+    
+    <div>
+      <label for="time_diff" class="block text-sm font-medium text-gray-300 mb-2">
+        Time difference between estimated and actual wait (minutes)
+      </label>
+      <div class="flex items-center">
+        <input 
+          type="number" 
+          id="time_diff" 
+          name="time_diff" 
+          required
+          placeholder="Enter positive for longer wait, negative for shorter wait"
+          class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
+        />
+        <span class="ml-2 text-gray-400">min</span>
+      </div>
+      <p class="mt-1 text-xs text-gray-400">Positive if actual wait was longer than estimated, negative if shorter</p>
+    </div>
+    
+    <div>
+      <label for="user_message" class="block text-sm font-medium text-gray-300 mb-2">
+        Additional comments about your crossing experience
+      </label>
+      <textarea 
+        id="user_message" 
+        name="user_message" 
+        rows="4"
+        placeholder="Share details about your experience, traffic conditions, or other observations..."
+        class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
+      ></textarea>
+    </div>
+    
+    <div>
+      <button 
+        type="submit" 
+        class="w-full py-3 px-4 bg-accent text-white rounded-md hover:bg-blue-600 transition-colors font-medium"
+      >
+        Submit Feedback
+      </button>
+    </div>
+  </form>
+  
+  <!-- Feedback message containers -->
+  <div id="successMessage" class="mt-6 p-4 bg-green-900 bg-opacity-20 border border-green-600 rounded-md text-green-400 hidden">
+    <div class="flex items-start">
+      <svg class="w-5 h-5 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <div>
+        <p class="font-medium">Thank you for your feedback!</p>
+        <p class="text-sm mt-1">Your information has been submitted and will help improve our prediction model.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div id="errorMessage" class="mt-6 p-4 bg-red-900 bg-opacity-20 border border-red-600 rounded-md text-red-400 hidden">
+    <div class="flex items-start">
+      <svg class="w-5 h-5 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      <div>
+        <p class="font-medium">Submission failed</p>
+        <p id="errorDetails" class="text-sm mt-1">Please try again later.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { pythonURI, fetchOptions } from "{{ site.baseurl }}/assets/js/api/config.js";
+
+  const form = document.getElementById('borderFeedbackForm');
+  const successMessage = document.getElementById('successMessage');
+  const errorMessage = document.getElementById('errorMessage');
+  const errorDetails = document.getElementById('errorDetails');
+
+  // Set default datetime-local value to current date and time
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('time_cross').value = now.toISOString().slice(0, 16);
+
+  form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    
+    // Reset messages
+    successMessage.classList.add('hidden');
+    errorMessage.classList.add('hidden');
+    
+    // Get form data
+    const timeCross = document.getElementById('time_cross').value;
+    const timeDiff = parseFloat(document.getElementById('time_diff').value);
+    const userMessage = document.getElementById('user_message').value;
+    
+    // Validate data
+    if (!timeCross || isNaN(timeDiff)) {
+      errorDetails.textContent = "Please fill out all required fields correctly.";
+      errorMessage.classList.remove('hidden');
+      return;
+    }
+    
+    try {
+      // Send the data to the API
+      const response = await fetch(`${pythonURI}/api/border_feedback/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          time_cross: timeCross,
+          time_diff: timeDiff,
+          user_message: userMessage
+        })
+      });
+      
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        console.error("Failed to parse response as JSON:", e);
+        data = { error: "Server response could not be processed" };
+      }
+      
+      if (response.ok) {
+        // Show success message
+        successMessage.classList.remove('hidden');
+        
+        // Reset form
+        form.reset();
+        
+        // Set default datetime again
+        document.getElementById('time_cross').value = now.toISOString().slice(0, 16);
+        
+        // Scroll to success message
+        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        // Show error message
+        errorDetails.textContent = data.error || "Something went wrong. Please try again.";
+        errorMessage.classList.remove('hidden');
+        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      errorDetails.textContent = "Network error. Please check your connection and try again.";
+      errorMessage.classList.remove('hidden');
+      errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+</script>
