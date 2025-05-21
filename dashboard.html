@@ -129,7 +129,7 @@ show_reading_time: false
 
 <script type="module">
   import { pythonURI, fetchOptions } from "{{ site.baseurl }}/assets/js/api/config.js";
-
+  let weeklyChartInstance = null;
   // Initialize all dashboard components
   document.addEventListener('DOMContentLoaded', function() {
     initLiveFeed();
@@ -265,33 +265,26 @@ function initWeatherData() {
   const currentTemp = document.getElementById('currentTemp');
   const currentConditions = document.getElementById('currentConditions');
 
-  // Format date helper function
- function formatDate(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  const h = String(date.getHours()).padStart(2, '0');
-  const min = String(date.getMinutes()).padStart(2, '0');
-  console.log(`Formatted date: ${y}-${m}-${d}T${h}:${min}`);
-  return `${y}-${m}-${d}T${h}:${min}`;
-}
-
+  console.log("Initializing weather data...");
 
   // Fetch current weather and update UI
   async function fetchCurrentWeather() {
-    const now = new Date();
-    const datetimeStr = formatDate(now);
-
+    console.log("Fetching current weather...");
     try {
-      const response = await fetch(`${pythonURI}/api/weather-data`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'datetime', datetime: datetimeStr }),
-      });
+      const response = await fetch(`${pythonURI}/api/weather-now`);
+      console.log("Weather-now response status:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.statusText}`);
+      }
 
       const data = await response.json();
-      const avgTempF = Math.round(data.avg_temp_c *( 9 / 5) + 32,2);
-      const precipitation = data.precipitation_mm;
+      console.log("Weather-now response data:", data);
+
+      const avgTempF = data.temperature_f;
+      const precipitation = data.precipitation_mm ?? 0;
+
+      console.log(`Converted temp: ${avgTempF}°F, Precipitation: ${precipitation}mm`);
 
       currentTemp.textContent = `${avgTempF}°F`;
       currentConditions.textContent = precipitation < 0.5 ? 'Clear' : 'Rainy';
@@ -302,42 +295,38 @@ function initWeatherData() {
     }
   }
 
-  // Fetch daily weather for a specific datetime string
-  async function fetchDailyWeather(datetimeStr) {
-    const response = await fetch(`${pythonURI}/api/weather-data`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode: 'datetime', datetime: datetimeStr }),
-    });
-    return await response.json();
-  }
-
-  // Fetch weekly weather data and render chart
-  async function fetchWeeklyData() {
-  const today = new Date();
-  const promises = [];
-
-  for (let day = 0; day < 7; day++) {
-    const date = new Date(today);
-    date.setDate(today.getDate() + day);  // Forward days from today
-    date.setHours(12, 0, 0, 0);
-    const datetimeStr = formatDate(date);
-    promises.push(fetchDailyWeather(datetimeStr));
-  }
-
+async function fetchWeeklyData() {
+  console.log("Fetching weekly weather forecast...");
   try {
-    const results = await Promise.all(promises);
+    const response = await fetch(`${pythonURI}/api/forecast-week`);
+    console.log("Forecast-week response status:", response.status);
 
-    const filteredResults = results.filter(r => typeof r.avg_temp_c === 'number');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.statusText}`);
+    }
 
-    filteredResults.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+    const results = await response.json();
+    console.log("Forecast-week raw results:", results);
+
+    const filteredResults = results.filter(r =>
+      typeof r.temperature_f === 'number'
+    );
+
+    filteredResults.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
 
     const labels = filteredResults.map(r => {
-      const date = new Date(r.datetime);
-      return date.toLocaleDateString('en-US', { weekday: 'short' });
+      const date = new Date(r.startTime);
+      const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const formattedDate = `${date.getMonth() + 1}/${date.getDate()}`;
+      return `${day} (${formattedDate})`;
     });
 
-    const tempsF = filteredResults.map(r => Math.round(r.avg_temp_c * 9 / 5 + 32));
+    const tempsF = filteredResults.map(r =>
+      Math.round(r.temperature_f)
+    );
+
+    console.log("Chart labels:", labels);
+    console.log("Temperatures (°F):", tempsF);
 
     renderWeeklyChart(labels, tempsF);
   } catch (error) {
@@ -346,45 +335,52 @@ function initWeatherData() {
 }
 
 
+function renderWeeklyChart(labels, data) {
+  const canvas = document.getElementById('weekly-chart');
+  const ctx = canvas.getContext('2d');
 
-  // Render weekly temperature chart
-  function renderWeeklyChart(labels, data) {
-    const ctx = document.getElementById('weekly-chart').getContext('2d');
-
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Avg Temp (°F)',
-          data: data,
-          borderColor: 'rgba(75, 192, 192, 1)',
-          backgroundColor: 'transparent',
-          borderWidth: 2,
-          tension: 0.3,
-          pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: false,
-            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-          },
-          x: {
-            grid: { display: false },
-          },
-        },
-        plugins: {
-          legend: { display: false },
-        },
-      },
-    });
+  // 🧼 Destroy previous chart to prevent infinite growth
+  if (weeklyChartInstance) {
+    weeklyChartInstance.destroy();
   }
 
-  // Kick things off
+  // 📈 Create new chart
+  weeklyChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Avg Temp (°F)',
+        data: data,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        tension: 0.3,
+        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: false,
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          ticks: { color: 'rgba(255, 255, 255, 0.8)' },
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: 'rgba(255, 255, 255, 0.8)' },
+        },
+      },
+      plugins: {
+        legend: { display: false },
+      },
+    },
+  });
+}
+
+  // Call the weather data fetchers so the UI updates
   fetchCurrentWeather();
   fetchWeeklyData();
 }
