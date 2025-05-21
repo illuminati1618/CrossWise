@@ -342,6 +342,15 @@ permalink: /livefeed
     });
   }
 
+  async function fetchStoredVideos() {
+    const res = await fetch(`${pythonURI}/api/timelapse/history`);
+    const data = await res.json();
+    data.forEach(({ url, timeLabel, timeCode }) => {
+        addToTable(url, timeLabel, timeCode);
+    });
+  }
+
+  fetchStoredVideos();
   tryMainVideo();
   scanAllPastVideos();
 </script>
