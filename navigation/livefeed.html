@@ -169,13 +169,18 @@ permalink: /livefeed
 
   const successfulVideos = [];
 
+  function getProxiedURL(url) {
+    return `${pythonURI}/api/timelapse/proxy_video?url=${encodeURIComponent(url)}`;
+  }
+
   function tryMainVideo(index = 0) {
     if (index >= attempts.length) {
       currentDisplay.textContent = "No working videos found in the past 300 minutes.";
       return;
     }
 
-    video.src = attempts[index].url;
+    const proxyURL = getProxiedURL(attempts[index].url);
+    video.src = proxyURL;
     video.onerror = () => tryMainVideo(index + 1);
     video.onloadeddata = () => {
       const { url, timeLabel, timeCode } = attempts[index];
@@ -194,27 +199,37 @@ permalink: /livefeed
     );
 
     sorted.forEach(({ url, timeLabel, timeCode }) => {
+      const proxyURL = getProxiedURL(url);
       const row = document.createElement("tr");
       const cell = document.createElement("td");
       const link = document.createElement("a");
+      const trafficSpan = document.createElement("span");
+
       link.href = "#";
       link.textContent = `${timeLabel} (${timeCode})`;
       link.onclick = (e) => {
         e.preventDefault();
-        video.src = url;
+        video.src = proxyURL;
+        video.load();
         currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${timeLabel}`;
       };
 
       cell.appendChild(link);
+      cell.appendChild(trafficSpan);
       row.appendChild(cell);
       historyTable.appendChild(row);
+
+      // Analyze traffic using proxied URL
+      analyzeTraffic(proxyURL).then((label) => {
+        trafficSpan.innerHTML = ` &nbsp; <span style="color:gray">[${label}]</span>`;
+      });
     });
   }
 
   function scanAllPastVideos() {
     attempts.forEach(({ url, timeLabel, timeCode }) => {
       const testVideo = document.createElement("video");
-      testVideo.src = url;
+      testVideo.src = getProxiedURL(url);
       testVideo.muted = true;
       testVideo.onloadeddata = () => {
         addToTable(url, timeLabel, timeCode);
@@ -284,6 +299,51 @@ permalink: /livefeed
       `🕓 Local Time: ${t.toLocaleTimeString()}`;
   }, 1000);
 
+  async function analyzeTraffic(proxiedURL) {
+    return new Promise((resolve) => {
+      const tempVideo = document.createElement("video");
+      tempVideo.src = proxiedURL;
+      tempVideo.muted = true;
+      tempVideo.crossOrigin = "anonymous";
+      tempVideo.currentTime = 0;
+
+      tempVideo.addEventListener("loadeddata", () => {
+        const canvas = document.getElementById("frameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = tempVideo.videoWidth;
+        canvas.height = tempVideo.videoHeight;
+        ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const pixels = imageData.data;
+        let darkPixelCount = 0;
+
+        for (let i = 0; i < pixels.length; i += 4) {
+          const r = pixels[i];
+          const g = pixels[i + 1];
+          const b = pixels[i + 2];
+          const brightness = (r + g + b) / 3;
+          if (brightness < 80) darkPixelCount++;
+        }
+
+        const density = darkPixelCount / (canvas.width * canvas.height);
+        let label = "Unknown";
+        if (density < 0.05) label = "🚗 Light";
+        else if (density < 0.12) label = "🚙 Moderate";
+        else label = "🚛 Heavy";
+
+        resolve(label);
+      });
+
+      tempVideo.onerror = () => {
+        resolve("⚠️ Error");
+      };
+    });
+  }
+
   tryMainVideo();
   scanAllPastVideos();
 </script>
+
+<canvas id="frameCanvas" width="640" height="360" style="display: none;"></canvas>
