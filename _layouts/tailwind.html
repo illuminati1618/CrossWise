@@ -214,6 +214,81 @@ layout: null
           min-width: 160px;
         }
       }
+
+      .dropdown-nested {
+        position: relative;
+      }
+
+      .dropdown-nested-content {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        background-color: var(--color-dark);
+        min-width: 140px; /* Changed from 160px to 140px */
+        border: 1px solid #3c4c60;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        z-index: 1001;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-left: 0.5rem;
+      }
+      
+      .dropdown-nested:hover .dropdown-nested-content {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+      }
+
+      .dropdown-nested-item {
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 0.8rem; /* Changed from 0.75rem 1rem */
+        color: #d1d5db;
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+        border-radius: 0.375rem;
+        margin: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .dropdown-nested-item:hover {
+        background-color: rgba(66, 133, 244, 0.1);
+        color: var(--color-accent);
+        transform: translateX(4px);
+      }
+
+      .dropdown-nested-item svg {
+        transition: all 0.2s ease-in-out;
+        margin-right: 0.5rem;
+      }
+
+      .dropdown-nested-item:hover svg {
+        transform: scale(1.1);
+        color: var(--color-accent);
+      }
+
+      .dropdown-nested-trigger::after {
+        content: '';
+        display: inline-block;
+        width: 0;
+        height: 0;
+        margin-left: auto;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-left: 4px solid currentColor;
+        transition: transform 0.2s ease-in-out;
+      }
+
+      .dropdown-nested-content .dropdown-separator {
+        height: 1px;
+        background-color: #3c4c60;
+        margin: 0.25rem 0.75rem; /* Partial separator with left/right margins */
+      }
+
     </style>
   </head>
   <body class="bg-darker text-gray-200">
@@ -276,21 +351,31 @@ layout: null
               <span class="nav-link-text">Help</span>
             </a>
             <div class="dropdown-content">
-              <a href="{{ site.baseurl }}/crosswiseforms" class="dropdown-item">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                  <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L12.586 13H17v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" clip-rule="evenodd"/>
-                </svg>
-                <span>Feedback</span>
-              </a>
-              <div class="dropdown-separator"></div>
-              <a href="{{ site.baseurl }}/traffic-report" class="dropdown-item">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                  <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L12.586 13H17v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" clip-rule="evenodd"/>
-                </svg>
-                <span>Traffic</span>
-              </a>
+              <div class="dropdown-nested">
+                <div class="dropdown-item dropdown-nested-trigger">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L12.586 13H17v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Forms</span>
+                </div>
+              <div class="dropdown-nested-content">
+                <a href="{{ site.baseurl }}/crosswiseforms" class="dropdown-nested-item">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L12.586 13H17v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Feedback</span>
+                </a>
+                <div class="dropdown-separator"></div>
+                <a href="{{ site.baseurl }}/traffic-report" class="dropdown-nested-item">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Traffic</span>
+                </a>
+              </div>
+              </div>
               <div class="dropdown-separator"></div>
               <a href="{{ site.baseurl }}/contact" class="dropdown-item">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
