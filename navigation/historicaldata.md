@@ -10,7 +10,7 @@ permalink: /historicaldata/
 
 <div class="max-w-7xl mx-auto px-4 py-10">
     <header class="mb-8">
-        <h1 class="text-4xl font-bold text-accent">BorderCross</h1>
+        <h1 class="text-4xl font-bold text-accent">CrossWise</h1>
         <p class="text-lg text-gray-400">Smart border wait time predictions for San Ysidro and Otay Mesa crossings</p>
     </header>
         <!-- Historical Data Chart Section -->

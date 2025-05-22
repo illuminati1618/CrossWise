@@ -7,144 +7,133 @@ menu: nav/weather.html
 
 # 🌤 Weather Overview
 
-## Monthly Weather Overview  
-Below is the monthly average weather score for the last 30 days.
+## Daily Weather Summary  
+<table class="min-w-full mt-4 text-sm text-left text-gray-600 border border-gray-300">
+  <thead class="bg-gray-100 text-xs uppercase">
+    <tr>
+      <th class="px-4 py-2">Date</th>
+      <th class="px-4 py-2">High (°F)</th>
+      <th class="px-4 py-2">Low (°F)</th>
+      <th class="px-4 py-2">Avg (°F)</th>
+      <th class="px-4 py-2">Conditions</th>
+    </tr>
+  </thead>
+  <tbody id="daily-table-body" class="bg-white divide-y divide-gray-200">
+  </tbody>
+</table>
 
-<div>
-  <canvas id="monthly-chart" width="400" height="200"></canvas>
+## Weekly Forecast (Avg Temp Trend)
+<div class="mt-6">
+  <canvas id="weekly-chart" height="200"></canvas>
 </div>
-
-## Weekly Weather Overview  
-Hourly weather scores for each day in the last 7 days.
-
-<div>
-  <canvas id="weekly-chart" width="400" height="200"></canvas>
-</div>
-
-<!-- Add Chart.js Library -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
 <script type="module">
-  //import { Chart } from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js';
-  import {
-    login,
-    pythonURI,
-    fetchOptions,
-  } from "{{site.baseurl}}/assets/js/api/config.js";
+  import { pythonURI } from "{{site.baseurl}}/assets/js/api/config.js";
 
-  const backendURL = `${pythonURI}/api/weather-data`;
+  const forecastWeekURL = `${pythonURI}/api/forecast-week`;
 
-  // Helper function to format datetime string as ISO
-  function formatDate(date) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    const h = String(date.getHours()).padStart(2, '0');
-    const min = String(date.getMinutes()).padStart(2, '0');
-    return `${y}-${m}-${d}T${h}:${min}`;
+  async function fetchForecastData() {
+    try {
+      const response = await fetch(forecastWeekURL);
+      if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+      const results = await response.json();
+
+      const cleaned = results
+        .filter(p => p.isDaytime !== false) // Only daytime entries
+        .map(entry => {
+          const avg = entry.avg_f || entry.temperature_f;
+          return {
+            name: entry.name,
+            date: new Date(entry.startTime).toLocaleDateString(),
+            high: entry.high_f ?? entry.temperature_f,
+            low: entry.low_f ?? entry.temperature_f,
+            avg: avg,
+            conditions: entry.short_forecast || 'Unknown',
+            precip: entry.precip_chance ?? 0
+          };
+        });
+
+      populateDailyTable(cleaned);
+      renderWeeklyChart(cleaned);
+    } catch (err) {
+      console.error("Forecast fetch failed:", err);
+    }
   }
 
-  async function fetchWeatherScore(datetimeStr) {
-    const body = { mode: 'datetime', datetime: datetimeStr }; // Construct the request body
-    console.log("Sending body:", body); // Debugging statement
-    const response = await fetch(backendURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+  function populateDailyTable(data) {
+    const tableBody = document.getElementById("daily-table-body");
+    tableBody.innerHTML = "";
+
+    data.forEach(entry => {
+      const row = `
+        <tr>
+          <td class="px-4 py-2">${entry.date}</td>
+          <td class="px-4 py-2">${entry.high}°F</td>
+          <td class="px-4 py-2">${entry.low}°F</td>
+          <td class="px-4 py-2">${entry.avg}°F</td>
+          <td class="px-4 py-2">${entry.conditions}</td>
+        </tr>`;
+      tableBody.innerHTML += row;
     });
-    const data = await response.json();
-    console.log("Received response:", data); // Debugging statement
-    return { datetime: data.datetime, score: data.weather_score };
   }
 
-  async function fetchMonthlyData() {
-    const today = new Date();
-    const promises = [];
+  function renderWeeklyChart(data) {
+    // Sort by average temperature
+    const sorted = [...data].sort((a, b) => a.avg - b.avg);
 
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      date.setHours(23, 59, 0, 0);
-      const datetimeStr = formatDate(date);
-      promises.push(fetchWeatherScore(datetimeStr));
-    }
-
-    const results = await Promise.all(promises);
-    const sorted = results.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-    renderChart('monthly-chart', sorted.map(r => r.datetime), sorted.map(r => r.score), 'Average Weather Score', 'bar');
-  }
-
-  async function fetchWeeklyHourlyData() {
-    const today = new Date();
-    const promises = [];
-
-    for (let day = 0; day < 7; day++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - day);
-      for (let hour = 0; hour < 24; hour++) {
-        const hourly = new Date(date);
-        hourly.setHours(hour, 59, 0, 0);
-        const datetimeStr = formatDate(hourly);
-        promises.push(fetchWeatherScore(datetimeStr));
-      }
-    }
-
-    const results = await Promise.all(promises);
-    const sorted = results.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-    renderChart('weekly-chart', sorted.map(r => r.datetime), sorted.map(r => r.score), 'Hourly Weather Score', 'line');
-  }
-
-function renderChart(canvasId, labels, data, label, type) {
-  // Ensure the canvas element exists
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) {
-    console.error(`Canvas with ID "${canvasId}" not found`);
-    return;
-  }
-  const ctx = canvas.getContext('2d');
-
-  // Validate labels and data arrays
-  if (!Array.isArray(labels) || !Array.isArray(data)) {
-    console.error("Labels or data are not arrays");
-    return;
-  }
-  if (labels.length !== data.length) {
-    console.error("Labels and data arrays have different lengths");
-    return;
-  }
-
-  // Check if Chart.js is loaded
-  if (typeof Chart === 'undefined') {
-    console.error("Chart.js library is not loaded");
-    return;
-  }
-
-  // Render the chart
-  new Chart(ctx, {
-    type: type,
-    data: {
-      labels: labels,
-      datasets: [{
-        label: label,
-        data: data,
-        borderColor: type === 'line' ? 'rgba(255, 159, 64, 1)' : 'rgba(75, 192, 192, 1)',
-        backgroundColor: type === 'bar' ? 'rgba(75, 192, 192, 0.2)' : 'transparent',
-        borderWidth: 1,
-      }],
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 7,
-        },
+    const ctx = document.getElementById('weekly-chart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: sorted.map(d => d.name),
+        datasets: [{
+          label: 'Avg Temp (°F)',
+          data: sorted.map(d => d.avg),
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: false,
+        }]
       },
-    },
-  });
-}
+      options: {
+        responsive: true,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: context => {
+                const i = context.dataIndex;
+                const d = sorted[i];
+                return [
+                  `Avg: ${d.avg}°F`,
+                  `High: ${d.high}°F`,
+                  `Low: ${d.low}°F`,
+                  `Precip: ${d.precip}%`,
+                  `Conditions: ${d.conditions}`
+                ];
+              }
+            }
+          },
+          legend: { display: true },
+          title: {
+            display: true,
+            text: '7-Day Avg Temperature Trend'
+          }
+        },
+        scales: {
+          y: {
+            title: { display: true, text: 'Temp (°F)' },
+            beginAtZero: false
+          },
+          x: {
+            ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 }
+          }
+        }
+      }
+    });
+  }
 
-  fetchMonthlyData();
-  fetchWeeklyHourlyData();
+  fetchForecastData();
 </script>
