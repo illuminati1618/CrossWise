@@ -1,55 +1,89 @@
 ---
 layout: tailwind
-title: Border Crossing Feedback
-permalink: /crosswiseforms
-menu: nav/border_feedback.html
+title: Traffic Report
+permalink: /traffic-report
+menu: nav/traffic-report.thml
 ---
 
 <div class="max-w-3xl mx-auto mt-10 bg-dark p-8 rounded-lg shadow-lg text-gray-200">
-  <h1 class="text-3xl font-bold text-accent mb-6 text-center">Border Time Report</h1>
-  <p class="text-gray-400 mb-8 text-center">Share your border crossing experience to help improve our wait time predictions</p>
+  <h1 class="text-3xl font-bold text-accent mb-6 text-center">Border Traffic Report</h1>
+  <p class="text-gray-400 mb-8 text-center">Report traffic incidents, accidents, or delays at border crossings to help other travelers</p>
   
-  <form id="borderFeedbackForm" class="space-y-6">
+  <form id="trafficReportForm" class="space-y-6">
     <div>
-      <label for="time_cross" class="block text-sm font-medium text-gray-300 mb-2">
-        When did you cross the border?
+      <label for="report_time" class="block text-sm font-medium text-gray-300 mb-2">
+        When did this incident occur?
       </label>
       <input 
         type="datetime-local" 
-        id="time_cross" 
-        name="time_cross" 
+        id="report_time" 
+        name="report_time" 
         required
         class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
       />
     </div>
     
     <div>
-      <label for="time_diff" class="block text-sm font-medium text-gray-300 mb-2">
-        Time difference between estimated and actual wait (minutes)
+      <label for="reason" class="block text-sm font-medium text-gray-300 mb-2">
+        Type of incident
       </label>
-      <div class="flex items-center">
-        <input 
-          type="number" 
-          id="time_diff" 
-          name="time_diff" 
-          required
-          placeholder="Enter positive for longer wait, negative for shorter wait"
-          class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
-        />
-        <span class="ml-2 text-gray-400">min</span>
-      </div>
-      <p class="mt-1 text-xs text-gray-400">Positive if actual wait was longer than estimated, negative if shorter</p>
+      <select 
+        id="reason" 
+        name="reason" 
+        required
+        class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
+      >
+        <option value="">Select incident type</option>
+        <option value="traffic">Heavy Traffic</option>
+        <option value="accident">Accident</option>
+        <option value="natural disaster">Natural Disaster</option>
+        <option value="road construction">Road Construction</option>
+        <option value="police checkpoint">Police Checkpoint</option>
+        <option value="road closure">Road Closure</option>
+      </select>
     </div>
     
     <div>
-      <label for="user_message" class="block text-sm font-medium text-gray-300 mb-2">
-        Additional comments about your crossing experience
+      <label for="border_location" class="block text-sm font-medium text-gray-300 mb-2">
+        Border crossing location
+      </label>
+      <select 
+        id="border_location" 
+        name="border_location" 
+        required
+        class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
+      >
+        <option value="">Select border crossing</option>
+        <option value="San Ysidro">San Ysidro</option>
+        <option value="Otay Mesa">Otay Mesa</option>
+      </select>
+    </div>
+    
+    <div>
+      <label for="direction" class="block text-sm font-medium text-gray-300 mb-2">
+        Direction of travel
+      </label>
+      <select 
+        id="direction" 
+        name="direction" 
+        required
+        class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
+      >
+        <option value="">Select direction</option>
+        <option value="entering us">Entering United States</option>
+        <option value="entering mexico">Entering Mexico</option>
+      </select>
+    </div>
+    
+    <div>
+      <label for="comments" class="block text-sm font-medium text-gray-300 mb-2">
+        Additional details (optional)
       </label>
       <textarea 
-        id="user_message" 
-        name="user_message" 
+        id="comments" 
+        name="comments" 
         rows="4"
-        placeholder="Share details about your experience, traffic conditions, or other observations..."
+        placeholder="Provide additional details about the incident, estimated delays, alternative routes, etc..."
         class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
       ></textarea>
     </div>
@@ -59,7 +93,7 @@ menu: nav/border_feedback.html
         type="submit" 
         class="w-full py-3 px-4 bg-accent text-white rounded-md hover:bg-blue-600 transition-colors font-medium"
       >
-        Submit Feedback
+        Submit Report
       </button>
     </div>
   </form>
@@ -71,8 +105,8 @@ menu: nav/border_feedback.html
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
       </svg>
       <div>
-        <p class="font-medium">Thank you for your feedback!</p>
-        <p class="text-sm mt-1">Your information has been submitted and will help improve our prediction model.</p>
+        <p class="font-medium">Thank you for your report!</p>
+        <p class="text-sm mt-1">Your traffic report has been submitted and will help other travelers.</p>
       </div>
     </div>
   </div>
@@ -93,7 +127,7 @@ menu: nav/border_feedback.html
 <script type="module">
   import { pythonURI, fetchOptions } from "{{ site.baseurl }}/assets/js/api/config.js";
 
-  const form = document.getElementById('borderFeedbackForm');
+  const form = document.getElementById('trafficReportForm');
   const successMessage = document.getElementById('successMessage');
   const errorMessage = document.getElementById('errorMessage');
   const errorDetails = document.getElementById('errorDetails');
@@ -101,7 +135,7 @@ menu: nav/border_feedback.html
   // Set default datetime-local value to current date and time
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  document.getElementById('time_cross').value = now.toISOString().slice(0, 16);
+  document.getElementById('report_time').value = now.toISOString().slice(0, 16);
 
   form.addEventListener('submit', async function(event) {
     event.preventDefault();
@@ -111,28 +145,32 @@ menu: nav/border_feedback.html
     errorMessage.classList.add('hidden');
     
     // Get form data
-    const timeCross = document.getElementById('time_cross').value;
-    const timeDiff = parseFloat(document.getElementById('time_diff').value);
-    const userMessage = document.getElementById('user_message').value;
+    const reportTime = document.getElementById('report_time').value;
+    const reason = document.getElementById('reason').value;
+    const borderLocation = document.getElementById('border_location').value;
+    const direction = document.getElementById('direction').value;
+    const comments = document.getElementById('comments').value;
     
     // Validate data
-    if (!timeCross || isNaN(timeDiff)) {
-      errorDetails.textContent = "Please fill out all required fields correctly.";
+    if (!reportTime || !reason || !borderLocation || !direction) {
+      errorDetails.textContent = "Please fill out all required fields.";
       errorMessage.classList.remove('hidden');
       return;
     }
     
     try {
       // Send the data to the API
-      const response = await fetch(`${pythonURI}/api/border_feedback/submit`, {
+      const response = await fetch(`${pythonURI}/api/traffic_report/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          time_cross: timeCross,
-          time_diff: timeDiff,
-          user_message: userMessage
+          report_time: reportTime,
+          reason: reason,
+          border_location: borderLocation,
+          direction: direction,
+          comments: comments
         })
       });
       
@@ -152,7 +190,7 @@ menu: nav/border_feedback.html
         form.reset();
         
         // Set default datetime again
-        document.getElementById('time_cross').value = now.toISOString().slice(0, 16);
+        document.getElementById('report_time').value = now.toISOString().slice(0, 16);
         
         // Scroll to success message
         successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
