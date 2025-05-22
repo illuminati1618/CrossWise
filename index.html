@@ -354,51 +354,47 @@ show_reading_time: false
     element.className = getWaitTimeColor(minutes);
   }
 
-  // Fetch current wait times from API
+  // FIXED: Fetch current wait times from API with separate try-catch blocks
   async function fetchWaitTimes() {
+    // Step 1: Fetch main wait times data
+    let data = null;
     try {
-      const response = await fetch(
-        pythonURI + "/api/proxy/waittimes",
-        fetchOptions
-      );
-      const data = await response.json();
+      console.log("Fetching wait times from:", pythonURI + "/api/proxy/waittimes");
+      const response = await fetch(pythonURI + "/api/proxy/waittimes", fetchOptions);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      data = await response.json();
+      console.log("Wait times data received successfully");
+      
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid data format received");
+      }
+    } catch (error) {
+      console.error("Error fetching main wait times:", error);
+      // Set all wait times to unavailable
+      document.getElementById("standard-vehicles-wait").textContent = "Unavailable";
+      document.getElementById("sentri-wait").textContent = "Unavailable";
+      document.getElementById("pedestrian-wait").textContent = "Unavailable";
+      document.getElementById("otay-standard-vehicles-wait").textContent = "Unavailable";
+      document.getElementById("otay-sentri-wait").textContent = "Unavailable";
+      document.getElementById("otay-pedestrian-wait").textContent = "Unavailable";
+      return; // Exit early if main data fetch fails
+    }
 
-      // Update San Ysidro wait times
+    // Step 2: Process San Ysidro data
+    try {
       const sanYsidro = data.find(
         (port) =>
-          port.port_name === "San Ysidro" && port.border === "Mexican Border"
+          port?.port_name === "San Ysidro" && port?.border === "Mexican Border"
       );
+      
       if (sanYsidro) {
-        const stdVehicleWait =
-          sanYsidro.passenger_vehicle_lanes.standard_lanes.delay_minutes;
-        const sentriWait =
-          sanYsidro.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes;
-        const pedestrianWait =
-          sanYsidro.pedestrian_lanes.standard_lanes.delay_minutes;
-
-        let weatherRes = await fetch(pythonURI + "/api/weather-data", {
-          ...fetchOptions,
-          method: "POST",
-          body: JSON.stringify({
-            mode: "realtime",
-          }),
-        });
-        let weatherData = await weatherRes.json();
-        let score = weatherData.weather_score;
-
-        let timeRes = await fetch(pythonURI + "/api/border/predict", {
-          ...fetchOptions,
-          method: "POST",
-          body: JSON.stringify({
-            bwt_day: new Date().getDay().toString(),
-            time_slot: new Date().getHours().toString(),
-            month: "4",
-            weather_score: String(score),
-          }),
-        });
-        let timeData = await timeRes.json();
-
-        console.log("Predicted wait time:", timeData);
+        const stdVehicleWait = sanYsidro?.passenger_vehicle_lanes?.standard_lanes?.delay_minutes;
+        const sentriWait = sanYsidro?.passenger_vehicle_lanes?.NEXUS_SENTRI_lanes?.delay_minutes;
+        const pedestrianWait = sanYsidro?.pedestrian_lanes?.standard_lanes?.delay_minutes;
 
         updateWaitTimeDisplay("standard-vehicles-wait", stdVehicleWait);
         updateWaitTimeDisplay("sentri-wait", sentriWait);
@@ -407,23 +403,32 @@ show_reading_time: false
         const now = new Date();
         document.getElementById("last-updated").textContent =
           now.toLocaleTimeString() + " on " + now.toLocaleDateString();
+      } else {
+        console.warn("San Ysidro data not found in response");
+        updateWaitTimeDisplay("standard-vehicles-wait", null);
+        updateWaitTimeDisplay("sentri-wait", null);
+        updateWaitTimeDisplay("pedestrian-wait", null);
       }
+    } catch (error) {
+      console.error("Error processing San Ysidro data:", error);
+      updateWaitTimeDisplay("standard-vehicles-wait", null);
+      updateWaitTimeDisplay("sentri-wait", null);
+      updateWaitTimeDisplay("pedestrian-wait", null);
+    }
 
-      // Update Otay Mesa wait times - filter for Passenger crossing specifically
+    // Step 3: Process Otay Mesa data
+    try {
       const otayMesa = data.find(
         (port) =>
-          port.port_name === "Otay Mesa" &&
-          port.border === "Mexican Border" &&
-          port.crossing_name === "Passenger"
+          port?.port_name === "Otay Mesa" &&
+          port?.border === "Mexican Border" &&
+          port?.crossing_name === "Passenger"
       );
 
       if (otayMesa) {
-        const stdVehicleWait =
-          otayMesa.passenger_vehicle_lanes.standard_lanes.delay_minutes;
-        const sentriWait =
-          otayMesa.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes;
-        const pedestrianWait =
-          otayMesa.pedestrian_lanes.standard_lanes.delay_minutes;
+        const stdVehicleWait = otayMesa?.passenger_vehicle_lanes?.standard_lanes?.delay_minutes;
+        const sentriWait = otayMesa?.passenger_vehicle_lanes?.NEXUS_SENTRI_lanes?.delay_minutes;
+        const pedestrianWait = otayMesa?.pedestrian_lanes?.standard_lanes?.delay_minutes;
 
         updateWaitTimeDisplay("otay-standard-vehicles-wait", stdVehicleWait);
         updateWaitTimeDisplay("otay-sentri-wait", sentriWait);
@@ -432,18 +437,70 @@ show_reading_time: false
         const now = new Date();
         document.getElementById("otay-last-updated").textContent =
           now.toLocaleTimeString() + " on " + now.toLocaleDateString();
+      } else {
+        console.warn("Otay Mesa data not found in response");
+        updateWaitTimeDisplay("otay-standard-vehicles-wait", null);
+        updateWaitTimeDisplay("otay-sentri-wait", null);
+        updateWaitTimeDisplay("otay-pedestrian-wait", null);
       }
     } catch (error) {
-      console.error("Error fetching wait times:", error);
-      document.getElementById("standard-vehicles-wait").textContent =
-        "Unavailable";
-      document.getElementById("sentri-wait").textContent = "Unavailable";
-      document.getElementById("pedestrian-wait").textContent = "Unavailable";
-      document.getElementById("otay-standard-vehicles-wait").textContent =
-        "Unavailable";
-      document.getElementById("otay-sentri-wait").textContent = "Unavailable";
-      document.getElementById("otay-pedestrian-wait").textContent =
-        "Unavailable";
+      console.error("Error processing Otay Mesa data:", error);
+      updateWaitTimeDisplay("otay-standard-vehicles-wait", null);
+      updateWaitTimeDisplay("otay-sentri-wait", null);
+      updateWaitTimeDisplay("otay-pedestrian-wait", null);
+    }
+
+    // Step 4: Fetch weather data (independent of main wait times)
+    let score = 0; // Default weather score
+    try {
+      console.log("Fetching weather data...");
+      const weatherRes = await fetch(pythonURI + "/api/weather-data", {
+        ...fetchOptions,
+        method: "POST",
+        body: JSON.stringify({
+          mode: "realtime",
+        }),
+      });
+      
+      if (!weatherRes.ok) {
+        throw new Error(`Weather API HTTP ${weatherRes.status}: ${weatherRes.statusText}`);
+      }
+      
+      const weatherData = await weatherRes.json();
+      score = weatherData?.weather_score || 0;
+      console.log("Weather data fetched successfully, score:", score);
+    } catch (error) {
+      console.warn("Weather API failed (using default score):", error);
+      // Continue with default score of 0
+    }
+
+    // Step 5: Fetch border prediction (independent of other calls)
+    try {
+      console.log("Fetching border prediction...");
+      const timeRes = await fetch(pythonURI + "/api/border/predict", {
+        ...fetchOptions,
+        method: "POST",
+        body: JSON.stringify({
+          bwt_day: new Date().getDay().toString(),
+          time_slot: new Date().getHours().toString(),
+          month: "4",
+          weather_score: String(score),
+        }),
+      });
+      
+      if (!timeRes.ok) {
+        throw new Error(`Border prediction API HTTP ${timeRes.status}: ${timeRes.statusText}`);
+      }
+      
+      const timeData = await timeRes.json();
+      console.log("Predicted wait time:", timeData);
+      
+      // You can use timeData here if needed for displaying predictions
+      // For example: document.getElementById("prediction-display").textContent = timeData.time + " minutes";
+      
+    } catch (error) {
+      console.warn("Border prediction API failed:", error);
+      // Continue without prediction data
     }
   }
 
