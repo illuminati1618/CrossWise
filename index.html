@@ -450,31 +450,7 @@ show_reading_time: false
       updateWaitTimeDisplay("otay-pedestrian-wait", null);
     }
 
-    // Step 4: Fetch weather data (independent of main wait times)
-    let score = 0; // Default weather score
-    try {
-      console.log("Fetching weather data...");
-      const weatherRes = await fetch(pythonURI + "/api/weather-data", {
-        ...fetchOptions,
-        method: "POST",
-        body: JSON.stringify({
-          mode: "realtime",
-        }),
-      });
-      
-      if (!weatherRes.ok) {
-        throw new Error(`Weather API HTTP ${weatherRes.status}: ${weatherRes.statusText}`);
-      }
-      
-      const weatherData = await weatherRes.json();
-      score = weatherData?.weather_score || 0;
-      console.log("Weather data fetched successfully, score:", score);
-    } catch (error) {
-      console.warn("Weather API failed (using default score):", error);
-      // Continue with default score of 0
-    }
-
-    // Step 5: Fetch border prediction (independent of other calls)
+    // Step 4: Fetch border prediction (independent of other calls)
     try {
       console.log("Fetching border prediction...");
       const timeRes = await fetch(pythonURI + "/api/border/predict", {
@@ -484,7 +460,6 @@ show_reading_time: false
           bwt_day: new Date().getDay().toString(),
           time_slot: new Date().getHours().toString(),
           month: "4",
-          weather_score: String(score),
         }),
       });
       
