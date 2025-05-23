@@ -14,8 +14,6 @@ permalink: /livefeed
 
 <style>
   :root {
-    --color-dark: #1a1e2e;
-    --color-darker: #16213e;
     --color-accent: #4285f4;
     --color-success: #34a853;
     --color-warning: #fbbc05;
@@ -28,7 +26,6 @@ permalink: /livefeed
     margin-bottom: 2rem;
   }
   .card {
-    background-color: var(--color-darker);
     border: 1px solid #3c4c60;
     border-radius: 1rem;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -277,7 +274,7 @@ const month = pad(now.getMonth() + 1);
 const day = pad(now.getDate());
 const datePart = `${year}_${month}_${day}`;
 const attempts = [];
-for (let i = 0; i <= 60; i++) {
+for (let i = 0; i <= 20; i++) {
   const trial = new Date(now.getTime() - i * 60000);
   const yr = trial.getFullYear();
   const mn = pad(trial.getMonth() + 1);
@@ -608,7 +605,7 @@ setInterval(() => {
 (async function start() {
   await loadLocalVideos();
   tryMainVideo();
-  scanAllPastVideos();
+ // scanAllPastVideos();
 })();
 </script>
 <canvas id="frameCanvas" width="640" height="360" style="display:none;"></canvas>
