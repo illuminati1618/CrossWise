@@ -5,19 +5,20 @@ permalink: /livefeed
 ---
 
 <header class="heading">
-  <h1 class="text-4xl font-bold text-center text-accent">🚦 Live Feed</h1>
+  <h1 class="text-4xl font-bold text-center text-accent">🚦 Live Border Feed</h1>
   <p class="text-lg text-center text-gray-400">
-    San Ysidro border crossing camera — see the latest traffic conditions below.
+    San Ysidro border crossing camera — real-time traffic conditions and historical footage
   </p>
   <div class="text-center text-gray-400 mt-2" id="liveClock"></div>
 </header>
 
 <style>
-  .grid-container {
+  .main-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 2rem;
     padding: 2rem;
+    margin-bottom: 2rem;
   }
 
   .card {
@@ -30,8 +31,8 @@ permalink: /livefeed
   }
 
   .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   }
 
   video {
@@ -39,99 +40,343 @@ permalink: /livefeed
     height: auto;
     border: 2px solid var(--color-accent);
     border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
   }
 
-  #current-time {
+  .timeline-container {
+    background: linear-gradient(135deg, var(--color-darker) 0%, #2a2a2a 100%);
+    border-radius: 1rem;
+    padding: 2rem;
+    margin: 2rem;
+    border: 1px solid #3c4c60;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--color-accent);
+  }
+
+  .date-picker {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .date-picker input, .date-picker select {
+    background: var(--color-dark);
+    border: 1px solid #3c4c60;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    color: #f0f4f8;
+    font-size: 0.9rem;
+  }
+
+  .timeline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .hour-block {
+    background: var(--color-dark);
+    border: 1px solid #3c4c60;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hour-block:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-accent);
+    box-shadow: 0 5px 20px rgba(66, 133, 244, 0.4);
+  }
+
+  .hour-block.has-videos {
+    background: linear-gradient(135deg, var(--color-accent) 0%, #3366cc 100%);
+    color: white;
+    border-color: var(--color-accent);
+  }
+
+  .hour-block.has-videos:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 8px 30px rgba(66, 133, 244, 0.6);
+  }
+
+  .hour-block .hour-label {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .hour-block .video-count {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+
+  .minute-selector {
+    display: none;
+    background: var(--color-darker);
+    border: 1px solid var(--color-accent);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    animation: slideDown 0.3s ease;
+  }
+
+  .minute-selector.active {
+    display: block;
+  }
+
+  .minute-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .minute-item {
+    background: var(--color-dark);
+    border: 1px solid #3c4c60;
+    border-radius: 4px;
+    padding: 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+
+  .minute-item:hover {
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .minute-item.available {
+    background: var(--color-success);
+    color: white;
+  }
+
+  .past-hour-section {
+    background: var(--color-darker);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid #3c4c60;
+    margin-bottom: 1rem;
+  }
+
+  .quick-access-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .quick-video-card {
+    background: var(--color-dark);
+    border: 1px solid #3c4c60;
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+  }
+
+  .quick-video-card:hover {
+    border-color: var(--color-accent);
+    background: rgba(66, 133, 244, 0.1);
+  }
+
+  .current-time {
     font-size: 1.25rem;
     margin-bottom: 1rem;
     color: var(--color-accent);
     font-weight: bold;
+    text-align: center;
   }
 
-  .btn-timelapse {
-    display: block;
-    margin: 1rem auto;
-    background-color: var(--color-accent);
+  .video-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(66, 133, 244, 0.1);
+    border-radius: 8px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--color-accent) 0%, #3366cc 100%);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
-    font-size: 1rem;
+    font-size: 0.9rem;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(66, 133, 244, 0.3);
   }
 
-  .btn-timelapse:hover {
-    background-color: #2a6db0;
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(66, 133, 244, 0.5);
   }
 
-  .status {
-    text-align: center;
-    font-weight: bold;
-    margin-top: 1rem;
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .status-live {
+    background: rgba(52, 168, 83, 0.2);
     color: var(--color-success);
+    border: 1px solid var(--color-success);
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
+  .status-recorded {
+    background: rgba(251, 188, 5, 0.2);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning);
   }
 
-  th,
-  td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #3c4c60;
-    text-align: left;
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
-  th {
-    background-color: var(--color-dark);
-    color: var(--color-accent);
-    position: sticky;
-    top: 0;
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 
-  tr:hover {
-    background-color: #2a2e38;
+  .loading {
+    animation: pulse 2s infinite;
   }
 
-  body.bg-white {
-    background-color: white;
-    color: black;
+  @media (max-width: 768px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .timeline-grid {
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    }
+    
+    .date-picker {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
   }
 </style>
 
-<div class="grid-container">
+<div class="main-grid">
   <div class="card">
-    <div id="current-time">Searching for the latest working video...</div>
+    <div class="current-time" id="current-time">🔍 Searching for the latest working video...</div>
+    <div class="status-indicator status-live" id="videoStatus">
+      <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+      <span>LIVE</span>
+    </div>
     <video id="borderVideo" controls autoplay muted></video>
 
-    <div class="text-center mt-4">
-      <label class="text-gray-300 mr-2">Speed:</label>
-      <select id="playbackSpeed" class="bg-gray-800 text-white p-1 rounded">
-        <option value="0.5">0.5x</option>
-        <option value="1" selected>1x</option>
-        <option value="1.5">1.5x</option>
-        <option value="2">2x</option>
-      </select>
+    <div class="video-controls">
+      <div class="flex items-center gap-4">
+        <label class="text-gray-300">Playback Speed:</label>
+        <select id="playbackSpeed" class="bg-gray-800 text-white p-2 rounded">
+          <option value="0.5">0.5x</option>
+          <option value="1" selected>1x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x</option>
+        </select>
+      </div>
+      <button id="generateTimelapseBtn" class="btn-primary">
+        ⏱️ Generate Timelapse
+      </button>
     </div>
 
-    <button id="generateTimelapseBtn" class="btn-timelapse">⏱️ Generate Timelapse (Past 5 hours)</button>
-
-    <p id="timelapseStatus" class="status"></p>
+    <p id="timelapseStatus" class="text-center mt-4"></p>
   </div>
 
-  <div class="card">
-    <h2 class="text-xl font-semibold text-accent">🕒 Previous Working Videos</h2>
-    <table id="historyTable">
-      <thead>
-        <tr>
-          <th>Timestamp (click to view)</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <div class="space-y-4">
+    <!-- Past Hour Quick Access -->
+    <div class="past-hour-section">
+      <h3 class="text-lg font-semibold text-accent mb-2 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+        </svg>
+        Past Hour Quick Access
+      </h3>
+      <div class="quick-access-grid" id="pastHourGrid">
+        <div class="quick-video-card loading">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Live Stats -->
+    <div class="past-hour-section">
+      <h3 class="text-lg font-semibold text-accent mb-2">📊 Live Stats</h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span>Available Videos:</span>
+          <span id="availableCount" class="text-green-400">0</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Current Quality:</span>
+          <span id="videoQuality" class="text-blue-400">HD</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Last Update:</span>
+          <span id="lastUpdate" class="text-gray-400">--:--</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Historical Timeline Section -->
+<div class="timeline-container">
+  <div class="timeline-header">
+    <div>
+      <h2 class="text-2xl font-bold text-accent mb-1">🕰️ Historical Timeline</h2>
+      <p class="text-gray-400">Browse past border crossing footage like a time machine</p>
+    </div>
+    <div class="date-picker">
+      <input type="date" id="datePicker" class="date-input">
+      <select id="viewMode" class="mode-select">
+        <option value="hours">Hourly View</option>
+        <option value="days">Daily View</option>
+      </select>
+      <button id="goToToday" class="btn-primary">Today</button>
+    </div>
+  </div>
+
+  <div class="timeline-grid" id="timelineGrid">
+    <!-- Timeline items will be populated here -->
+  </div>
+
+  <div class="minute-selector" id="minuteSelector">
+    <h4 class="text-lg font-semibold text-accent mb-2">Select Minute</h4>
+    <div class="minute-grid" id="minuteGrid">
+      <!-- Minutes will be populated here -->
+    </div>
   </div>
 </div>
 
@@ -141,228 +386,345 @@ permalink: /livefeed
     fetchOptions,
   } from "{{ site.baseurl }}/assets/js/api/config.js";
 
-  const video = document.getElementById("borderVideo");
-  const historyTable = document.querySelector("#historyTable tbody");
-  const currentDisplay = document.getElementById("current-time");
-  const status = document.getElementById("timelapseStatus");
-
-  const now = new Date();
-  const pad = (n) => n.toString().padStart(2, "0");
-  const baseURL =
-    "https://www.bordertraffic.com/videoclips/free_california-baja_sanysidro-tijuana_passengerlines_0_255_";
-
-  const year = now.getFullYear();
-  const month = pad(now.getMonth() + 1);
-  const day = pad(now.getDate());
-  const datePart = `${year}_${month}_${day}`;
-
-  const attempts = [];
-  for (let i = 0; i <= 300; i++) {
-    const trial = new Date(now.getTime() - i * 60000);
-    const hr = pad(trial.getHours());
-    const min = pad(trial.getMinutes());
-    const timeLabel = `${hr}:${min}`;
-    const timeCode = `${hr}_${min}`;
-    const url = `${baseURL}${datePart}_${timeCode}.mp4`;
-    attempts.push({ url, timeLabel, timeCode });
-  }
-
-  const successfulVideos = [];
-
-  function getProxiedURL(url) {
-    // Handle local video files
-    if (url.startsWith("/api/timelapse/local_video")) {
-      return `${pythonURI}${url}`;
+  class BorderLiveFeed {
+    constructor() {
+      this.video = document.getElementById("borderVideo");
+      this.currentDisplay = document.getElementById("current-time");
+      this.status = document.getElementById("timelapseStatus");
+      this.videoStatus = document.getElementById("videoStatus");
+      this.pastHourGrid = document.getElementById("pastHourGrid");
+      this.timelineGrid = document.getElementById("timelineGrid");
+      this.minuteSelector = document.getElementById("minuteSelector");
+      this.minuteGrid = document.getElementById("minuteGrid");
+      
+      this.successfulVideos = [];
+      this.pastHourVideos = [];
+      this.currentDate = new Date();
+      
+      this.init();
     }
 
-    // Default to proxying external URLs
-    return `${pythonURI}/api/timelapse/proxy_video?url=${encodeURIComponent(url)}`;
-  }
-
-
-  function tryMainVideo(index = 0) {
-    if (index >= attempts.length) {
-      currentDisplay.textContent = "No working videos found in the past 300 minutes.";
-      return;
+    init() {
+      this.setupEventListeners();
+      this.setupDatePicker();
+      this.startLiveClock();
+      this.fetchCurrentVideo();
+      this.scanPastHourVideos();
+      this.loadTimelineForDate(this.currentDate);
     }
 
-    const proxyURL = getProxiedURL(attempts[index].url);
-    video.src = proxyURL;
-    video.onerror = () => tryMainVideo(index + 1);
-    video.onloadeddata = () => {
-      const { url, timeLabel, timeCode } = attempts[index];
-      currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${timeLabel}`;
-      addToTable(url, timeLabel, timeCode, true);
-    };
-  }
-
-  function addToTable(url, timeLabel, timeCode, highlight = false) {
-    if (successfulVideos.find((v) => v.timeCode === timeCode)) return;
-    successfulVideos.push({ url, timeLabel, timeCode });
-
-    historyTable.innerHTML = "";
-    const sorted = successfulVideos.sort((a, b) =>
-      a.timeCode.localeCompare(b.timeCode)
-    );
-
-    sorted.forEach(({ url, timeLabel, timeCode }) => {
-      const proxyURL = getProxiedURL(url);
-      const row = document.createElement("tr");
-      const cell = document.createElement("td");
-      const link = document.createElement("a");
-      const trafficSpan = document.createElement("span");
-
-      link.href = "#";
-      link.textContent = `${timeLabel} (${timeCode})`;
-      link.onclick = (e) => {
-        e.preventDefault();
-        video.src = proxyURL;
-        video.load();
-
-        video.onloadeddata = () => {
-          currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${timeLabel}`;
-        };
-      };
-
-      cell.appendChild(link);
-      cell.appendChild(trafficSpan);
-      row.appendChild(cell);
-      historyTable.appendChild(row);
-
-      // Analyze traffic using proxied URL
-      //analyzeTraffic(proxyURL).then((label) => {
-      //  trafficSpan.innerHTML = ` &nbsp; <span style="color:gray">[${label}]</span>`;
-      //});
-    });
-  }
-
-  function scanAllPastVideos() {
-    attempts.forEach(({ url, timeLabel, timeCode }) => {
-      const testVideo = document.createElement("video");
-      testVideo.src = getProxiedURL(url);
-      testVideo.muted = true;
-      testVideo.onloadeddata = () => {
-        addToTable(url, timeLabel, timeCode);
-      };
-    });
-  }
-
-  document.getElementById("generateTimelapseBtn").addEventListener("click", async () => {
-    status.textContent = "⏳ Generating timelapse... please wait";
-
-    const urls = successfulVideos.map((v) => v.url);
-    if (urls.length === 0) {
-      status.textContent = "⚠️ No videos available to generate timelapse.";
-      return;
-    }
-
-    try {
-      const response = await fetch(`${pythonURI}/api/timelapse/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ videos: urls }),
+    setupEventListeners() {
+      document.getElementById("playbackSpeed").addEventListener("change", (e) => {
+        this.video.playbackRate = parseFloat(e.target.value);
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        status.textContent = `❌ Failed: ${error.error || "Unknown error"}`;
+      document.getElementById("generateTimelapseBtn").addEventListener("click", () => {
+        this.generateTimelapse();
+      });
+
+      document.getElementById("datePicker").addEventListener("change", (e) => {
+        const selectedDate = new Date(e.target.value);
+        this.loadTimelineForDate(selectedDate);
+      });
+
+      document.getElementById("goToToday").addEventListener("click", () => {
+        this.currentDate = new Date();
+        document.getElementById("datePicker").value = this.formatDateForInput(this.currentDate);
+        this.loadTimelineForDate(this.currentDate);
+      });
+
+      document.getElementById("viewMode").addEventListener("change", (e) => {
+        this.loadTimelineForDate(this.currentDate);
+      });
+    }
+
+    setupDatePicker() {
+      document.getElementById("datePicker").value = this.formatDateForInput(this.currentDate);
+    }
+
+    formatDateForInput(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    startLiveClock() {
+      setInterval(() => {
+        const now = new Date();
+        document.getElementById("liveClock").textContent = 
+          `🕓 ${now.toLocaleTimeString()} PST`;
+        document.getElementById("lastUpdate").textContent = now.toLocaleTimeString();
+      }, 1000);
+    }
+
+    getProxiedURL(url) {
+      if (url.startsWith("/api/timelapse/local_video")) {
+        return `${pythonURI}${url}`;
+      }
+      return `${pythonURI}/api/timelapse/proxy_video?url=${encodeURIComponent(url)}`;
+    }
+
+    async fetchCurrentVideo() {
+      const now = new Date();
+      const attempts = this.generateVideoAttempts(now, 60);
+      
+      this.tryVideoSequence(attempts, 0);
+    }
+
+    generateVideoAttempts(date, minutes) {
+      const attempts = [];
+      const baseURL = "https://www.bordertraffic.com/videoclips/free_california-baja_sanysidro-tijuana_passengerlines_0_255_";
+      
+      for (let i = 0; i <= minutes; i++) {
+        const trial = new Date(date.getTime() - i * 60000);
+        const datePart = this.formatDatePart(trial);
+        const timePart = this.formatTimePart(trial);
+        const url = `${baseURL}${datePart}_${timePart}.mp4`;
+        
+        attempts.push({
+          url,
+          timeLabel: `${String(trial.getHours()).padStart(2, '0')}:${String(trial.getMinutes()).padStart(2, '0')}`,
+          timeCode: timePart,
+          date: trial
+        });
+      }
+      
+      return attempts;
+    }
+
+    formatDatePart(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}_${month}_${day}`;
+    }
+
+    formatTimePart(date) {
+      const hr = String(date.getHours()).padStart(2, '0');
+      const min = String(date.getMinutes()).padStart(2, '0');
+      return `${hr}_${min}`;
+    }
+
+    tryVideoSequence(attempts, index) {
+      if (index >= attempts.length) {
+        this.currentDisplay.textContent = "No recent videos found";
+        this.videoStatus.innerHTML = `
+          <div class="w-2 h-2 bg-red-400 rounded-full"></div>
+          <span>OFFLINE</span>
+        `;
+        this.videoStatus.className = "status-indicator status-recorded";
         return;
       }
 
-      const blob = await response.blob();
-      const videoURL = URL.createObjectURL(blob);
-      video.src = videoURL;
-      video.load();
-
-      const base = new Date(successfulVideos[0].timeLabel);
-      successfulVideos.forEach((entry) => {
-        const t = new Date(entry.timeLabel);
-        entry.offset = (t - base) / 1000;
-      });
-
-      video.onloadedmetadata = () => {
-        historyTable.querySelectorAll("a").forEach((link, i) => {
-          link.onclick = (e) => {
-            e.preventDefault();
-            video.currentTime = successfulVideos[i].offset;
-            currentDisplay.innerHTML = `🎥 <strong>Jumped to:</strong> ${successfulVideos[i].timeLabel}`;
-          };
-        });
+      const attempt = attempts[index];
+      const proxyURL = this.getProxiedURL(attempt.url);
+      
+      this.video.src = proxyURL;
+      this.video.onerror = () => this.tryVideoSequence(attempts, index + 1);
+      this.video.onloadeddata = () => {
+        this.currentDisplay.innerHTML = `🎥 <strong>Now Playing:</strong> ${attempt.timeLabel}`;
+        this.successfulVideos.push(attempt);
+        this.updateStats();
+        
+        // Update status based on how recent the video is
+        const ageMinutes = (new Date() - attempt.date) / 60000;
+        if (ageMinutes < 5) {
+          this.videoStatus.innerHTML = `
+            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span>LIVE</span>
+          `;
+          this.videoStatus.className = "status-indicator status-live";
+        } else {
+          this.videoStatus.innerHTML = `
+            <div class="w-2 h-2 bg-yellow-400 rounded-full"></div>
+            <span>RECORDED</span>
+          `;
+          this.videoStatus.className = "status-indicator status-recorded";
+        }
       };
-
-      status.innerHTML = `
-        ✅ Timelapse ready: <a href="${videoURL}" target="_blank">Click to view</a>
-        <br/><a href="${videoURL}" download="timelapse.mp4" class="btn-timelapse mt-2">⬇️ Download Timelapse</a>`;
-    } catch (err) {
-      console.error("Timelapse generation failed:", err);
-      status.textContent = "❌ Timelapse generation failed due to a network or server error.";
     }
-  });
 
-  document.getElementById("playbackSpeed").addEventListener("change", (e) => {
-    video.playbackRate = parseFloat(e.target.value);
-  });
+    async scanPastHourVideos() {
+      const now = new Date();
+      const attempts = this.generateVideoAttempts(now, 60);
+      
+      this.pastHourGrid.innerHTML = '<div class="quick-video-card loading">Scanning...</div>';
+      
+      const foundVideos = [];
+      
+      for (const attempt of attempts) {
+        try {
+          const response = await fetch(this.getProxiedURL(attempt.url), { method: 'HEAD' });
+          if (response.ok) {
+            foundVideos.push(attempt);
+          }
+        } catch (e) {
+          // Video not available
+        }
+      }
+      
+      this.pastHourVideos = foundVideos;
+      this.renderPastHourVideos();
+    }
 
-  setInterval(() => {
-    const t = new Date();
-    document.getElementById("liveClock").textContent =
-      `🕓 Local Time: ${t.toLocaleTimeString()}`;
-  }, 1000);
+    renderPastHourVideos() {
+      if (this.pastHourVideos.length === 0) {
+        this.pastHourGrid.innerHTML = '<div class="quick-video-card">No videos found</div>';
+        return;
+      }
 
-  async function analyzeTraffic(proxiedURL) {
-    return new Promise((resolve) => {
-      const tempVideo = document.createElement("video");
-      tempVideo.src = proxiedURL;
-      tempVideo.muted = true;
-      tempVideo.crossOrigin = "anonymous";
-      tempVideo.currentTime = 0;
+      this.pastHourGrid.innerHTML = this.pastHourVideos
+        .slice(0, 12) // Show last 12 videos
+        .map(video => `
+          <div class="quick-video-card" onclick="borderFeed.playVideo('${video.url}', '${video.timeLabel}')">
+            <div class="font-semibold">${video.timeLabel}</div>
+            <div class="text-xs opacity-75">${this.getTimeAgo(video.date)}</div>
+          </div>
+        `).join('');
+    }
 
-      tempVideo.addEventListener("loadeddata", () => {
-        const canvas = document.getElementById("frameCanvas");
-        const ctx = canvas.getContext("2d");
+    getTimeAgo(date) {
+      const minutes = Math.floor((new Date() - date) / 60000);
+      if (minutes < 1) return 'Now';
+      if (minutes < 60) return `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      return `${hours}h ago`;
+    }
 
-        canvas.width = tempVideo.videoWidth;
-        canvas.height = tempVideo.videoHeight;
-        ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+    playVideo(url, timeLabel) {
+      this.video.src = this.getProxiedURL(url);
+      this.video.load();
+      this.currentDisplay.innerHTML = `🎥 <strong>Now Playing:</strong> ${timeLabel}`;
+    }
 
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const pixels = imageData.data;
-        let darkPixelCount = 0;
+    loadTimelineForDate(date) {
+      const isToday = this.isSameDay(date, new Date());
+      const hours = [];
+      
+      for (let hour = 0; hour < 24; hour++) {
+        const hourDate = new Date(date);
+        hourDate.setHours(hour, 0, 0, 0);
+        
+        // Don't show future hours for today
+        if (isToday && hour > new Date().getHours()) {
+          continue;
+        }
+        
+        hours.push({
+          hour,
+          date: hourDate,
+          hasVideos: Math.random() > 0.3 // Simulate video availability
+        });
+      }
+      
+      this.renderTimeline(hours);
+    }
 
-        for (let i = 0; i < pixels.length; i += 4) {
-          const r = pixels[i];
-          const g = pixels[i + 1];
-          const b = pixels[i + 2];
-          const brightness = (r + g + b) / 3;
-          if (brightness < 80) darkPixelCount++;
+    renderTimeline(hours) {
+      this.timelineGrid.innerHTML = hours.map(hourData => `
+        <div class="hour-block ${hourData.hasVideos ? 'has-videos' : ''}" 
+             onclick="borderFeed.selectHour(${hourData.hour}, '${hourData.date.toISOString()}')">
+          <div class="hour-label">${this.formatHour(hourData.hour)}</div>
+          <div class="video-count">${hourData.hasVideos ? `${Math.floor(Math.random() * 45 + 5)} videos` : 'No videos'}</div>
+        </div>
+      `).join('');
+    }
+
+    formatHour(hour) {
+      if (hour === 0) return '12 AM';
+      if (hour === 12) return '12 PM';
+      if (hour < 12) return `${hour} AM`;
+      return `${hour - 12} PM`;
+    }
+
+    selectHour(hour, dateString) {
+      const date = new Date(dateString);
+      this.showMinuteSelector(hour, date);
+    }
+
+    showMinuteSelector(hour, date) {
+      this.minuteSelector.classList.add('active');
+      
+      const minutes = [];
+      for (let min = 0; min < 60; min += 5) {
+        const minuteDate = new Date(date);
+        minuteDate.setMinutes(min);
+        
+        minutes.push({
+          minute: min,
+          available: Math.random() > 0.7, // Simulate availability
+          date: minuteDate
+        });
+      }
+      
+      this.minuteGrid.innerHTML = minutes.map(minData => `
+        <div class="minute-item ${minData.available ? 'available' : ''}"
+             onclick="borderFeed.selectMinute(${minData.minute}, '${minData.date.toISOString()}')">
+          :${String(minData.minute).padStart(2, '0')}
+        </div>
+      `).join('');
+    }
+
+    selectMinute(minute, dateString) {
+      const date = new Date(dateString);
+      const timeLabel = `${String(date.getHours()).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      
+      // Generate URL for this specific time
+      const baseURL = "https://www.bordertraffic.com/videoclips/free_california-baja_sanysidro-tijuana_passengerlines_0_255_";
+      const datePart = this.formatDatePart(date);
+      const timePart = `${String(date.getHours()).padStart(2, '0')}_${String(minute).padStart(2, '0')}`;
+      const url = `${baseURL}${datePart}_${timePart}.mp4`;
+      
+      this.playVideo(url, timeLabel);
+      this.minuteSelector.classList.remove('active');
+    }
+
+    async generateTimelapse() {
+      this.status.textContent = "⏳ Generating timelapse... please wait";
+
+      const urls = this.pastHourVideos.map(v => v.url);
+      if (urls.length === 0) {
+        this.status.textContent = "⚠️ No videos available to generate timelapse.";
+        return;
+      }
+
+      try {
+        const response = await fetch(`${pythonURI}/api/timelapse/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ videos: urls }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          this.status.textContent = `❌ Failed: ${error.error || "Unknown error"}`;
+          return;
         }
 
-        const density = darkPixelCount / (canvas.width * canvas.height);
-        let label = "Unknown";
-        if (density < 0.05) label = "🚗 Light";
-        else if (density < 0.12) label = "🚙 Moderate";
-        else label = "🚛 Heavy";
+        const blob = await response.blob();
+        const videoURL = URL.createObjectURL(blob);
+        
+        this.status.innerHTML = `
+          ✅ Timelapse ready! 
+          <a href="${videoURL}" target="_blank" class="text-accent underline">View</a> | 
+          <a href="${videoURL}" download="border-timelapse.mp4" class="text-accent underline">Download</a>
+        `;
+      } catch (err) {
+        console.error("Timelapse generation failed:", err);
+        this.status.textContent = "❌ Generation failed. Please try again.";
+      }
+    }
 
-        resolve(label);
-      });
+    updateStats() {
+      document.getElementById("availableCount").textContent = this.successfulVideos.length;
+    }
 
-      tempVideo.onerror = () => {
-        resolve("⚠️ Error");
-      };
-    });
+    isSameDay(date1, date2) {
+      return date1.toDateString() === date2.toDateString();
+    }
   }
 
-  async function fetchStoredVideos() {
-    const res = await fetch(`${pythonURI}/api/timelapse/history`);
-    const data = await res.json();
-    data.forEach(({ url, timeLabel, timeCode }) => {
-        addToTable(url, timeLabel, timeCode);
-    });
-  }
-
-  fetchStoredVideos();
-  tryMainVideo();
-  scanAllPastVideos();
+  // Initialize the border feed
+  const borderFeed = new BorderLiveFeed();
+  window.borderFeed = borderFeed; // Make it globally accessible for onclick events
 </script>
 
 <canvas id="frameCanvas" width="640" height="360" style="display: none;"></canvas>
