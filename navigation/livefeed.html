@@ -617,10 +617,6 @@ permalink: /livefeed
                         </select>
                     </div>
                     
-                    <button id="generateTimelapseBtn" class="btn">
-                        ⏱️ Generate Timelapse
-                    </button>
-                    
                     <button id="waybackToggle" class="btn btn-secondary">
                         📅 Timeline
                     </button>
@@ -671,17 +667,24 @@ permalink: /livefeed
             <!-- Hour Grid -->
             <div id="hourGrid"></div>
 
-            <!-- Recent Videos -->
+            <!-- Recent Videos with Timelapse Selection -->
             <div class="recent-videos">
                 <div class="recent-title">
                     🕑 Recent Videos
                 </div>
-                <div id="recentVideosList">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        Loading recent videos...
+                <form id="timelapseForm">
+                    <div id="recentVideosList">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading recent videos...
+                        </div>
                     </div>
-                </div>
+                    <div style="margin-top: 0.5rem;">
+                        <button id="generateTimelapseBtn" type="submit" class="btn" style="width: 100%;">
+                            ⏱️ Generate Timelapse (Selected)
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -705,6 +708,7 @@ import {
 let successfulVideos = [];
 let currentDate = new Date();
 let selectedDate = null;
+let timelapseSelected = new Set();
 
 const video = document.getElementById('borderVideo');
 const currentDisplay = document.getElementById('current-time');
@@ -713,6 +717,8 @@ const waybackHandle = document.getElementById('waybackHandle');
 const notification = document.getElementById('notification');
 const notificationContent = document.getElementById('notificationContent');
 const recentList = document.getElementById('recentVideosList');
+const timelapseForm = document.getElementById('timelapseForm');
+const generateTimelapseBtn = document.getElementById('generateTimelapseBtn');
 
 const pad = (n) => n.toString().padStart(2, "0");
 
@@ -924,6 +930,13 @@ function showVideosForHour(videos) {
     hourGrid.appendChild(videoContainer);
 }
 
+// ---- TIMELAPSE SELECTION UI AND LOGIC ----
+
+function toggleTimelapseSelection(url, checked) {
+    if (checked) timelapseSelected.add(url);
+    else timelapseSelected.delete(url);
+}
+
 function updateRecentVideos() {
     const now = new Date();
     const recentVideos = [...successfulVideos]
@@ -947,14 +960,30 @@ function updateRecentVideos() {
     recentVideos.forEach(v => {
         const item = document.createElement('div');
         item.className = 'video-item';
-        item.innerHTML = `
-            <div>
-                <div style="font-weight: 500;">${formatDateTime(v.dateStr, v.hour, v.min)}</div>
-                <div class="video-time">📹 Available</div>
-            </div>
-            <div style="color: var(--primary);">▶</div>
+        item.style.alignItems = 'center';
+
+        // Checkbox for timelapse selection
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.style.marginRight = "0.75rem";
+        checkbox.checked = timelapseSelected.has(getProxiedURL(v.url));
+        checkbox.addEventListener('change', (e) => {
+            toggleTimelapseSelection(getProxiedURL(v.url), e.target.checked);
+        });
+
+        // Video info
+        const infoDiv = document.createElement('div');
+        infoDiv.innerHTML = `
+            <div style="font-weight: 500;">${formatDateTime(v.dateStr, v.hour, v.min)}</div>
+            <div class="video-time">📹 Available</div>
         `;
-        item.addEventListener('click', (e) => {
+
+        // Play button
+        const playBtn = document.createElement('div');
+        playBtn.innerHTML = "▶";
+        playBtn.style.color = "var(--primary)";
+        playBtn.style.cursor = "pointer";
+        playBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const info = { ...v };
             lastVideoInfo = info;
@@ -965,13 +994,51 @@ function updateRecentVideos() {
             item.classList.add('active');
             showNotification(`📹 Playing video from ${formatDateTime(v.dateStr, v.hour, v.min)}`);
         });
+
+        item.appendChild(checkbox);
+        item.appendChild(infoDiv);
+        item.appendChild(playBtn);
+
         recentList.appendChild(item);
     });
 }
 
+timelapseForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const selected = Array.from(timelapseSelected);
+    if (selected.length === 0) {
+        showNotification('⚠️ Select at least one video to generate timelapse!', 'warning');
+        return;
+    }
+    const btn = generateTimelapseBtn;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<div class="spinner"></div> Generating...';
+    btn.disabled = true;
+    showNotification('⏳ Generating timelapse... This may take a few minutes', 'info');
+    try {
+        const response = await fetch(`${pythonURI}/api/timelapse/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ videos: selected }),
+        });
+        if (!response.ok) throw new Error("Timelapse failed");
+        const blob = await response.blob();
+        const videoURL = URL.createObjectURL(blob);
+        video.src = videoURL;
+        video.load();
+        lastVideoInfo = { dateStr: '', hour: '', min: '', isTimelapse: true };
+        showNotification('✅ Timelapse generated successfully!', 'success');
+        userSelected = true;
+    } catch (error) {
+        showNotification('❌ Failed to generate timelapse', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+});
+
 // --- Drawer "outside click" close logic ---
 document.addEventListener('mousedown', (e) => {
-    // Only close if click is *truly outside* the panel/toggle
     if (
         !waybackPanel.contains(e.target) &&
         !document.getElementById('waybackToggle').contains(e.target) &&
@@ -980,9 +1047,7 @@ document.addEventListener('mousedown', (e) => {
         waybackPanel.classList.remove('open');
     }
 });
-// prevent propagation for all clicks inside the drawer
 waybackPanel.addEventListener('mousedown', (e) => e.stopPropagation());
-
 document.getElementById('waybackToggle').addEventListener('click', (e) => {
     waybackPanel.classList.toggle('open');
     e.stopPropagation();
@@ -1009,39 +1074,6 @@ document.getElementById('fullscreenBtn').addEventListener('click', () => {
     if (video.requestFullscreen) video.requestFullscreen();
     else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
     else if (video.msRequestFullscreen) video.msRequestFullscreen();
-});
-document.getElementById('generateTimelapseBtn').addEventListener('click', async () => {
-    if (successfulVideos.length === 0) {
-        showNotification('⚠️ No videos available to generate timelapse', 'warning');
-        return;
-    }
-    const btn = document.getElementById('generateTimelapseBtn');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<div class="spinner"></div> Generating...';
-    btn.disabled = true;
-    showNotification('⏳ Generating timelapse... This may take a few minutes', 'info');
-    try {
-        const urls = successfulVideos.map((v) => v.url);
-        const response = await fetch(`${pythonURI}/api/timelapse/`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ videos: urls }),
-        });
-        if (!response.ok) throw new Error("Timelapse failed");
-        const blob = await response.blob();
-        const videoURL = URL.createObjectURL(blob);
-        video.src = videoURL;
-        video.load();
-        lastVideoInfo = { dateStr: '', hour: '', min: '', isTimelapse: true };
-        showNotification('✅ Timelapse generated successfully!', 'success');
-        userSelected = true;
-        // The loadeddata handler will set the label!
-    } catch (error) {
-        showNotification('❌ Failed to generate timelapse', 'error');
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
 });
 
 // --- Proper “Now playing” label logic: always update after a video is truly loaded! ---
