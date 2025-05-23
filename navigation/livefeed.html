@@ -170,8 +170,15 @@ permalink: /livefeed
   const successfulVideos = [];
 
   function getProxiedURL(url) {
+    // Handle local video files
+    if (url.startsWith("/api/timelapse/local_video")) {
+      return `${pythonURI}${url}`;
+    }
+
+    // Default to proxying external URLs
     return `${pythonURI}/api/timelapse/proxy_video?url=${encodeURIComponent(url)}`;
   }
+
 
   function tryMainVideo(index = 0) {
     if (index >= attempts.length) {
@@ -211,7 +218,10 @@ permalink: /livefeed
         e.preventDefault();
         video.src = proxyURL;
         video.load();
-        currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${timeLabel}`;
+
+        video.onloadeddata = () => {
+          currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${timeLabel}`;
+        };
       };
 
       cell.appendChild(link);
