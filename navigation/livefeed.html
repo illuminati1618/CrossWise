@@ -13,41 +13,44 @@ permalink: /livefeed
 </header>
 
 <style>
-  .grid-container {
+  :root {
+    --color-dark: #1a1e2e;
+    --color-darker: #16213e;
+    --color-accent: #4285f4;
+    --color-success: #34a853;
+    --color-warning: #fbbc05;
+  }
+  .main-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 2rem;
     padding: 2rem;
+    margin-bottom: 2rem;
   }
-
   .card {
     background-color: var(--color-darker);
     border: 1px solid #3c4c60;
     border-radius: 1rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     padding: 2rem;
     transition: transform 0.2s, box-shadow 0.2s;
   }
-
   .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
   }
-
   video {
     width: 100%;
     height: auto;
     border: 2px solid var(--color-accent);
     border-radius: 12px;
   }
-
   #current-time {
     font-size: 1.25rem;
     margin-bottom: 1rem;
     color: var(--color-accent);
     font-weight: bold;
   }
-
   .btn-timelapse {
     display: block;
     margin: 1rem auto;
@@ -60,53 +63,159 @@ permalink: /livefeed
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
-
   .btn-timelapse:hover {
     background-color: #2a6db0;
   }
-
   .status {
     text-align: center;
     font-weight: bold;
     margin-top: 1rem;
     color: var(--color-success);
   }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
+  .calendar-map {
+    margin: 1rem 0;
+    background: #19233b;
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.13);
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
   }
-
-  th,
-  td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #3c4c60;
-    text-align: left;
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
   }
-
-  th {
-    background-color: var(--color-dark);
+  .calendar-header button {
+    background: none;
+    border: none;
     color: var(--color-accent);
-    position: sticky;
-    top: 0;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 0.1rem 0.7rem;
+    border-radius: 5px;
+    transition: background 0.15s;
   }
-
-  tr:hover {
-    background-color: #2a2e38;
+  .calendar-header button:hover {
+    background: #223056;
   }
-
-  body.bg-white {
-    background-color: white;
-    color: black;
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+  }
+  .calendar-day {
+    background: #23315a;
+    border-radius: 0.6rem;
+    text-align: center;
+    padding: 0.4rem 0.1rem;
+    cursor: pointer;
+    font-size: 1.03rem;
+    color: #a3bffa;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s;
+    border: 2px solid transparent;
+  }
+  .calendar-day.selected, .calendar-day:focus {
+    background: var(--color-accent);
+    color: #fff;
+    border-color: #fff;
+  }
+  .calendar-day.has-video {
+    font-weight: bold;
+    box-shadow: 0 0 4px 0 #4285f4c0;
+  }
+  .calendar-day.today {
+    border: 2px solid var(--color-warning);
+    color: var(--color-warning);
+  }
+  .hour-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+  }
+  .hour-cell {
+    background: #223056;
+    border-radius: 7px;
+    text-align: center;
+    font-size: 0.97rem;
+    padding: 0.38rem 0.15rem;
+    color: #a3bffa;
+    margin: 0.08rem;
+    cursor: pointer;
+    transition: background 0.17s, color 0.17s;
+    border: 2px solid transparent;
+  }
+  .hour-cell.has-video {
+    font-weight: 600;
+    background: #3351a1;
+    color: #fff;
+    border-color: #64b5fa;
+    box-shadow: 0 0 6px #7fd6ff54;
+  }
+  .hour-cell.selected, .hour-cell:focus {
+    background: var(--color-accent);
+    color: #fff;
+    border-color: #fff;
+  }
+  .hour-cell.now {
+    border: 2px solid var(--color-success);
+    color: var(--color-success);
+  }
+  .past-hour-list {
+    background: #20263a;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-top: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.11);
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .past-hour-title {
+    font-weight: bold;
+    font-size: 1.06rem;
+    margin-bottom: 0.6rem;
+    color: #79b8ff;
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .past-hour-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .past-hour-list li {
+    padding: 0.37rem 0.3rem;
+    border-bottom: 1px solid #33445f;
+    color: #cbe5ff;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.18s, color 0.18s;
+    border-radius: 4px;
+  }
+  .past-hour-list li:hover {
+    background: #3351a1;
+    color: #fff;
+  }
+  .past-hour-list li.active {
+    background: var(--color-accent);
+    color: #fff;
   }
 </style>
 
-<div class="grid-container">
+<div class="main-grid">
+  <!-- LEFT: Live Feed and Timelapse -->
   <div class="card">
     <div id="current-time">Searching for the latest working video...</div>
     <video id="borderVideo" controls autoplay muted></video>
-
     <div class="text-center mt-4">
       <label class="text-gray-300 mr-2">Speed:</label>
       <select id="playbackSpeed" class="bg-gray-800 text-white p-1 rounded">
@@ -116,253 +225,390 @@ permalink: /livefeed
         <option value="2">2x</option>
       </select>
     </div>
-
     <button id="generateTimelapseBtn" class="btn-timelapse">⏱️ Generate Timelapse (Past 5 hours)</button>
-
     <p id="timelapseStatus" class="status"></p>
   </div>
 
+  <!-- RIGHT: Calendar & Past Hour Map -->
   <div class="card">
-    <h2 class="text-xl font-semibold text-accent">🕒 Previous Working Videos</h2>
-    <table id="historyTable">
-      <thead>
-        <tr>
-          <th>Timestamp (click to view)</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <h2 class="text-xl font-semibold text-accent mb-2">🗺️ Wayback Timeline</h2>
+    <div id="waybackMap" class="calendar-map"></div>
+    <div id="hourGrid"></div>
+
+    <div class="past-hour-list">
+      <div class="past-hour-title">
+        <span>🕑 Past Hour</span>
+      </div>
+      <ul id="pastHourList"></ul>
+    </div>
   </div>
 </div>
 
 <script type="module">
-  import {
-    pythonURI,
-    fetchOptions,
-  } from "{{ site.baseurl }}/assets/js/api/config.js";
+import {
+  pythonURI,
+  fetchOptions,
+} from "{{ site.baseurl }}/assets/js/api/config.js";
 
-  const video = document.getElementById("borderVideo");
-  const historyTable = document.querySelector("#historyTable tbody");
-  const currentDisplay = document.getElementById("current-time");
-  const status = document.getElementById("timelapseStatus");
+const video = document.getElementById("borderVideo");
+const currentDisplay = document.getElementById("current-time");
+const status = document.getElementById("timelapseStatus");
 
-  const now = new Date();
-  const pad = (n) => n.toString().padStart(2, "0");
-  const baseURL =
-    "https://www.bordertraffic.com/videoclips/free_california-baja_sanysidro-tijuana_passengerlines_0_255_";
+// Utility
+const pad = (n) => n.toString().padStart(2, "0");
+function formatDateTime(dateStr, hour, min) {
+  // dateStr: "2025-05-23", hour: "15", min: "18"
+  const [yyyy, mm, dd] = dateStr.split("-");
+  const d = new Date(`${yyyy}-${mm}-${dd}T${pad(hour)}:${pad(min)}:00`);
+  return d.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).replace(":00 ", " "); // Remove seconds if present
+}
 
-  const year = now.getFullYear();
-  const month = pad(now.getMonth() + 1);
-  const day = pad(now.getDate());
-  const datePart = `${year}_${month}_${day}`;
+const now = new Date();
+const baseURL = "https://www.bordertraffic.com/videoclips/free_california-baja_sanysidro-tijuana_passengerlines_0_255_";
+const year = now.getFullYear();
+const month = pad(now.getMonth() + 1);
+const day = pad(now.getDate());
+const datePart = `${year}_${month}_${day}`;
+const attempts = [];
+for (let i = 0; i <= 60; i++) {
+  const trial = new Date(now.getTime() - i * 60000);
+  const yr = trial.getFullYear();
+  const mn = pad(trial.getMonth() + 1);
+  const dy = pad(trial.getDate());
+  const hr = pad(trial.getHours());
+  const min = pad(trial.getMinutes());
+  const timeLabel = `${hr}:${min}`;
+  const timeCode = `${hr}_${min}`;
+  const dateStr = `${yr}-${mn}-${dy}`;
+  const url = `${baseURL}${yr}_${mn}_${dy}_${timeCode}.mp4`;
+  attempts.push({ url, timeLabel, timeCode, dateStr, hour: hr, min });
+}
 
-  const attempts = [];
-  for (let i = 0; i <= 300; i++) {
-    const trial = new Date(now.getTime() - i * 60000);
-    const hr = pad(trial.getHours());
-    const min = pad(trial.getMinutes());
-    const timeLabel = `${hr}:${min}`;
-    const timeCode = `${hr}_${min}`;
-    const url = `${baseURL}${datePart}_${timeCode}.mp4`;
-    attempts.push({ url, timeLabel, timeCode });
+let successfulVideos = [];
+
+function getProxiedURL(url) {
+  if (url.startsWith("/api/timelapse/local_video")) {
+    return `${pythonURI}${url}`;
   }
+  return `${pythonURI}/api/timelapse/proxy_video?url=${encodeURIComponent(url)}`;
+}
 
-  const successfulVideos = [];
+function renderCalendarMap() {
+  const today = new Date();
+  const calendar = document.getElementById("waybackMap");
+  calendar.innerHTML = "";
+  const dateCounts = {};
+  successfulVideos.forEach(v => {
+    dateCounts[v.dateStr] = (dateCounts[v.dateStr] || 0) + 1;
+  });
+  const maxCount = Math.max(1, ...Object.values(dateCounts));
+  const shownYear = today.getFullYear();
+  const shownMonth = today.getMonth();
 
-  function getProxiedURL(url) {
-    // Handle local video files
-    if (url.startsWith("/api/timelapse/local_video")) {
-      return `${pythonURI}${url}`;
+  const header = document.createElement("div");
+  header.className = "calendar-header";
+  const label = document.createElement("div");
+  label.textContent = today.toLocaleString('default', { month: 'long', year: 'numeric' });
+  header.appendChild(document.createElement("div"));
+  header.appendChild(label);
+  header.appendChild(document.createElement("div"));
+  calendar.appendChild(header);
+
+  const dowRow = document.createElement("div");
+  dowRow.className = "calendar-grid";
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(d => {
+    const cell = document.createElement("div");
+    cell.style.fontWeight = "bold";
+    cell.textContent = d;
+    dowRow.appendChild(cell);
+  });
+  calendar.appendChild(dowRow);
+
+  const daysGrid = document.createElement("div");
+  daysGrid.className = "calendar-grid";
+  const firstDay = new Date(shownYear, shownMonth, 1);
+  const lastDay = new Date(shownYear, shownMonth + 1, 0);
+  const firstDayIdx = firstDay.getDay();
+  const totalDays = lastDay.getDate();
+
+  for (let i = 0; i < firstDayIdx; i++) {
+    daysGrid.appendChild(document.createElement("div"));
+  }
+  for (let d = 1; d <= totalDays; d++) {
+    const dateStr = `${shownYear}-${pad(shownMonth + 1)}-${pad(d)}`;
+    const count = dateCounts[dateStr] || 0;
+    const dayBtn = document.createElement("div");
+    dayBtn.className = "calendar-day";
+    if (dateStr === today.toISOString().split('T')[0]) dayBtn.classList.add("today");
+    if (count > 0) {
+      dayBtn.classList.add("has-video");
+      dayBtn.style.background = `rgba(66,133,244,${0.18 + 0.2 * (count / maxCount)})`;
+      dayBtn.innerHTML = d + `<span style="display:block;font-size:0.75em;opacity:0.7">
+        <span style="color:#8acfff;font-weight:bold;">●</span> ${count}
+      </span>`;
+      dayBtn.onclick = () => showHourGrid(dateStr);
+      dayBtn.tabIndex = 0;
+      dayBtn.title = `${count} videos`;
+    } else {
+      dayBtn.style.opacity = 0.3;
+      dayBtn.innerText = d;
     }
+    daysGrid.appendChild(dayBtn);
+  }
+  calendar.appendChild(daysGrid);
+}
 
-    // Default to proxying external URLs
-    return `${pythonURI}/api/timelapse/proxy_video?url=${encodeURIComponent(url)}`;
+function showHourGrid(dateStr) {
+  const gridDiv = document.getElementById("hourGrid");
+  gridDiv.innerHTML = "";
+
+  const vidsOnDate = successfulVideos.filter(v => v.dateStr === dateStr);
+  if (!vidsOnDate.length) {
+    gridDiv.innerHTML = "<div style='padding:1rem;'>No videos found for this day.</div>";
+    return;
   }
 
+  const byHour = {};
+  vidsOnDate.forEach((v) => {
+    const hr = v.hour.padStart(2, "0");
+    if (!byHour[hr]) byHour[hr] = [];
+    byHour[hr].push(v);
+  });
 
-  function tryMainVideo(index = 0) {
-    if (index >= attempts.length) {
-      currentDisplay.textContent = "No working videos found in the past 300 minutes.";
-      return;
+  const hourGrid = document.createElement("div");
+  hourGrid.className = "hour-grid";
+  for (let h = 0; h < 24; h++) {
+    const hr = pad(h);
+    const videos = byHour[hr] || [];
+    const cell = document.createElement("div");
+    cell.className = "hour-cell";
+    // Convert 24h to 12h am/pm format
+    const dateForLabel = new Date();
+    dateForLabel.setHours(h);
+    dateForLabel.setMinutes(0);
+    const hourLabel = dateForLabel.toLocaleString("en-US", {
+      hour: "numeric",
+      hour12: true,
+    }).toLowerCase();
+    if (videos.length) {
+      cell.classList.add("has-video");
+      cell.innerHTML =
+        `${hourLabel}<br><span style="font-size:0.9em;opacity:0.8">${videos.length} vids</span>`;
+      cell.onclick = () => showMinutePicker(dateStr, hr, videos);
+      cell.tabIndex = 0;
+    } else {
+      cell.style.opacity = 0.35;
+      cell.textContent = hourLabel;
     }
-
-    const proxyURL = getProxiedURL(attempts[index].url);
-    video.src = proxyURL;
-    video.onerror = () => tryMainVideo(index + 1);
-    video.onloadeddata = () => {
-      const { url, timeLabel, timeCode } = attempts[index];
-      currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${timeLabel}`;
-      addToTable(url, timeLabel, timeCode, true);
-    };
+    hourGrid.appendChild(cell);
   }
 
-  function addToTable(url, timeLabel, timeCode, highlight = false) {
-    if (successfulVideos.find((v) => v.timeCode === timeCode)) return;
-    successfulVideos.push({ url, timeLabel, timeCode });
+  gridDiv.appendChild(hourGrid);
+}
 
-    historyTable.innerHTML = "";
-    const sorted = successfulVideos.sort((a, b) =>
-      a.timeCode.localeCompare(b.timeCode)
-    );
+function showMinutePicker(dateStr, hour, videos) {
+  const gridDiv = document.getElementById("hourGrid");
+  gridDiv.innerHTML = "";
 
-    sorted.forEach(({ url, timeLabel, timeCode }) => {
-      const proxyURL = getProxiedURL(url);
-      const row = document.createElement("tr");
-      const cell = document.createElement("td");
-      const link = document.createElement("a");
-      const trafficSpan = document.createElement("span");
-
-      link.href = "#";
-      link.textContent = `${timeLabel} (${timeCode})`;
-      link.onclick = (e) => {
-        e.preventDefault();
-        video.src = proxyURL;
+  if (!videos.length) {
+    gridDiv.innerHTML = "<div style='padding:1rem;'>No videos found for this hour.</div>";
+    return;
+  }
+  const minuteList = document.createElement("div");
+  minuteList.className = "calendar-grid";
+  minuteList.style.gridTemplateColumns = "repeat(6,1fr)";
+  videos
+    .sort((a, b) => (a.min || "00") - (b.min || "00"))
+    .forEach((v) => {
+      const btn = document.createElement("div");
+      btn.className = "hour-cell has-video";
+      btn.textContent = formatDateTime(dateStr, v.hour, v.min);
+      btn.title = "Play this video";
+      btn.onclick = () => {
+        video.src = getProxiedURL(v.url);
         video.load();
-
-        video.onloadeddata = () => {
-          currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${timeLabel}`;
-        };
+        currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${formatDateTime(dateStr, v.hour, v.min)}`;
       };
-
-      cell.appendChild(link);
-      cell.appendChild(trafficSpan);
-      row.appendChild(cell);
-      historyTable.appendChild(row);
-
-      // Analyze traffic using proxied URL
-      //analyzeTraffic(proxyURL).then((label) => {
-      //  trafficSpan.innerHTML = ` &nbsp; <span style="color:gray">[${label}]</span>`;
-      //});
+      minuteList.appendChild(btn);
     });
+  gridDiv.appendChild(minuteList);
+}
+
+function renderPastHourList() {
+  const list = document.getElementById("pastHourList");
+  list.innerHTML = "";
+  const now = new Date();
+  const pastHour = successfulVideos.filter(v => {
+    const dt = new Date(`${v.dateStr}T${v.hour.padStart(2,"0")}:${v.min.padStart(2,"0")}:00`);
+    return dt && (now - dt) <= 60*60*1000;
+  }).sort((a, b) => {
+    if (a.hour !== b.hour) return b.hour.localeCompare(a.hour);
+    return b.min.localeCompare(a.min);
+  });
+  if (!pastHour.length) {
+    const none = document.createElement("li");
+    none.textContent = "No videos from the past hour.";
+    none.style.opacity = 0.7;
+    list.appendChild(none);
+    return;
   }
-
-  function scanAllPastVideos() {
-    attempts.forEach(({ url, timeLabel, timeCode }) => {
-      const testVideo = document.createElement("video");
-      testVideo.src = getProxiedURL(url);
-      testVideo.muted = true;
-      testVideo.onloadeddata = () => {
-        addToTable(url, timeLabel, timeCode);
-      };
-    });
-  }
-
-  document.getElementById("generateTimelapseBtn").addEventListener("click", async () => {
-    status.textContent = "⏳ Generating timelapse... please wait";
-
-    const urls = successfulVideos.map((v) => v.url);
-    if (urls.length === 0) {
-      status.textContent = "⚠️ No videos available to generate timelapse.";
-      return;
-    }
-
-    try {
-      const response = await fetch(`${pythonURI}/api/timelapse/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ videos: urls }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        status.textContent = `❌ Failed: ${error.error || "Unknown error"}`;
-        return;
-      }
-
-      const blob = await response.blob();
-      const videoURL = URL.createObjectURL(blob);
-      video.src = videoURL;
+  pastHour.forEach((v) => {
+    const li = document.createElement("li");
+    li.textContent = formatDateTime(v.dateStr, v.hour, v.min);
+    li.onclick = () => {
+      video.src = getProxiedURL(v.url);
       video.load();
-
-      const base = new Date(successfulVideos[0].timeLabel);
-      successfulVideos.forEach((entry) => {
-        const t = new Date(entry.timeLabel);
-        entry.offset = (t - base) / 1000;
-      });
-
-      video.onloadedmetadata = () => {
-        historyTable.querySelectorAll("a").forEach((link, i) => {
-          link.onclick = (e) => {
-            e.preventDefault();
-            video.currentTime = successfulVideos[i].offset;
-            currentDisplay.innerHTML = `🎥 <strong>Jumped to:</strong> ${successfulVideos[i].timeLabel}`;
-          };
-        });
-      };
-
-      status.innerHTML = `
-        ✅ Timelapse ready: <a href="${videoURL}" target="_blank">Click to view</a>
-        <br/><a href="${videoURL}" download="timelapse.mp4" class="btn-timelapse mt-2">⬇️ Download Timelapse</a>`;
-    } catch (err) {
-      console.error("Timelapse generation failed:", err);
-      status.textContent = "❌ Timelapse generation failed due to a network or server error.";
-    }
+      currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${formatDateTime(v.dateStr, v.hour, v.min)}`;
+      [...list.children].forEach((e) => e.classList.remove("active"));
+      li.classList.add("active");
+    };
+    list.appendChild(li);
   });
+}
 
-  document.getElementById("playbackSpeed").addEventListener("change", (e) => {
-    video.playbackRate = parseFloat(e.target.value);
-  });
-
-  setInterval(() => {
-    const t = new Date();
-    document.getElementById("liveClock").textContent =
-      `🕓 Local Time: ${t.toLocaleTimeString()}`;
-  }, 1000);
-
-  async function analyzeTraffic(proxiedURL) {
-    return new Promise((resolve) => {
-      const tempVideo = document.createElement("video");
-      tempVideo.src = proxiedURL;
-      tempVideo.muted = true;
-      tempVideo.crossOrigin = "anonymous";
-      tempVideo.currentTime = 0;
-
-      tempVideo.addEventListener("loadeddata", () => {
-        const canvas = document.getElementById("frameCanvas");
-        const ctx = canvas.getContext("2d");
-
-        canvas.width = tempVideo.videoWidth;
-        canvas.height = tempVideo.videoHeight;
-        ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const pixels = imageData.data;
-        let darkPixelCount = 0;
-
-        for (let i = 0; i < pixels.length; i += 4) {
-          const r = pixels[i];
-          const g = pixels[i + 1];
-          const b = pixels[i + 2];
-          const brightness = (r + g + b) / 3;
-          if (brightness < 80) darkPixelCount++;
-        }
-
-        const density = darkPixelCount / (canvas.width * canvas.height);
-        let label = "Unknown";
-        if (density < 0.05) label = "🚗 Light";
-        else if (density < 0.12) label = "🚙 Moderate";
-        else label = "🚛 Heavy";
-
-        resolve(label);
-      });
-
-      tempVideo.onerror = () => {
-        resolve("⚠️ Error");
-      };
-    });
-  }
-
-  async function fetchStoredVideos() {
+// -- Add LOCAL videos (downloaded) from backend --
+async function loadLocalVideos() {
+  try {
     const res = await fetch(`${pythonURI}/api/timelapse/history`);
     const data = await res.json();
-    data.forEach(({ url, timeLabel, timeCode }) => {
-        addToTable(url, timeLabel, timeCode);
+    data.forEach((v) => {
+      let hr, mn, dateStr;
+      let match = v.timeCode && v.timeCode.match(/(\d{4})_(\d{2})_(\d{2})_(\d{2})_(\d{2})/);
+      if (match) {
+        dateStr = `${match[1]}-${match[2]}-${match[3]}`;
+        hr = match[4];
+        mn = match[5];
+      } else if (v.timeLabel && v.timeLabel.match(/^\d{1,2}:\d{2}/)) {
+        [hr, mn] = v.timeLabel.split(":");
+        dateStr = new Date().toISOString().split("T")[0];
+      } else {
+        hr = "00"; mn = "00";
+        dateStr = new Date().toISOString().split("T")[0];
+      }
+      if (!successfulVideos.find((sv) => sv.url === v.url)) {
+        successfulVideos.push({
+          ...v,
+          hour: hr,
+          min: mn,
+          dateStr,
+        });
+      }
     });
-  }
+    renderCalendarMap();
+    renderPastHourList();
+  } catch (e) {}
+}
 
-  fetchStoredVideos();
+function scanAllPastVideos() {
+  let toScan = [...attempts];
+  function scanNext() {
+    if (!toScan.length) {
+      renderCalendarMap();
+      renderPastHourList();
+      return;
+    }
+    const { url, timeLabel, timeCode, dateStr, hour, min } = toScan.shift();
+    const testVideo = document.createElement("video");
+    testVideo.src = getProxiedURL(url);
+    testVideo.muted = true;
+    testVideo.onloadeddata = () => {
+      if (!successfulVideos.find((v) => v.url === url)) {
+        successfulVideos.push({ url, timeLabel, timeCode, dateStr, hour, min });
+        renderCalendarMap();
+        renderPastHourList();
+      }
+      scanNext();
+    };
+    testVideo.onerror = () => scanNext();
+  }
+  scanNext();
+}
+
+function tryMainVideo(index = 0) {
+  if (successfulVideos.length && index === 0) {
+    const v = successfulVideos
+      .slice()
+      .sort((a, b) => {
+        if (a.dateStr !== b.dateStr) return b.dateStr.localeCompare(a.dateStr);
+        if (a.hour !== b.hour) return b.hour.localeCompare(a.hour);
+        return b.min.localeCompare(a.min);
+      })[0];
+    video.src = getProxiedURL(v.url);
+    video.load();
+    currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${formatDateTime(v.dateStr, v.hour, v.min)}`;
+    return;
+  }
+  if (index >= attempts.length) {
+    currentDisplay.textContent = "No working videos found in the past hour.";
+    return;
+  }
+  const proxyURL = getProxiedURL(attempts[index].url);
+  video.src = proxyURL;
+  video.onerror = () => tryMainVideo(index + 1);
+  video.onloadeddata = () => {
+    const { url, timeLabel, timeCode, dateStr, hour, min } = attempts[index];
+    currentDisplay.innerHTML = `🎥 <strong>Now playing:</strong> ${formatDateTime(dateStr, hour, min)}`;
+    if (!successfulVideos.find((v) => v.url === url)) {
+      successfulVideos.push({ url, timeLabel, timeCode, dateStr, hour, min });
+      renderCalendarMap();
+      renderPastHourList();
+    }
+  };
+}
+
+document.getElementById("generateTimelapseBtn").addEventListener("click", async () => {
+  status.textContent = "⏳ Generating timelapse... please wait";
+  if (successfulVideos.length === 0) {
+    status.textContent = "⚠️ No videos available to generate timelapse.";
+    return;
+  }
+  try {
+    const urls = successfulVideos.map((v) => v.url);
+    const response = await fetch(`${pythonURI}/api/timelapse/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ videos: urls }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      status.textContent = `❌ Failed: ${error.error || "Unknown error"}`;
+      return;
+    }
+    const blob = await response.blob();
+    const videoURL = URL.createObjectURL(blob);
+    video.src = videoURL;
+    video.load();
+    status.innerHTML = `
+      ✅ Timelapse ready: <a href="${videoURL}" target="_blank">Click to view</a>
+      <br/><a href="${videoURL}" download="timelapse.mp4" class="btn-timelapse mt-2">⬇️ Download Timelapse</a>`;
+  } catch (err) {
+    console.error("Timelapse generation failed:", err);
+    status.textContent =
+      "❌ Timelapse generation failed due to a network or server error.";
+  }
+});
+
+document.getElementById("playbackSpeed").addEventListener("change", (e) => {
+  video.playbackRate = parseFloat(e.target.value);
+});
+
+setInterval(() => {
+  const t = new Date();
+  document.getElementById("liveClock").textContent =
+    `🕓 Local Time: ${t.toLocaleTimeString()}`;
+}, 1000);
+
+(async function start() {
+  await loadLocalVideos();
   tryMainVideo();
   scanAllPastVideos();
+})();
 </script>
-
-<canvas id="frameCanvas" width="640" height="360" style="display: none;"></canvas>
+<canvas id="frameCanvas" width="640" height="360" style="display:none;"></canvas>
