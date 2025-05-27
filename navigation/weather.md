@@ -28,9 +28,11 @@ menu: nav/weather.html
             <th class="px-4 py-3 text-left font-semibold text-gray-300">High</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-300">Low</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-300">Average</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-300">Precipitation</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-300">Conditions</th>
           </tr>
         </thead>
+
         <tbody id="daily-table-body" class="bg-dark divide-y divide-gray-600">
           <!-- Loading rows -->
           <tr class="animate-pulse">
@@ -61,10 +63,6 @@ menu: nav/weather.html
       <h2 class="text-2xl font-semibold text-gray-200 flex items-center">
         Weekly Forecast Trend
       </h2>
-      <div class="flex items-center space-x-3">
-        <span class="text-sm text-gray-400">Sorted by temperature</span>
-        <div class="w-3 h-3 bg-accent rounded-full animate-pulse"></div>
-      </div>
     </div>
     <div class="chart-wrapper bg-dark p-4 rounded-lg border border-gray-600" style="height: 300px; position: relative;">
       <canvas id="weekly-chart"></canvas>
@@ -163,51 +161,51 @@ menu: nav/weather.html
   }
 
   function populateDailyTable(data) {
-    const tableBody = document.getElementById("daily-table-body");
-    tableBody.innerHTML = "";
+  const tableBody = document.getElementById("daily-table-body");
+  tableBody.innerHTML = "";
 
-    data.forEach((entry, index) => {
-      const icon = getWeatherIcon(entry.conditions);
-      
-      const row = document.createElement('tr');
-      row.className = 'hover:bg-gray-700 transition-colors duration-200';
-      
-      row.innerHTML = `
-        <td class="px-4 py-4">
-          <div class="flex items-center space-x-3">
-            <span class="text-lg">${icon}</span>
-            <div>
-              <div class="font-medium text-gray-200">${entry.name}</div>
-              <div class="text-xs text-gray-400">${entry.date}</div>
-            </div>
+  data.forEach((entry, index) => {
+    const icon = getWeatherIcon(entry.conditions);
+    
+    const row = document.createElement('tr');
+    row.className = 'hover:bg-gray-700 transition-colors duration-200';
+    
+    row.innerHTML = `
+      <td class="px-4 py-4">
+        <div class="flex items-center space-x-3">
+          <span class="text-lg">${icon}</span>
+          <div>
+            <div class="font-medium text-gray-200">${entry.name}</div>
+            <div class="text-xs text-gray-400">${entry.date}</div>
           </div>
-        </td>
-        <td class="px-4 py-4">
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-900 bg-opacity-30 text-red-300 border border-red-600">
-            ${entry.high}°F
-          </span>
-        </td>
-        <td class="px-4 py-4">
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900 bg-opacity-30 text-blue-300 border border-blue-600">
-            ${entry.low}°F
-          </span>
-        </td>
-        <td class="px-4 py-4">
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
-            ${entry.avg}°F
-          </span>
-        </td>
-        <td class="px-4 py-4">
-          <div class="flex items-center justify-between">
-            <span class="text-gray-300 font-medium">${entry.conditions}</span>
-            <span class="text-xs text-accent font-medium">${entry.precip}%</span>
-          </div>
-        </td>
-      `;
-      
-      tableBody.appendChild(row);
-    });
-  }
+        </div>
+      </td>
+      <td class="px-4 py-4">
+        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-900 bg-opacity-30 text-red-300 border border-red-600">
+          ${entry.high}°F
+        </span>
+      </td>
+      <td class="px-4 py-4">
+        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900 bg-opacity-30 text-blue-300 border border-blue-600">
+          ${entry.low}°F
+        </span>
+      </td>
+      <td class="px-4 py-4">
+        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
+          ${entry.avg}°F
+        </span>
+      </td>
+      <td class="px-4 py-4">
+        <span class="text-xs text-accent font-semibold">${entry.precip}%</span>
+      </td>
+      <td class="px-4 py-4">
+        <span class="text-gray-300 font-medium">${entry.conditions}</span>
+      </td>
+    `;
+    
+    tableBody.appendChild(row);
+  });
+}
 
   function renderWeeklyChart(data) {
     const sorted = data;
