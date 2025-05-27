@@ -210,7 +210,8 @@ menu: nav/weather.html
   }
 
   function renderWeeklyChart(data) {
-    const sorted = [...data].sort((a, b) => a.avg - b.avg);
+    const sorted = data;
+;
 
     const ctx = document.getElementById('weekly-chart').getContext('2d');
     
