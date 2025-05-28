@@ -14,7 +14,7 @@ menu: nav/weather.html
     <p class="text-gray-400 text-lg">Stay informed with detailed forecasts</p>
   </div>
 
-  <!-- Enhanced Daily Weather Table -->
+  <!-- Daily Weather Table -->
   <div class="bg-darker p-6 rounded-lg shadow-lg mb-8 border border-gray-600">
     <h2 class="text-2xl font-semibold text-gray-200 mb-6 flex items-center">
       Daily Weather Summary
@@ -34,30 +34,21 @@ menu: nav/weather.html
         </thead>
 
         <tbody id="daily-table-body" class="bg-dark divide-y divide-gray-600">
-          <!-- Loading rows -->
+          <!-- Loading animation -->
           <tr class="animate-pulse">
-            <td class="px-4 py-4">
-              <div class="h-4 bg-gray-600 rounded"></div>
-            </td>
-            <td class="px-4 py-4">
-              <div class="h-4 bg-gray-600 rounded w-16"></div>
-            </td>
-            <td class="px-4 py-4">
-              <div class="h-4 bg-gray-600 rounded w-16"></div>
-            </td>
-            <td class="px-4 py-4">
-              <div class="h-4 bg-gray-600 rounded w-16"></div>
-            </td>
-            <td class="px-4 py-4">
-              <div class="h-4 bg-gray-600 rounded w-24"></div>
-            </td>
+            <td class="px-4 py-4"><div class="h-4 bg-gray-600 rounded"></div></td>
+            <td class="px-4 py-4"><div class="h-4 bg-gray-600 rounded w-16"></div></td>
+            <td class="px-4 py-4"><div class="h-4 bg-gray-600 rounded w-16"></div></td>
+            <td class="px-4 py-4"><div class="h-4 bg-gray-600 rounded w-16"></div></td>
+            <td class="px-4 py-4"><div class="h-4 bg-gray-600 rounded w-24"></div></td>
+            <td class="px-4 py-4"><div class="h-4 bg-gray-600 rounded w-24"></div></td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- Enhanced Weekly Chart -->
+  <!-- Weekly Chart -->
   <div class="bg-darker p-6 rounded-lg shadow-lg border border-gray-600">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-2xl font-semibold text-gray-200 flex items-center">
@@ -77,7 +68,6 @@ menu: nav/weather.html
 
   const forecastWeekURL = `${pythonURI}/api/forecast-week`;
 
-  // Weather condition icons mapping
   const conditionIcons = {
     'sunny': '☀️',
     'partly cloudy': '⛅',
@@ -100,128 +90,112 @@ menu: nav/weather.html
   }
 
   async function fetchForecastData() {
+  try {
+    let results;
     try {
-      // Try to fetch from your API first
-      let results;
-      try {
-        const response = await fetch(forecastWeekURL, fetchOptions);
-        if (response.ok) {
-          results = await response.json();
-        } else {
-          throw new Error('API call failed');
-        }
-      } catch (apiError) {
-        console.log('Using mock data for demo');
-        // Simulate loading
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Mock data matching your structure
-        results = [
-          { name: "Today", startTime: new Date().toISOString(), temperature_f: 72, high_f: 78, low_f: 65, short_forecast: "Partly Cloudy", precip_chance: 20, isDaytime: true },
-          { name: "Tonight", startTime: new Date().toISOString(), temperature_f: 68, high_f: 78, low_f: 65, short_forecast: "Clear", precip_chance: 5, isDaytime: false },
-          { name: "Tomorrow", startTime: new Date(Date.now() + 86400000).toISOString(), temperature_f: 75, high_f: 82, low_f: 68, short_forecast: "Sunny", precip_chance: 0, isDaytime: true },
-          { name: "Tomorrow Night", startTime: new Date(Date.now() + 86400000).toISOString(), temperature_f: 70, high_f: 82, low_f: 68, short_forecast: "Clear", precip_chance: 0, isDaytime: false },
-          { name: "Wednesday", startTime: new Date(Date.now() + 2 * 86400000).toISOString(), temperature_f: 69, high_f: 76, low_f: 62, short_forecast: "Light Rain", precip_chance: 75, isDaytime: true },
-          { name: "Thursday", startTime: new Date(Date.now() + 3 * 86400000).toISOString(), temperature_f: 71, high_f: 79, low_f: 63, short_forecast: "Partly Cloudy", precip_chance: 30, isDaytime: true },
-          { name: "Friday", startTime: new Date(Date.now() + 4 * 86400000).toISOString(), temperature_f: 74, high_f: 81, low_f: 66, short_forecast: "Sunny", precip_chance: 10, isDaytime: true }
-        ];
+      const response = await fetch(forecastWeekURL, fetchOptions);
+      if (response.ok) {
+        results = await response.json();
+      } else {
+        throw new Error('API call failed');
       }
-
-      const cleaned = results
-        .filter(p => p.isDaytime !== false)
-        .map(entry => {
-          const avg = entry.avg_f || entry.temperature_f;
-          return {
-            name: entry.name,
-            date: new Date(entry.startTime).toLocaleDateString(),
-            high: entry.high_f ?? entry.temperature_f,
-            low: entry.low_f ?? entry.temperature_f,
-            avg: avg,
-            conditions: entry.short_forecast || 'Unknown',
-            precip: entry.precip_chance ?? 0
-          };
-        });
-
-      populateDailyTable(cleaned);
-      renderWeeklyChart(cleaned);
-    } catch (err) {
-      console.error("Forecast fetch failed:", err);
-      // Show error state
-      document.getElementById("daily-table-body").innerHTML = `
-        <tr>
-          <td colspan="5" class="px-4 py-8 text-center text-gray-400">
-            <div class="flex flex-col items-center">
-              <span class="text-2xl mb-2">⚠️</span>
-              <span>Unable to load weather data</span>
-            </div>
-          </td>
-        </tr>
-      `;
+    } catch (apiError) {
+      console.log('Using mock data for demo');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      results = [
+        { name: "Overnight", startTime: new Date().toISOString(), temperature_f: 65, high_f: 70, low_f: 60, short_forecast: "Clear", precip_chance: 5, isDaytime: false },
+        { name: "Wednesday", startTime: new Date(Date.now() + 86400000).toISOString(), temperature_f: 75, high_f: 80, low_f: 65, short_forecast: "Sunny", precip_chance: 0, isDaytime: true },
+        { name: "Wednesday Night", startTime: new Date(Date.now() + 1.5 * 86400000).toISOString(), temperature_f: 66, high_f: 80, low_f: 63, short_forecast: "Partly Cloudy", precip_chance: 10, isDaytime: false },
+        { name: "Thursday", startTime: new Date(Date.now() + 2 * 86400000).toISOString(), temperature_f: 78, high_f: 83, low_f: 67, short_forecast: "Light Rain", precip_chance: 50, isDaytime: true },
+        { name: "Friday", startTime: new Date(Date.now() + 3 * 86400000).toISOString(), temperature_f: 72, high_f: 77, low_f: 66, short_forecast: "Cloudy", precip_chance: 20, isDaytime: true }
+      ];
     }
-  }
 
-  function populateDailyTable(data) {
-  const tableBody = document.getElementById("daily-table-body");
-  tableBody.innerHTML = "";
+    const cleaned = results.map(entry => {
+      const avg = entry.avg_f ?? entry.temperature_f;
+      return {
+        name: entry.name,
+        date: new Date(entry.startTime).toLocaleDateString(),
+        high: entry.high_f ?? entry.temperature_f,
+        low: entry.low_f ?? entry.temperature_f,
+        avg: avg,
+        conditions: entry.short_forecast || 'Unknown',
+        precip: entry.precip_chance ?? 0
+      };
+    });
 
-  data.forEach((entry, index) => {
-    const icon = getWeatherIcon(entry.conditions);
-    
-    const row = document.createElement('tr');
-    row.className = 'hover:bg-gray-700 transition-colors duration-200';
-    
-    row.innerHTML = `
-      <td class="px-4 py-4">
-        <div class="flex items-center space-x-3">
-          <span class="text-lg">${icon}</span>
-          <div>
-            <div class="font-medium text-gray-200">${entry.name}</div>
-            <div class="text-xs text-gray-400">${entry.date}</div>
+    populateDailyTable(cleaned);
+    renderWeeklyChart(cleaned);
+  } catch (err) {
+    console.error("Forecast fetch failed:", err);
+    document.getElementById("daily-table-body").innerHTML = `
+      <tr>
+        <td colspan="6" class="px-4 py-8 text-center text-gray-400">
+          <div class="flex flex-col items-center">
+            <span class="text-2xl mb-2">⚠️</span>
+            <span>Unable to load weather data</span>
           </div>
-        </div>
-      </td>
-      <td class="px-4 py-4">
-        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-900 bg-opacity-30 text-red-300 border border-red-600">
-          ${entry.high}°F
-        </span>
-      </td>
-      <td class="px-4 py-4">
-        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900 bg-opacity-30 text-blue-300 border border-blue-600">
-          ${entry.low}°F
-        </span>
-      </td>
-      <td class="px-4 py-4">
-        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
-          ${entry.avg}°F
-        </span>
-      </td>
-      <td class="px-4 py-4">
-        <span class="text-xs text-accent font-semibold">${entry.precip}%</span>
-      </td>
-      <td class="px-4 py-4">
-        <span class="text-gray-300 font-medium">${entry.conditions}</span>
-      </td>
+        </td>
+      </tr>
     `;
-    
-    tableBody.appendChild(row);
-  });
+  }
 }
 
-  function renderWeeklyChart(data) {
-    const sorted = data;
-;
 
+  function populateDailyTable(data) {
+    const tableBody = document.getElementById("daily-table-body");
+    tableBody.innerHTML = "";
+
+    data.forEach(entry => {
+      const icon = getWeatherIcon(entry.conditions);
+      const row = document.createElement('tr');
+      row.className = 'hover:bg-gray-700 transition-colors duration-200';
+      row.innerHTML = `
+        <td class="px-4 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-lg">${icon}</span>
+            <div>
+              <div class="font-medium text-gray-200">${entry.name}</div>
+              <div class="text-xs text-gray-400">${entry.date}</div>
+            </div>
+          </div>
+        </td>
+        <td class="px-4 py-4">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-900 bg-opacity-30 text-red-300 border border-red-600">
+            ${entry.high}°F
+          </span>
+        </td>
+        <td class="px-4 py-4">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900 bg-opacity-30 text-blue-300 border border-blue-600">
+            ${entry.low}°F
+          </span>
+        </td>
+        <td class="px-4 py-4">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
+            ${entry.avg}°F
+          </span>
+        </td>
+        <td class="px-4 py-4">
+          <span class="text-xs text-accent font-semibold">${entry.precip}%</span>
+        </td>
+        <td class="px-4 py-4">
+          <span class="text-gray-300 font-medium">${entry.conditions}</span>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  function renderWeeklyChart(data) {
     const ctx = document.getElementById('weekly-chart').getContext('2d');
-    
-    // Chart.js configuration with dark theme
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: sorted.map(d => d.name),
+        labels: data.map(d => d.name),
         datasets: [{
           label: 'Avg Temp (°F)',
-          data: sorted.map(d => d.avg),
-          borderColor: '#3b82f6', // This should match your accent color
+          data: data.map(d => d.avg),
+          borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           pointBackgroundColor: '#3b82f6',
           pointBorderColor: '#1f2937',
@@ -235,28 +209,19 @@ menu: nav/weather.html
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: {
-          padding: {
-            top: 10,
-            bottom: 10,
-            left: 10,
-            right: 10
-          }
-        },
         plugins: {
           tooltip: {
-            backgroundColor: 'rgba(17, 24, 39, 0.95)', // gray-900
-            titleColor: '#f9fafb', // gray-50
-            bodyColor: '#d1d5db', // gray-300
-            borderColor: 'rgba(75, 85, 99, 0.3)', // gray-600
+            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+            titleColor: '#f9fafb',
+            bodyColor: '#d1d5db',
+            borderColor: 'rgba(75, 85, 99, 0.3)',
             borderWidth: 1,
             cornerRadius: 8,
             padding: 12,
             displayColors: false,
             callbacks: {
               label: context => {
-                const i = context.dataIndex;
-                const d = sorted[i];
+                const d = data[context.dataIndex];
                 return [
                   `Average: ${d.avg}°F`,
                   `High: ${d.high}°F`,
@@ -267,11 +232,10 @@ menu: nav/weather.html
               }
             }
           },
-          legend: { 
+          legend: {
             display: true,
-            position: 'top',
             labels: {
-              color: '#d1d5db', // gray-300
+              color: '#d1d5db',
               font: { size: 12, weight: '500' },
               padding: 20,
               usePointStyle: true,
@@ -281,39 +245,33 @@ menu: nav/weather.html
         },
         scales: {
           y: {
-            title: { 
-              display: true, 
+            title: {
+              display: true,
               text: 'Temperature (°F)',
-              color: '#9ca3af', // gray-400
+              color: '#9ca3af',
               font: { size: 12, weight: '500' }
             },
             beginAtZero: false,
-            grid: { 
-              color: 'rgba(75, 85, 99, 0.3)', // gray-600 with opacity
+            grid: {
+              color: 'rgba(75, 85, 99, 0.3)',
               drawBorder: false
             },
-            ticks: { 
-              color: '#9ca3af', // gray-400
+            ticks: {
+              color: '#9ca3af',
               font: { size: 11 },
               padding: 8
-            },
-            border: {
-              display: false
             }
           },
           x: {
-            ticks: { 
-              autoSkip: false, 
+            ticks: {
+              autoSkip: false,
               maxRotation: 0,
               minRotation: 0,
-              color: '#9ca3af', // gray-400
+              color: '#9ca3af',
               font: { size: 11, weight: '500' },
               padding: 8
             },
-            grid: { 
-              display: false 
-            },
-            border: {
+            grid: {
               display: false
             }
           }
