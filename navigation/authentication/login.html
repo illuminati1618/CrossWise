@@ -186,28 +186,41 @@ show_reading_time: false
     messageBox.textContent = "📸 Scanning face...";
 
     try {
+      // Capture the image from the webcam
       const base64 = await captureImage();
-
+      
+      // Pre-authentication message
+      messageBox.textContent = "🔍 Authenticating...";
+      
+      // The key insight: Instead of directly calling the facial recognition endpoint,
+      // we'll use a two-step process:
+      // 1. First authenticate with the facial API
+      // 2. Then use the standard login flow's callback
+      
       const response = await fetch(`${pythonURI}/user/facial/recognize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: base64 }),
+        credentials: 'include', // Important: include cookies in the request
       });
-
+      
       const data = await response.json();
-
-      if (data.username) {
+      
+      if (response.ok && (data.username || data.success)) {
+        // Show success message
         messageBox.textContent = `✅ Logged in as ${data.username}`;
-        window.location.href = "{{site.baseurl}}/userlog";
+        
+        // Critical step: Use the exact same login callback as the regular login
+        // This ensures the header welcome message is updated correctly
+        handleLoginResponse();
       } else {
-        messageBox.textContent = "❌ Face not recognized. Try manual login.";
+        messageBox.textContent = data.message || "❌ Face not recognized. Try manual login.";
       }
     } catch (error) {
       console.error("Facial Login Error:", error);
       messageBox.textContent = "❌ Facial login failed. Try again.";
     }
   };
-
   // Facial Recognition Sign Up
   window.signupWithFace = async function () {
     const messageBox = document.getElementById("faceSignupMessage");
@@ -313,10 +326,30 @@ show_reading_time: false
       });
   };
 
-  // Redirect after login
+  // Redirect after login and ensure welcome message is updated
   function handleLoginResponse() {
     const URL = `${pythonURI}/api/id`;
-
+    
+    // Create a global function that other pages can call to update the welcome message
+    window.updateWelcomeMessage = function(userData) {
+      const baseurl = document.querySelector(".trigger")?.getAttribute("data-baseurl") || "";
+      const loginArea = document.getElementById("loginArea");
+      if (loginArea && userData) {
+        loginArea.innerHTML = `
+          <div class="relative inline-block group">
+            <button class="text-accent font-semibold">Welcome, ${userData.name}</button>
+            <div class="absolute hidden group-hover:flex flex-col bg-dark mt-0 rounded shadow-lg z-10">
+              <a href="${baseurl}/logout" class="px-4 py-2 hover:bg-darker">Logout</a>
+              <a href="${baseurl}/profile" class="px-4 py-2 hover:bg-darker">Profile</a>
+            </div>
+          </div>
+        `;
+      }
+    };
+    
+    // Set a session flag to indicate facial login was used
+    sessionStorage.setItem('loginMethod', 'facial');
+    
     fetch(URL, fetchOptions)
       .then((response) => {
         if (!response.ok)
@@ -324,6 +357,13 @@ show_reading_time: false
         return response.json();
       })
       .then((data) => {
+        // Store user data in sessionStorage for other pages to use
+        sessionStorage.setItem('userData', JSON.stringify(data));
+        
+        // Update welcome message before redirecting if possible
+        window.updateWelcomeMessage(data);
+        
+        // Then redirect
         if (data.role === "admin") {
           window.location.href = "{{site.baseurl}}/adminlog";
         } else {
