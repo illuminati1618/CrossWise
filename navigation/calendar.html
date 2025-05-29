@@ -1,0 +1,1405 @@
+---
+layout: tailwind
+title: Calendar
+search_exclude: true
+permalink: /calendar/
+menu: nav/calendar.html
+---
+
+<div class="calendar-app">
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+    
+    <!-- Main Calendar Container -->
+    <div class="calendar-main-container">
+        <div class="calendar-header">
+            <div class="calendar-title-section">
+                <h1 class="calendar-main-title">
+                    <span class="title-gradient">San Diego</span>
+                    <span class="title-accent">Events</span>
+                </h1>
+                <div class="calendar-subtitle">Discover Amazing Local Events</div>
+            </div>
+            
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="calendar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                    </svg>
+                    Calendar
+                </button>
+                <button class="view-btn" data-view="list">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+                    </svg>
+                    List
+                </button>
+            </div>
+        </div>
+
+        <!-- Calendar Controls -->
+        <div class="calendar-controls">
+            <div class="month-navigation">
+                <button id="prev-month" class="nav-btn prev-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                    </svg>
+                </button>
+                
+                <div class="month-display-container">
+                    <div id="month-display" class="month-display">January 2024</div>
+                    <div class="month-stats" id="month-stats">0 events this month</div>
+                </div>
+                
+                <button id="next-month" class="nav-btn next-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="calendar-actions">
+                <button id="today-btn" class="action-btn today-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Today
+                </button>
+                <button id="random-event-btn" class="action-btn random-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z"/>
+                    </svg>
+                    Surprise Me
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading and Error States -->
+        <div id="loading-message" class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading amazing events...</div>
+        </div>
+        
+        <div id="error-message" class="error-container" style="display: none;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+        </div>
+
+        <!-- Calendar Views -->
+        <div class="calendar-content">
+            <!-- Calendar Grid View -->
+            <div id="calendar-view" class="calendar-wrapper" style="display: none;">
+                <div class="calendar-grid">
+                    <div class="weekday-headers">
+                        <div class="weekday-header">Sun</div>
+                        <div class="weekday-header">Mon</div>
+                        <div class="weekday-header">Tue</div>
+                        <div class="weekday-header">Wed</div>
+                        <div class="weekday-header">Thu</div>
+                        <div class="weekday-header">Fri</div>
+                        <div class="weekday-header">Sat</div>
+                    </div>
+                    <div id="calendar-body" class="calendar-days">
+                        <!-- Calendar will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- List View -->
+            <div id="list-view" class="list-wrapper" style="display: none;">
+                <div id="events-list" class="events-list">
+                    <!-- Events list will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Detail Modal -->
+    <div id="event-modal" class="event-modal" style="display: none;">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title"></h3>
+                <button id="modal-close" class="modal-close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="modal-body" class="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab-container">
+        <button id="fab-main" class="fab fab-main">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+        </button>
+        <div class="fab-options" id="fab-options">
+            <button class="fab fab-option" id="fab-export" title="Export Events">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                </svg>
+            </button>
+            <button class="fab fab-option" id="fab-share" title="Share Calendar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8A3,3 0 0,0 21,5A3,3 0 0,0 18,2A3,3 0 0,0 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9A3,3 0 0,0 3,12A3,3 0 0,0 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.6 20.92,19A2.92,2.92 0 0,0 18,16.08Z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Global Variables */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --dark-glass: rgba(0, 0, 0, 0.2);
+        
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.15);
+        --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.2);
+        --shadow-xl: 0 16px 60px rgba(0, 0, 0, 0.25);
+        
+        --animation-speed: 0.3s;
+        --animation-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    /* Reset and Base Styles */
+    * {
+        box-sizing: border-box;
+    }
+
+    .calendar-app {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+        color: #ffffff;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    .animated-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+        animation: bgFloat 20s ease-in-out infinite;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    @keyframes bgFloat {
+        0%, 100% { 
+            transform: translate(0px, 0px) rotate(0deg); 
+            opacity: 0.7;
+        }
+        33% { 
+            transform: translate(30px, -30px) rotate(120deg); 
+            opacity: 0.4;
+        }
+        66% { 
+            transform: translate(-20px, 20px) rotate(240deg); 
+            opacity: 0.6;
+        }
+    }
+
+    /* Main Container */
+    .calendar-main-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Header Section */
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+        gap: 2rem;
+    }
+
+    .calendar-title-section {
+        text-align: left;
+    }
+
+    .calendar-main-title {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 800;
+        margin: 0;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+    }
+
+    .title-gradient {
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: titleShimmer 3s ease-in-out infinite;
+    }
+
+    .title-accent {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    @keyframes titleShimmer {
+        0%, 100% { filter: brightness(1); }
+        50% { filter: brightness(1.2); }
+    }
+
+    .calendar-subtitle {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 0.5rem;
+        font-weight: 300;
+    }
+
+    /* View Toggle */
+    .view-toggle {
+        display: flex;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 4px;
+        box-shadow: var(--shadow-md);
+    }
+
+    .view-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all var(--animation-speed) var(--animation-bounce);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .view-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: var(--accent-gradient);
+        transition: left var(--animation-speed) ease;
+        z-index: -1;
+    }
+
+    .view-btn:hover::before,
+    .view-btn.active::before {
+        left: 0;
+    }
+
+    .view-btn:hover,
+    .view-btn.active {
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Calendar Controls */
+    .calendar-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem 2rem;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        box-shadow: var(--shadow-lg);
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .month-navigation {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .nav-btn {
+        width: 50px;
+        height: 50px;
+        border: none;
+        background: var(--glass-bg);
+        color: #ffffff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--animation-speed) var(--animation-bounce);
+        box-shadow: var(--shadow-sm);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        transition: all var(--animation-speed) ease;
+        transform: translate(-50%, -50%);
+        z-index: -1;
+    }
+
+    .nav-btn:hover::before {
+        width: 100%;
+        height: 100%;
+    }
+
+    .nav-btn:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: var(--shadow-md);
+    }
+
+    .month-display-container {
+        text-align: center;
+    }
+
+    .month-display {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .month-stats {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 400;
+    }
+
+    .calendar-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--animation-speed) var(--animation-bounce);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+    }
+
+    .today-btn {
+        background: var(--success-gradient);
+        color: #ffffff;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .random-btn {
+        background: var(--warning-gradient);
+        color: #ffffff;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Loading States */
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-left: 4px solid;
+        border-image: var(--accent-gradient) 1;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+    }
+
+    .error-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        text-align: center;
+        color: #ff6b6b;
+    }
+
+    /* Calendar Grid */
+    .calendar-wrapper {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: var(--shadow-xl);
+        overflow: hidden;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        gap: 1rem;
+    }
+
+    .weekday-headers {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        margin-bottom: 1rem;
+    }
+
+    .weekday-header {
+        padding: 1rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+        background: var(--dark-glass);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        min-height: 400px;
+    }
+
+    /* Calendar Day Cells */
+    .calendar-day-cell {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1rem;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        cursor: pointer;
+        transition: all var(--animation-speed) ease;
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+    }
+
+    .calendar-day-cell::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: var(--accent-gradient);
+        opacity: 0.1;
+        transition: left var(--animation-speed) ease;
+        z-index: 0;
+    }
+
+    .calendar-day-cell:hover::before {
+        left: 0;
+    }
+
+    .calendar-day-cell:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: var(--shadow-lg);
+        border-color: rgba(79, 172, 254, 0.5);
+    }
+
+    .calendar-day-number {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .empty-day {
+        background: rgba(255, 255, 255, 0.02);
+        opacity: 0.3;
+        cursor: default;
+        transform: none !important;
+    }
+
+    .has-events {
+        background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(120, 119, 198, 0.1));
+        border-color: rgba(79, 172, 254, 0.3);
+    }
+
+    .has-events::after {
+        content: '';
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        width: 8px;
+        height: 8px;
+        background: var(--accent-gradient);
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+        animation: pulse 2s infinite;
+        z-index: 1;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+    }
+
+    .event-preview {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* List View */
+    .list-wrapper {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: var(--shadow-xl);
+    }
+
+    .events-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .event-item {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all var(--animation-speed) ease;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .event-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--accent-gradient);
+        transition: width var(--animation-speed) ease;
+    }
+
+    .event-item:hover::before {
+        width: 8px;
+    }
+
+    .event-item:hover {
+        transform: translateX(10px);
+        box-shadow: var(--shadow-lg);
+        border-color: rgba(79, 172, 254, 0.5);
+    }
+
+    .event-date {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .event-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin: 0;
+    }
+
+    /* Modal */
+    .event-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .modal-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        animation: fadeIn var(--animation-speed) ease;
+    }
+
+    .modal-content {
+        background: var(--glass-bg);
+        backdrop-filter: blur(30px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: var(--shadow-xl);
+        position: relative;
+        animation: slideUp var(--animation-speed) var(--animation-bounce);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(50px) scale(0.9); opacity: 0; }
+        to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all var(--animation-speed) ease;
+    }
+
+    .modal-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        transform: rotate(90deg);
+    }
+
+    /* Floating Action Button */
+    .fab-container {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 999;
+    }
+
+    .fab {
+        width: 56px;
+        height: 56px;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--animation-speed) var(--animation-bounce);
+        box-shadow: var(--shadow-lg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .fab-main {
+        background: var(--primary-gradient);
+        color: #ffffff;
+        transform: scale(1);
+    }
+
+    .fab-main:hover {
+        transform: scale(1.1);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .fab-main.active {
+        transform: rotate(45deg) scale(1.1);
+    }
+
+    .fab-options {
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all var(--animation-speed) var(--animation-bounce);
+        pointer-events: none;
+    }
+
+    .fab-options.active {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: all;
+    }
+
+    .fab-option {
+        background: var(--glass-bg);
+        color: rgba(255, 255, 255, 0.8);
+        width: 48px;
+        height: 48px;
+        transform: scale(0);
+        animation: fabSlideIn var(--animation-speed) var(--animation-bounce) forwards;
+    }
+
+    .fab-option:nth-child(1) { animation-delay: 0.1s; }
+    .fab-option:nth-child(2) { animation-delay: 0.2s; }
+
+    @keyframes fabSlideIn {
+        to {
+            transform: scale(1);
+        }
+    }
+
+    .fab-option:hover {
+        background: var(--accent-gradient);
+        color: #ffffff;
+        transform: scale(1.1);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .calendar-main-container {
+            padding: 1rem;
+        }
+
+        .calendar-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .calendar-controls {
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .month-navigation {
+            justify-content: center;
+        }
+
+        .calendar-actions {
+            justify-content: center;
+        }
+
+        .calendar-wrapper,
+        .list-wrapper {
+            padding: 1rem;
+        }
+
+        .calendar-day-cell {
+            min-height: 60px;
+            padding: 0.5rem;
+        }
+
+        .calendar-day-number {
+            font-size: 0.9rem;
+        }
+
+        .weekday-header {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .fab-container {
+            bottom: 1rem;
+            right: 1rem;
+        }
+
+        .modal-content {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+    }
+
+    /* Additional Animations */
+    @keyframes slideInLeft {
+        from { transform: translateX(-100px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideInRight {
+        from { transform: translateX(100px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes bounceIn {
+        0% { transform: scale(0.3); opacity: 0; }
+        50% { transform: scale(1.05); }
+        70% { transform: scale(0.9); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Micro-interactions */
+    .calendar-day-cell {
+        animation: bounceIn 0.6s var(--animation-bounce);
+    }
+
+    .calendar-day-cell:nth-child(odd) {
+        animation-delay: 0.05s;
+    }
+
+    .event-item {
+        animation: slideInLeft 0.6s ease-out;
+    }
+
+    .event-item:nth-child(even) {
+        animation: slideInRight 0.6s ease-out;
+    }
+
+    /* Hover effects for better interactivity */
+    .calendar-day-cell:hover .calendar-day-number {
+        transform: scale(1.1);
+        color: #4facfe;
+    }
+
+    .has-events:hover .event-preview {
+        color: rgba(255, 255, 255, 0.9);
+        transform: translateY(-2px);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--accent-gradient);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-gradient);
+    }
+</style>
+
+<script>
+    // Initialize variables
+    let currentDate = new Date();
+    let events = {};
+    let currentView = 'calendar';
+    const calendarWrapper = document.getElementById('calendar-view');
+    const listWrapper = document.getElementById('list-view');
+    const loadingMessage = document.getElementById('loading-message');
+    const errorMessage = document.getElementById('error-message');
+    
+    // Function to parse CSV data (keeping original functionality)
+    function parseCSV(csv) {
+        if (typeof csv !== 'string') {
+            console.error('CSV data is not a string:', csv);
+            return {};
+        }
+        
+        const lines = csv.split('\n');
+        const headers = lines[0].split(',');
+        const events = {};
+        
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',');
+            if (values.length >= 2) {
+                const title = values[0].trim();
+                const dateStr = values[1].trim();
+                
+                const dateParts = dateStr.split('/');
+                if (dateParts.length === 3) {
+                    const month = parseInt(dateParts[0], 10);
+                    const day = parseInt(dateParts[1], 10);
+                    const year = parseInt(dateParts[2], 10);
+                    
+                    const dateKey = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                    
+                    if (!events[dateKey]) {
+                        events[dateKey] = [];
+                    }
+                    
+                    events[dateKey].push(title);
+                }
+            }
+        }
+        
+        return events;
+    }
+
+    // Function to load CSV data from a file (keeping original functionality)
+    async function loadCSVData() {
+        try {
+            const response = await fetch('{{site.baseurl}}/assets/calendar_parsedevents.csv');
+            if (!response.ok) {
+                throw new Error(`Failed to load calendar data: ${response.status} ${response.statusText}`);
+            }
+            return await response.text();
+        } catch (error) {
+            console.error('Error loading calendar data:', error);
+            return `Title,Dates
+Bike the Bay,8/25/2024
+San Diego Bayfair,9/13/2024`;
+        }
+    }
+
+    // Enhanced initialization with loading animation
+    async function initCalendar() {
+        try {
+            loadingMessage.style.display = 'block';
+            calendarWrapper.style.display = 'none';
+            listWrapper.style.display = 'none';
+            
+            const csvData = await loadCSVData();
+            events = parseCSV(csvData);
+            
+            // Add a small delay for smooth loading animation
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            loadingMessage.style.display = 'none';
+            
+            renderCurrentView();
+            updateMonthStats();
+            
+        } catch (error) {
+            loadingMessage.style.display = 'none';
+            errorMessage.textContent = `Error initializing calendar: ${error.message}`;
+            errorMessage.style.display = 'block';
+            console.error(error);
+        }
+    }
+
+    // Enhanced calendar rendering
+    function renderCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        document.getElementById('month-display').textContent = `${monthNames[month]} ${year}`;
+        
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        const calendarBody = document.getElementById('calendar-body');
+        calendarBody.innerHTML = '';
+        
+        let date = 1;
+        const today = new Date();
+        const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+        const todayDate = today.getDate();
+        
+        // Create all calendar cells
+        for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 7; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-day-cell';
+                
+                if (i === 0 && j < firstDay) {
+                    cell.classList.add('empty-day');
+                } else if (date > daysInMonth) {
+                    cell.classList.add('empty-day');
+                } else {
+                    const dateKey = `${year}-${(month + 1).toString().padStart(2, '0')}-${date.toString().padStart(2, '0')}`;
+                    const dayEvents = events[dateKey] || [];
+                    const hasEvents = dayEvents.length > 0;
+                    
+                    const dayNumber = document.createElement('div');
+                    dayNumber.className = 'calendar-day-number';
+                    dayNumber.textContent = date;
+                    
+                    // Highlight today
+                    if (isCurrentMonth && date === todayDate) {
+                        dayNumber.style.background = 'var(--success-gradient)';
+                        dayNumber.style.webkitBackgroundClip = 'text';
+                        dayNumber.style.webkitTextFillColor = 'transparent';
+                        dayNumber.style.backgroundClip = 'text';
+                        dayNumber.style.fontWeight = '800';
+                    }
+                    
+                    cell.appendChild(dayNumber);
+                    
+                    if (hasEvents) {
+                        cell.classList.add('has-events');
+                        
+                        // Add event preview
+                        const preview = document.createElement('div');
+                        preview.className = 'event-preview';
+                        preview.textContent = `${dayEvents.length} event${dayEvents.length > 1 ? 's' : ''}`;
+                        cell.appendChild(preview);
+                        
+                        // Add click event to show modal
+                        cell.addEventListener('click', () => showEventModal(dateKey, dayEvents));
+                    }
+                    
+                    date++;
+                }
+                
+                calendarBody.appendChild(cell);
+            }
+            
+            if (date > daysInMonth) break;
+        }
+    }
+
+    // New list view rendering
+    function renderListView() {
+        const eventsList = document.getElementById('events-list');
+        eventsList.innerHTML = '';
+        
+        // Sort events by date
+        const sortedEvents = Object.keys(events)
+            .filter(date => events[date].length > 0)
+            .sort()
+            .map(date => ({
+                date: date,
+                events: events[date]
+            }));
+        
+        if (sortedEvents.length === 0) {
+            eventsList.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor" style="margin-bottom: 1rem;">
+                        <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                    </svg>
+                    <h3>No events found</h3>
+                    <p>Check back soon for exciting San Diego events!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        sortedEvents.forEach(({ date, events: dayEvents }) => {
+            dayEvents.forEach(event => {
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                
+                const dateObj = new Date(date + 'T00:00:00');
+                const formattedDate = dateObj.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                eventItem.innerHTML = `
+                    <div class="event-date">${formattedDate}</div>
+                    <h3 class="event-title">${event}</h3>
+                `;
+                
+                eventItem.addEventListener('click', () => showEventModal(date, [event]));
+                eventsList.appendChild(eventItem);
+            });
+        });
+    }
+
+    // Show event modal
+    function showEventModal(dateKey, dayEvents) {
+        const modal = document.getElementById('event-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        
+        const dateObj = new Date(dateKey + 'T00:00:00');
+        const formattedDate = dateObj.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        modalTitle.textContent = formattedDate;
+        
+        modalBody.innerHTML = `
+            <div style="margin-bottom: 1rem;">
+                <h4 style="color: rgba(255, 255, 255, 0.8); margin-bottom: 1rem;">
+                    ${dayEvents.length} Event${dayEvents.length > 1 ? 's' : ''}
+                </h4>
+                ${dayEvents.map(event => `
+                    <div style="
+                        background: var(--glass-bg);
+                        border: 1px solid var(--glass-border);
+                        border-radius: 12px;
+                        padding: 1rem;
+                        margin-bottom: 0.5rem;
+                        backdrop-filter: blur(10px);
+                    ">
+                        <div style="font-weight: 600; color: #ffffff;">${event}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close modal
+    function closeModal() {
+        const modal = document.getElementById('event-modal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Update month statistics
+    function updateMonthStats() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        let eventCount = 0;
+        Object.keys(events).forEach(date => {
+            const eventDate = new Date(date + 'T00:00:00');
+            if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                eventCount += events[date].length;
+            }
+        });
+        
+        document.getElementById('month-stats').textContent = 
+            `${eventCount} event${eventCount !== 1 ? 's' : ''} this month`;
+    }
+
+    // Render current view
+    function renderCurrentView() {
+        if (currentView === 'calendar') {
+            calendarWrapper.style.display = 'block';
+            listWrapper.style.display = 'none';
+            renderCalendar();
+        } else {
+            calendarWrapper.style.display = 'none';
+            listWrapper.style.display = 'block';
+            renderListView();
+        }
+    }
+
+    // Random event feature
+    function showRandomEvent() {
+        const allEvents = [];
+        Object.keys(events).forEach(date => {
+            events[date].forEach(event => {
+                allEvents.push({ date, event });
+            });
+        });
+        
+        if (allEvents.length === 0) {
+            alert('No events available!');
+            return;
+        }
+        
+        const randomEvent = allEvents[Math.floor(Math.random() * allEvents.length)];
+        showEventModal(randomEvent.date, [randomEvent.event]);
+    }
+
+    // Export events to CSV
+    function exportEvents() {
+        let csvContent = "Date,Event\n";
+        
+        Object.keys(events).sort().forEach(date => {
+            events[date].forEach(event => {
+                csvContent += `"${date}","${event}"\n`;
+            });
+        });
+        
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'san-diego-events.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+
+    // Share calendar
+    function shareCalendar() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'San Diego Events Calendar',
+                text: 'Check out these amazing San Diego events!',
+                url: window.location.href
+            });
+        } else {
+            // Fallback - copy to clipboard
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Calendar link copied to clipboard!');
+            });
+        }
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+        // Navigation
+        document.getElementById('prev-month').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCurrentView();
+            updateMonthStats();
+        });
+        
+        document.getElementById('next-month').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCurrentView();
+            updateMonthStats();
+        });
+        
+        document.getElementById('today-btn').addEventListener('click', () => {
+            currentDate = new Date();
+            renderCurrentView();
+            updateMonthStats();
+        });
+
+        // View toggle
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentView = btn.dataset.view;
+                renderCurrentView();
+            });
+        });
+
+        // Modal close
+        document.getElementById('modal-close').addEventListener('click', closeModal);
+        document.getElementById('event-modal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-backdrop')) {
+                closeModal();
+            }
+        });
+
+        // Random event
+        document.getElementById('random-event-btn').addEventListener('click', showRandomEvent);
+
+        // FAB functionality
+        const fabMain = document.getElementById('fab-main');
+        const fabOptions = document.getElementById('fab-options');
+        let fabOpen = false;
+
+        fabMain.addEventListener('click', () => {
+            fabOpen = !fabOpen;
+            fabMain.classList.toggle('active', fabOpen);
+            fabOptions.classList.toggle('active', fabOpen);
+        });
+
+        document.getElementById('fab-export').addEventListener('click', () => {
+            exportEvents();
+            fabMain.click(); // Close FAB
+        });
+
+        document.getElementById('fab-share').addEventListener('click', () => {
+            shareCalendar();
+            fabMain.click(); // Close FAB
+        });
+
+        // Close FAB when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.fab-container') && fabOpen) {
+                fabMain.click();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                document.getElementById('prev-month').click();
+            } else if (e.key === 'ArrowRight') {
+                document.getElementById('next-month').click();
+            } else if (e.key === 'Escape') {
+                closeModal();
+                if (fabOpen) fabMain.click();
+            } else if (e.key === 't' || e.key === 'T') {
+                document.getElementById('today-btn').click();
+            } else if (e.key === 'r' || e.key === 'R') {
+                showRandomEvent();
+            }
+        });
+
+        // Initialize calendar
+        initCalendar().catch(error => {
+            console.error('Calendar initialization failed:', error);
+            errorMessage.textContent = `Could not load calendar: ${error.message}`;
+            errorMessage.style.display = 'block';
+        });
+    });
+</script>
