@@ -268,32 +268,32 @@ function initWeatherData() {
   console.log("Initializing weather data...");
 
   // Fetch current weather and update UI
-  async function fetchCurrentWeather() {
-    console.log("Fetching current weather...");
-    try {
-      const response = await fetch(`${pythonURI}/api/weather-now`);
-      console.log("Weather-now response status:", response.status);
+async function fetchCurrentWeather() {
+  console.log("Fetching current weather...");
+  try {
+    const response = await fetch(`${pythonURI}/api/weather-now`);
+    console.log("Weather-now response status:", response.status);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log("Weather-now response data:", data);
-
-      const avgTempF = data.temperature_f;
-      const precipitation = data.precipitation_mm ?? 0;
-
-      console.log(`Converted temp: ${avgTempF}°F, Precipitation: ${precipitation}mm`);
-
-      currentTemp.textContent = `${avgTempF}°F`;
-      currentConditions.textContent = precipitation < 0.5 ? 'Clear' : 'Rainy';
-    } catch (error) {
-      console.error("Error fetching current weather:", error);
-      currentTemp.textContent = "--";
-      currentConditions.textContent = "Unavailable";
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.statusText}`);
     }
+
+    const data = await response.json();
+    console.log("Weather-now response data:", data);
+
+    const avgTempF = data.temperature_f;
+    const shortForecast = data.short_forecast || 'Unknown';
+
+    console.log(`Converted temp: ${avgTempF}°F, Conditions: ${shortForecast}`);
+
+    currentTemp.textContent = `${avgTempF}°F`;
+    currentConditions.textContent = shortForecast;
+  } catch (error) {
+    console.error("Error fetching current weather:", error);
+    currentTemp.textContent = "--";
+    currentConditions.textContent = "Unavailable";
   }
+}
 
 async function fetchWeeklyData() {
   console.log("Fetching weekly weather forecast...");
