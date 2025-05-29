@@ -8,9 +8,9 @@ permalink: /notifs
 <!-- START: Copied Full Backend Page, Now Converted for Frontend Site -->
 
 <header class="heading">
-  <h1 class="text-4xl font-bold text-center text-accent">🔔 Notification Agent</h1>
+  <h1 class="text-4xl font-bold text-center text-accent">Notification Agent</h1>
   <p class="text-lg text-center text-gray-400">
-    Set alerts for San Ysidro border wait times. Get notified when thresholds are met.
+    Set alerts for border wait times. Get notified when thresholds are met.
   </p>
 </header>
 
@@ -212,29 +212,55 @@ permalink: /notifs
         flex: 1;
     }
 </style>
-
-<div class="px-5 py-5 mx-auto" style="max-width: 1200px;">
-    <h1>Border Crossing Notifications</h1>
     
     <div class="card">
-        <h2>Current San Ysidro Wait Times</h2>
+        <h2>Current Border Wait Times</h2>
         
-        <div class="wait-time-display">
-            <strong>Standard Vehicles:</strong> 
-            <span id="standard-vehicles-wait">Loading...</span>
+        <div class="grid grid-cols-2 gap-6">
+            <div class="bg-dark p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-accent">San Ysidro Port of Entry</h3>
+                <p class="text-sm text-gray-400">San Diego, CA</p>
+                <div class="mt-4 space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Standard Vehicles</span>
+                        <span id="standard-vehicles-wait" class="text-yellow-400">Loading...</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">SENTRI</span>
+                        <span id="sentri-wait" class="text-green-400">Loading...</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Pedestrian</span>
+                        <span id="pedestrian-wait" class="text-yellow-400">Loading...</span>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-4">
+                    Last updated: <span id="last-updated">Loading...</span>
+                </p>
+            </div>
+
+            <div class="bg-dark p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-accent">Otay Mesa Port of Entry</h3>
+                <p class="text-sm text-gray-400">San Diego, CA</p>
+                <div class="mt-4 space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Standard Vehicles</span>
+                        <span id="otay-standard-vehicles-wait" class="text-red-400">Loading...</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">SENTRI</span>
+                        <span id="otay-sentri-wait" class="text-green-400">Loading...</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Pedestrian</span>
+                        <span id="otay-pedestrian-wait" class="text-yellow-400">Loading...</span>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-4">
+                    Last updated: <span id="otay-last-updated">Loading...</span>
+                </p>
+            </div>
         </div>
-        
-        <div class="wait-time-display">
-            <strong>SENTRI Lanes:</strong> 
-            <span id="sentri-wait">Loading...</span>
-        </div>
-        
-        <div class="wait-time-display">
-            <strong>Pedestrian:</strong> 
-            <span id="pedestrian-wait">Loading...</span>
-        </div>
-        
-        <p class="text-gray-400">Last updated: <span id="last-updated">Just now</span></p>
     </div>
     
     <div class="card">
@@ -358,6 +384,132 @@ import {
     fetchOptions,
 } from "{{ site.baseurl }}/assets/js/api/config.js";
 
+// Function to set color based on wait time
+function getWaitTimeColor(minutes) {
+    if (!minutes || isNaN(parseInt(minutes))) {
+        return "text-gray-400"; // Default color for no data
+    }
+
+    const waitTime = parseInt(minutes);
+    if (waitTime <= 30) {
+        return "text-green-400"; // Green for <= 30 minutes
+    } else if (waitTime <= 89) {
+        return "text-yellow-400"; // Yellow for 31-89 minutes
+    } else {
+        return "text-red-400"; // Red for >= 90 minutes
+    }
+}
+
+// Function to update wait time element with proper coloring
+function updateWaitTimeDisplay(elementId, minutes) {
+    const element = document.getElementById(elementId);
+    if (!minutes || minutes === "") {
+        element.textContent = "No data";
+        element.className = "text-gray-400";
+        return;
+    }
+
+    element.textContent = minutes + " minutes";
+    element.className = getWaitTimeColor(minutes);
+}
+
+// IMPROVED: Fetch current wait times from API with better error handling
+async function fetchWaitTimes() {
+    // Step 1: Fetch main wait times data
+    let data = null;
+    try {
+        console.log("Fetching wait times from:", pythonURI + "/api/proxy/waittimes");
+        const response = await fetch(pythonURI + "/api/proxy/waittimes", fetchOptions);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        data = await response.json();
+        console.log("Wait times data received successfully");
+        
+        if (!Array.isArray(data)) {
+            throw new Error("Invalid data format received");
+        }
+    } catch (error) {
+        console.error("Error fetching main wait times:", error);
+        // Set all wait times to unavailable
+        updateWaitTimeDisplay("standard-vehicles-wait", null);
+        updateWaitTimeDisplay("sentri-wait", null);
+        updateWaitTimeDisplay("pedestrian-wait", null);
+        updateWaitTimeDisplay("otay-standard-vehicles-wait", null);
+        updateWaitTimeDisplay("otay-sentri-wait", null);
+        updateWaitTimeDisplay("otay-pedestrian-wait", null);
+        return; // Exit early if main data fetch fails
+    }
+
+    // Step 2: Process San Ysidro data
+    try {
+        const sanYsidro = data.find(
+            (port) =>
+                port?.port_name === "San Ysidro" && port?.border === "Mexican Border"
+        );
+        
+        if (sanYsidro) {
+            const stdVehicleWait = sanYsidro?.passenger_vehicle_lanes?.standard_lanes?.delay_minutes;
+            const sentriWait = sanYsidro?.passenger_vehicle_lanes?.NEXUS_SENTRI_lanes?.delay_minutes;
+            const pedestrianWait = sanYsidro?.pedestrian_lanes?.standard_lanes?.delay_minutes;
+
+            updateWaitTimeDisplay("standard-vehicles-wait", stdVehicleWait);
+            updateWaitTimeDisplay("sentri-wait", sentriWait);
+            updateWaitTimeDisplay("pedestrian-wait", pedestrianWait);
+
+            const now = new Date();
+            document.getElementById("last-updated").textContent =
+                now.toLocaleTimeString() + " on " + now.toLocaleDateString();
+        } else {
+            console.warn("San Ysidro data not found in response");
+            updateWaitTimeDisplay("standard-vehicles-wait", null);
+            updateWaitTimeDisplay("sentri-wait", null);
+            updateWaitTimeDisplay("pedestrian-wait", null);
+        }
+    } catch (error) {
+        console.error("Error processing San Ysidro data:", error);
+        updateWaitTimeDisplay("standard-vehicles-wait", null);
+        updateWaitTimeDisplay("sentri-wait", null);
+        updateWaitTimeDisplay("pedestrian-wait", null);
+    }
+
+    // Step 3: Process Otay Mesa data
+    try {
+        const otayMesa = data.find(
+            (port) =>
+                port?.port_name === "Otay Mesa" &&
+                port?.border === "Mexican Border" &&
+                port?.crossing_name === "Passenger"
+        );
+
+        if (otayMesa) {
+            const stdVehicleWait = otayMesa?.passenger_vehicle_lanes?.standard_lanes?.delay_minutes;
+            const sentriWait = otayMesa?.passenger_vehicle_lanes?.NEXUS_SENTRI_lanes?.delay_minutes;
+            const pedestrianWait = otayMesa?.pedestrian_lanes?.standard_lanes?.delay_minutes;
+
+            updateWaitTimeDisplay("otay-standard-vehicles-wait", stdVehicleWait);
+            updateWaitTimeDisplay("otay-sentri-wait", sentriWait);
+            updateWaitTimeDisplay("otay-pedestrian-wait", pedestrianWait);
+
+            const now = new Date();
+            document.getElementById("otay-last-updated").textContent =
+                now.toLocaleTimeString() + " on " + now.toLocaleDateString();
+        } else {
+            console.warn("Otay Mesa data not found in response");
+            updateWaitTimeDisplay("otay-standard-vehicles-wait", null);
+            updateWaitTimeDisplay("otay-sentri-wait", null);
+            updateWaitTimeDisplay("otay-pedestrian-wait", null);
+        }
+    } catch (error) {
+        console.error("Error processing Otay Mesa data:", error);
+        updateWaitTimeDisplay("otay-standard-vehicles-wait", null);
+        updateWaitTimeDisplay("otay-sentri-wait", null);
+        updateWaitTimeDisplay("otay-pedestrian-wait", null);
+    }
+}
+
 // Tab switching functionality
 document.querySelectorAll('.notification-tab').forEach(tab => {
     tab.addEventListener('click', function() {
@@ -389,44 +541,6 @@ function showNotification(message, type = 'info') {
             }, 300);
         }, 3000);
     }, 10);
-}
-
-// Fetch current wait times from API
-async function fetchWaitTimes() {
-    try {
-        const response = await fetch(`${pythonURI}/api/proxy/waittimes`, fetchOptions);
-        const data = await response.json();
-        
-        // Find San Ysidro port
-        const sanYsidro = data.find(port => 
-            port.port_name === 'San Ysidro' && 
-            port.border === 'Mexican Border'
-        );
-        
-        if (sanYsidro) {
-            // Update wait time displays
-            document.getElementById('standard-vehicles-wait').textContent = 
-                sanYsidro.passenger_vehicle_lanes.standard_lanes.delay_minutes + ' minutes';
-            
-            document.getElementById('sentri-wait').textContent = 
-                sanYsidro.passenger_vehicle_lanes.NEXUS_SENTRI_lanes.delay_minutes + ' minutes';
-            
-            document.getElementById('pedestrian-wait').textContent = 
-                sanYsidro.pedestrian_lanes.standard_lanes.delay_minutes + ' minutes';
-            
-            // Update last updated time
-            const now = new Date();
-            document.getElementById('last-updated').textContent = 
-                now.toLocaleTimeString() + ' on ' + now.toLocaleDateString();
-        } else {
-            throw new Error('San Ysidro data not found');
-        }
-    } catch (error) {
-        console.error('Error fetching wait times:', error);
-        document.getElementById('standard-vehicles-wait').textContent = 'Unavailable';
-        document.getElementById('sentri-wait').textContent = 'Unavailable';
-        document.getElementById('pedestrian-wait').textContent = 'Unavailable';
-    }
 }
 
 // Load existing notifications
