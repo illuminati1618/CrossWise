@@ -37,16 +37,16 @@ menu: nav/directions.html
 
       <div class="bg-darker rounded-md p-4 mb-4">
         <strong class="text-accent">San Ysidro</strong><br />
-        🚗 Standard: <span class="text-warning">45 min</span><br />
-        🛂 SENTRI: <span class="text-success">10 min</span><br />
-        🚶 Pedestrian: <span class="text-warning">35 min</span><br />
+        🚗 Standard: <span id="sy-standard" class="text-gray-400">Loading...</span><br />
+        🛂 SENTRI: <span id="sy-sentri" class="text-gray-400">Loading...</span><br />
+        🚶 Pedestrian: <span id="sy-pedestrian" class="text-gray-400">Loading...</span><br />
       </div>
 
       <div class="bg-darker rounded-md p-4">
         <strong class="text-accent">Otay Mesa</strong><br />
-        🚗 Standard: <span class="text-red-500">75 min</span><br />
-        🛂 SENTRI: <span class="text-success">15 min</span><br />
-        🚶 Pedestrian: <span class="text-warning">30 min</span><br />
+        🚗 Standard: <span id="om-standard" class="text-gray-400">Loading...</span><br />
+        🛂 SENTRI: <span id="om-sentri" class="text-gray-400">Loading...</span><br />
+        🚶 Pedestrian: <span id="om-pedestrian" class="text-gray-400">Loading...</span><br />
       </div>
     </div>
 
@@ -92,6 +92,56 @@ menu: nav/directions.html
     );
   });
 </script>
+
+<!-- Border Wait Time Script -->
+ <script type="module">
+  import {
+    login,
+    pythonURI,
+    fetchOptions,
+  } from "{{site.baseurl}}/assets/js/api/config.js";
+
+  function getColor(minutes) {
+    const m = parseInt(minutes);
+    if (isNaN(m)) return "text-gray-400";
+    if (m <= 30) return "text-green-400";
+    if (m <= 89) return "text-yellow-400";
+    return "text-red-400";
+  }
+
+  function setTime(id, minutes) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = minutes ? `${minutes} min` : "No data";
+    el.className = getColor(minutes);
+  }
+
+  async function fetchLiveWaitTimes() {
+    try {
+      const res = await fetch(`${pythonURI}/api/proxy/waittimes`, fetchOptions);
+      if (!res.ok) throw new Error("Failed to fetch wait times");
+      const data = await res.json();
+
+      const sanYsidro = data.find(p => p.port_name === "San Ysidro");
+      const otayMesa = data.find(p => p.port_name === "Otay Mesa" && p.crossing_name === "Passenger");
+
+      setTime("sy-standard", sanYsidro?.passenger_vehicle_lanes?.standard_lanes?.delay_minutes);
+      setTime("sy-sentri", sanYsidro?.passenger_vehicle_lanes?.NEXUS_SENTRI_lanes?.delay_minutes);
+      setTime("sy-pedestrian", sanYsidro?.pedestrian_lanes?.standard_lanes?.delay_minutes);
+
+      setTime("om-standard", otayMesa?.passenger_vehicle_lanes?.standard_lanes?.delay_minutes);
+      setTime("om-sentri", otayMesa?.passenger_vehicle_lanes?.NEXUS_SENTRI_lanes?.delay_minutes);
+      setTime("om-pedestrian", otayMesa?.pedestrian_lanes?.standard_lanes?.delay_minutes);
+    } catch (err) {
+      console.error("Failed to load wait times:", err);
+    }
+  }
+
+  fetchLiveWaitTimes();
+  setInterval(fetchLiveWaitTimes, 5 * 60 * 1000);
+</script>
+
+
 
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9AQtE_WlHC0RvWvZ8BoP2ypr3EByvRDs&callback=initMap"></script>
 
