@@ -24,6 +24,25 @@ menu: nav/border_feedback.html
     </div>
     
     <div>
+      <label for="actual_wait_time" class="block text-sm font-medium text-gray-300 mb-2">
+        How long did it actually take to cross the border? <span class="text-red-400">*</span>
+      </label>
+      <div class="flex items-center">
+        <input 
+          type="number" 
+          id="actual_wait_time" 
+          name="actual_wait_time" 
+          required
+          min="0"
+          placeholder="Enter time in minutes"
+          class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
+        />
+        <span class="ml-2 text-gray-400">min</span>
+      </div>
+      <p class="mt-1 text-xs text-gray-400">Enter the total time from arriving at the border to completing your crossing</p>
+    </div>
+    
+    <div>
       <label for="time_diff" class="block text-sm font-medium text-gray-300 mb-2">
         Time difference between estimated and actual wait (minutes)
       </label>
@@ -39,6 +58,25 @@ menu: nav/border_feedback.html
         <span class="ml-2 text-gray-400">min</span>
       </div>
       <p class="mt-1 text-xs text-gray-400">Positive if actual wait was longer than estimated, negative if shorter</p>
+    </div>
+
+    <div>
+      <label for="time_taken" class="block text-sm font-medium text-gray-300 mb-2">
+        Time taken
+      </label>
+      <div class="flex items-center">
+        <input 
+          type="number" 
+          id="time_taken" 
+          name="time_taken" 
+          required
+          min="0"
+          placeholder="Enter time in minutes"
+          class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
+        />
+        <span class="ml-2 text-gray-400">min</span>
+      </div>
+      <p class="mt-1 text-xs text-gray-400">Total time from arriving at the border to completing your crossing</p>
     </div>
     
     <div>
@@ -113,11 +151,18 @@ menu: nav/border_feedback.html
     // Get form data
     const timeCross = document.getElementById('time_cross').value;
     const timeDiff = parseFloat(document.getElementById('time_diff').value);
+    const timeTaken = parseFloat(document.getElementById('time_taken').value);
     const userMessage = document.getElementById('user_message').value;
     
     // Validate data
-    if (!timeCross || isNaN(timeDiff)) {
+    if (!timeCross || isNaN(timeDiff) || isNaN(timeTaken)) {
       errorDetails.textContent = "Please fill out all required fields correctly.";
+      errorMessage.classList.remove('hidden');
+      return;
+    }
+    
+    if (timeTaken < 0) {
+      errorDetails.textContent = "Time taken cannot be negative.";
       errorMessage.classList.remove('hidden');
       return;
     }
@@ -132,6 +177,7 @@ menu: nav/border_feedback.html
         body: JSON.stringify({
           time_cross: timeCross,
           time_diff: timeDiff,
+          time_taken: timeTaken,
           user_message: userMessage
         })
       });
