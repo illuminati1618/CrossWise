@@ -28,7 +28,7 @@ show_reading_time: false
     </div>
   </div>
   
-  <div class="bg-darker rounded-lg shadow-md p-6">
+  <div class="bg-darker rounded-lg shadow-md p-6 weather-clickable cursor-pointer hover:bg-opacity-80 transition-colors">
     <h2 class="text-xl font-bold mb-2 text-accent">Current Weather</h2>
     <div class="flex justify-between items-center">
       <div>
@@ -88,7 +88,7 @@ show_reading_time: false
     <!-- Right Column -->
     <div class="lg:col-span-1">
       <!-- Weather Overview -->
-      <div class="bg-darker rounded-lg shadow-md p-6 mb-6">
+      <div class="bg-darker rounded-lg shadow-md p-6 mb-6 weather-clickable cursor-pointer hover:bg-opacity-80 transition-colors">
         <h2 class="text-2xl font-bold mb-4 text-accent">Weather Overview</h2>
         <h3 class="text-lg font-semibold mb-2 text-gray-200">Average Weekly Temperatures</h3>
         <div>
@@ -124,6 +124,37 @@ show_reading_time: false
   </div>
 </div>
 
+<script>
+// Add click handlers for weather-related elements
+document.addEventListener('DOMContentLoaded', function() {
+  // Get the base URL from the page or set a default
+  const baseUrl = document.querySelector('[data-baseurl]')?.getAttribute('data-baseurl') || '';
+  
+  // Get all elements with weather-clickable class
+  const weatherElements = document.querySelectorAll('.weather-clickable');
+  
+  // Add click event listeners
+  weatherElements.forEach(element => {
+    element.title = 'Click for more details';
+    element.addEventListener('click', function() {
+      window.location.href = `${baseUrl}/weather`;
+    });
+  });
+  
+  // Also make individual weather data elements clickable
+  const weatherDataElements = ['currentTemp', 'currentConditions', 'weekly-chart'];
+  weatherDataElements.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.style.cursor = 'pointer';
+      element.title = 'Click for more details';
+      element.addEventListener('click', function() {
+        window.location.href = `${baseUrl}/weather`;
+      });
+    }
+  });
+});
+</script>
 <!-- Add Chart.js Library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
