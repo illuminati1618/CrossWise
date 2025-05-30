@@ -24,6 +24,25 @@ menu: nav/border_feedback.html
     </div>
     
     <div>
+      <label for="actual_wait_time" class="block text-sm font-medium text-gray-300 mb-2">
+        How long did it actually take to cross the border? <span class="text-red-400">*</span>
+      </label>
+      <div class="flex items-center">
+        <input 
+          type="number" 
+          id="actual_wait_time" 
+          name="actual_wait_time" 
+          required
+          min="0"
+          placeholder="Enter time in minutes"
+          class="w-full p-3 bg-darker border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent text-gray-200"
+        />
+        <span class="ml-2 text-gray-400">min</span>
+      </div>
+      <p class="mt-1 text-xs text-gray-400">Enter the total time from arriving at the border to completing your crossing</p>
+    </div>
+    
+    <div>
       <label for="time_diff" class="block text-sm font-medium text-gray-300 mb-2">
         Time difference between estimated and actual wait (minutes)
       </label>
@@ -65,7 +84,7 @@ menu: nav/border_feedback.html
   </form>
   
   <!-- Feedback message containers -->
-  <div id="successMessage" class="mt-6 p-4 bg-green-900 bg-opacity-20 border border-green-600 rounded-md text-green-400 hidden">
+  <div id="successMessage" class="mt-6 p-4 bg-green-900 bg-opacity-20 border border-red-600 rounded-md text-green-400 hidden">
     <div class="flex items-start">
       <svg class="w-5 h-5 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -112,12 +131,19 @@ menu: nav/border_feedback.html
     
     // Get form data
     const timeCross = document.getElementById('time_cross').value;
+    const actualWaitTime = parseFloat(document.getElementById('actual_wait_time').value);
     const timeDiff = parseFloat(document.getElementById('time_diff').value);
     const userMessage = document.getElementById('user_message').value;
     
     // Validate data
-    if (!timeCross || isNaN(timeDiff)) {
+    if (!timeCross || isNaN(actualWaitTime) || isNaN(timeDiff)) {
       errorDetails.textContent = "Please fill out all required fields correctly.";
+      errorMessage.classList.remove('hidden');
+      return;
+    }
+    
+    if (actualWaitTime < 0) {
+      errorDetails.textContent = "Actual wait time cannot be negative.";
       errorMessage.classList.remove('hidden');
       return;
     }
@@ -131,6 +157,7 @@ menu: nav/border_feedback.html
         },
         body: JSON.stringify({
           time_cross: timeCross,
+          actual_wait_time: actualWaitTime,
           time_diff: timeDiff,
           user_message: userMessage
         })
