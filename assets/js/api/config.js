@@ -4,7 +4,7 @@ if (location.hostname === "localhost") {
 } else if (location.hostname === "127.0.0.1") {
   pythonURI = "http://127.0.0.1:3167";
 } else {
-  pythonURI = "https://crosswise.stu.nighthawkcodingsociety.com";
+  pythonURI = "https://crosswise.opencodingsociety.com";
 }
 export var javaURI;
 if (location.hostname === "localhost") {
