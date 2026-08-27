@@ -78,11 +78,40 @@ won't seat.
 
 Footprint: **70 x 79.4 x 43 mm** (along rail x out from rail x height).
 
+## Verifying the fit
+
+`fit_check.scad` drops the holder into a modeled 20x20 rail and three
+modeled drives, then intersects them. Any real interference shows up as
+intersection volume:
+
+```
+openscad -o clash.stl -D 'show="rail_clash"'  fit_check.scad && admesh clash.stl
+openscad -o clash.stl -D 'show="drive_clash"' fit_check.scad && admesh clash.stl
+openscad -o asm.png --render -D 'show="assembly"' fit_check.scad
+```
+
+![assembly](preview_assembly.png)
+
+Current results:
+
+| Check | Volume | Reading |
+|---|---|---|
+| `rail_clash` | 0.0017 mm³ | Coincident-surface noise, not interference — the key clears the slot lips with its 0.3mm per-side clearance intact |
+| `drive_clash` | 0.0000 mm³ | Zero-thickness contact at z=3 only — the drives resting on the bay floor |
+
+Engagement was checked too: the key's 8.8mm head sits inside a 9.4mm
+channel behind a 6.2mm mouth, so 1.3mm of lip catches it on each side.
+
+The modeled rail is a *nominal* 20-series profile. It confirms the geometry
+is self-consistent; it is not a substitute for measuring your own rail.
+
 ## Files
 
-- `ssd_holder.scad` — parametric source; all variables are at the top
+- `ssd_holder.scad` — parametric source; all variables are at the top.
+  Assign `render_holder = false` after including it to use as a library.
 - `ssd_holder.stl` — ready-to-slice mesh, verified manifold (1 part, 0
   defects via `admesh`)
+- `fit_check.scad` — interference and assembly check (above)
 
 ## Print settings
 

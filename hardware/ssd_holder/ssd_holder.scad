@@ -161,4 +161,7 @@ module ssd_holder() {
     }
 }
 
-ssd_holder();
+// Set false (by assigning after `include <ssd_holder.scad>`) to use
+// this file as a library without rendering the holder itself.
+render_holder = true;
+if (render_holder) ssd_holder();
