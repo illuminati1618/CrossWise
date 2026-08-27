@@ -12,15 +12,20 @@ aluminum extrusion.
   tub: floor + left/right dividers + front/back walls, all 40mm tall. Only
   the top (where the SATA/power connectors are, on a 100mm-tall drive) is
   open, for cable routing.
-- **Sliding T-slot key** — the front wall doubles as the rail bracket. A
-  T-shaped key is molded onto its outer face and slides in from the end of
-  the extrusion, trapped by the channel's back wall and both side lips (3
-  sides of the channel), so the bracket resists being pulled straight off
-  the rail — no bolts, no separate T-nuts. Default key dims (6.2mm slot
-  mouth / 9.4mm channel, 3.2mm total engagement) match common 20-series
-  T-slot/V-slot extrusion. **Measure your actual rail** and adjust
-  `slot_mouth`, `channel_w`, `lip_thickness`, `head_depth` in the .scad if
-  it differs — a wrong fit either won't slide in or will be loose.
+- **Sliding T-slot key, horizontal rail** — the front wall doubles as the
+  rail bracket. Assumes the rail runs *horizontally*, with the drives
+  standing vertically (open top up) perpendicular to it. A T-shaped key
+  spans the full width of the bracket's outer face and slides in from the
+  left or right end of the extrusion, trapped by the channel's back wall
+  and both side lips (3 sides of the channel), so the bracket resists
+  being pulled straight off the rail — no bolts, no separate T-nuts.
+  Default key dims (6.2mm slot mouth / 9.4mm channel, 3.2mm total
+  engagement) match common 20-series T-slot/V-slot extrusion. **Measure
+  your actual rail** and adjust `slot_mouth`, `channel_w`,
+  `lip_thickness`, `head_depth` in the .scad if it differs — a wrong fit
+  either won't slide in or will be loose. If your rail is actually
+  vertical instead, swap the key's axis in `t_slot_key()` (run it along Z
+  instead of X).
 - **One part, no supports** — everything is a single print, nothing
   overhangs past 90 degrees.
 

@@ -7,15 +7,16 @@
 // end of each drive stays reachable for cables while the drive
 // itself is boxed in on every other side.
 //
-// Mounting: the front wall doubles as a T-slot bracket. A T-
-// shaped key is molded onto its outer face, sized to slide in
-// from the end of a 20x20mm T-slot extrusion and lock into the
-// channel — trapped by the channel's back wall and both side
-// lips (3 sides), so it resists being pulled straight off the
-// rail. The default key dims (6.2mm mouth / 9.4mm channel) match
-// common 20-series T-slot/V-slot extrusion; measure your actual
-// rail and adjust slot_mouth/channel_w/lip_thickness/head_depth
-// below if it differs.
+// Mounting: the front wall doubles as a T-slot bracket. The rail
+// is assumed HORIZONTAL — drives stand vertically (open top up)
+// perpendicular to it. A T-shaped key spans the full width of
+// the bracket's outer face and slides in from the left or right
+// end of a 20x20mm T-slot extrusion, trapped by the channel's
+// back wall and both side lips (3 sides), so it resists being
+// pulled straight off the rail. The default key dims (6.2mm mouth
+// / 9.4mm channel) match common 20-series T-slot/V-slot extrusion;
+// measure your actual rail and adjust slot_mouth/channel_w/
+// lip_thickness/head_depth below if it differs.
 //
 // Print settings: 3-4 walls, 20%+ infill, no supports needed
 // (nothing overhangs more than 90 deg). PETG or ABS recommended
@@ -47,7 +48,6 @@ slot_mouth      = 6.2;  // width of the narrow opening on the rail face
 channel_w       = 9.4;  // internal width of the T-slot channel
 lip_thickness   = 1.6;  // depth of the narrow mouth before it opens into the channel
 head_depth      = 1.6;  // how far the wide part of the key sits inside the channel
-key_len         = 24;   // key length along the rail's running direction
 key_clearance   = 0.3;  // per-side clearance so the key slides freely
 
 key_neck_w = slot_mouth - 2 * key_clearance;
@@ -80,15 +80,16 @@ module base_body() {
 }
 
 module t_slot_key() {
-    key_x = total_width / 2 - key_head_w / 2;
-    neck_x = total_width / 2 - key_neck_w / 2;
-    z0 = total_height / 2 - key_len / 2;
+    // rail runs horizontally (along X) - key spans the full bracket
+    // width and slides in from the left or right end of the rail
+    neck_z = total_height / 2 - key_neck_w / 2;
+    head_z = total_height / 2 - key_head_w / 2;
     // neck: passes through the rail's narrow slot mouth
-    translate([neck_x, -bracket_t - lip_thickness, z0])
-        cube([key_neck_w, lip_thickness, key_len]);
+    translate([0, -bracket_t - lip_thickness, neck_z])
+        cube([total_width, lip_thickness, key_neck_w]);
     // head: sits inside the wider channel, trapped by the side lips + channel back
-    translate([key_x, -bracket_t - lip_thickness - head_depth, z0])
-        cube([key_head_w, head_depth, key_len]);
+    translate([0, -bracket_t - lip_thickness - head_depth, head_z])
+        cube([total_width, head_depth, key_head_w]);
 }
 
 module ssd_holder() {
