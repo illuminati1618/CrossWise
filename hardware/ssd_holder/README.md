@@ -1,63 +1,46 @@
 # 3-Bay Vertical 2.5" SSD Holder (T-Slot Mount)
 
 Parametric OpenSCAD design for a bracket that holds three 2.5" drives
-(70 x 100 x 9 mm) upright, side by side along a 20x20mm T-slot aluminum
+(70 x 100 x 9 mm) upright and mounts to a 20x20mm T-slot aluminum
 extrusion.
 
 ![preview](preview_iso.png)
 
 ## Design
 
-- **Drives side by side along the rail** — all three bays sit the same
-  distance out from the rail, spread along its length, rather than
-  receding front-to-back. No drive hangs off the end of a long lever arm.
+- **The long wall is the mount** — the comb's 75.8 x 43mm end face is
+  thickened to 4mm and a single T-key is molded straight onto its outer
+  surface, running the full 75.8mm. There is no separate plate or block
+  bolted onto the holder: the wall that closes the end bay is the same
+  wall that grips the rail. The whole mount adds just **3.2mm** to the
+  holder's footprint.
 - **Fully enclosed bays, open top only** — each drive drops into a boxed-in
   tub: floor + left/right dividers + front/back walls, all 40mm tall. Only
   the top (where the SATA/power connectors are, on a 100mm-tall drive) is
   open, for cable routing.
-- **One plate, one key** — a single flat plate carrying a single T-shaped
-  key running its full 70mm length. The key slides into the rail's channel
-  from the end of the extrusion and is trapped by that channel's back wall
-  and both side lips; the plate bears flat against the rail face. Tapered
-  lead-ins at both ends let it start from either direction and back
-  straight off the way it went on.
-- **Lean** — the mount projects only 6.2mm from the comb (plate + key),
-  versus 23.6mm for the previous wrap-around cradle, and uses roughly a
-  third of the material.
-- **Mount side is a switch** — `mount_side = "back"` (default) puts the
-  plate on the comb's far face with the key pointing away from the bays;
-  `"front"` puts it on the near face. Nothing else changes, and both
-  produce the same volume.
+- **One key, one channel** — it slides into the rail's channel from the end
+  of the extrusion and is trapped by that channel's back wall and both side
+  lips, while the wall face bears flat against the rail. Tapered lead-ins
+  at both ends let it start from either direction and back straight off the
+  way it went on.
 
 ![section](preview_section.png)
 
-*Cross-section: the plate with its single T-key, joined to the comb floor.*
+*Cross-section through the mount wall: the T-key is part of the wall, not
+an attached plate.*
 
-## About "the longer side"
+## Drive arrangement
 
-With the drives side by side, the comb's mounting face is its **39.2mm**
-one. The 70mm faces are the two *ends* of the stack — mounting there is
-exactly what puts the drives back in a front-to-back line.
+Mounting on the long face means the rail runs along the holder's 75.8mm
+depth, so the three drives sit **in a line running away from the rail**
+rather than spread along it. That is what the long face gives you
+geometrically — the two faces that are 75.8mm long are the ends of the
+drive stack.
 
-So rather than move the mount, the plate is **extended to 70mm along the
-rail**, overhanging the comb by ~15mm at each end. That's the longest rail
-engagement available while keeping the drives side by side. If the
-overhang is in the way, set `plate_len = comb_width` for a flush 39.2mm
-plate.
-
-## Set screws
-
-Two optional M3 set screws (`set_screw = true`) run through the plate's
-overhanging ends, where nothing is behind them so a driver reaches with the
-drives still installed. Driving them against the rail face pushes the
-bracket out and pulls the key's head up against the slot lips, taking the
-play out of the slide fit.
-
-They're worth using. A single sliding key with clearance on all sides will
-rock a little under three loaded drives — the key alone stops the bracket
-coming off the rail, but it doesn't clamp it. The screws sit low on the
-plate, below the key, so they also lean against the direction a loaded
-holder wants to tip. Set `set_screw = false` to omit them.
+The trade: the outermost drive sits ~40mm out from the rail, so a loaded
+holder puts a real tipping moment on the single key. In exchange you get
+75.8mm of rail engagement, the longest available, and the leanest possible
+mount.
 
 ## Fitting your rail
 
@@ -72,6 +55,7 @@ Defaults match common 20-series T-slot/V-slot extrusion:
 | `head_depth` | 1.6 | How far the key's wide part sits inside the channel |
 | `key_clearance` | 0.3 | Per-side slack so the key slides freely |
 | `key_lead_in` | 2.5 | Taper at each end of the key |
+| `mount_wall_t` | 4 | Thickness of the long wall carrying the key |
 
 **Measure your actual rail** before printing the whole thing — a wrong fit
 either won't slide in or will be loose. Test on a scrap of rail first if
@@ -80,7 +64,8 @@ reduce it. `lip_thickness` + `head_depth` (the key's insertion depth,
 3.2mm total) must stay shallower than the rail's actual channel depth or it
 won't seat.
 
-Footprint: **70 x 79.4 x 43 mm** (along rail x out from rail x height).
+Footprint: **43.8 x 75.8 x 43 mm** (across the drive stack x along the
+rail x height), of which the mount is 3.2mm.
 
 ## Files
 
@@ -92,11 +77,10 @@ Footprint: **70 x 79.4 x 43 mm** (along rail x out from rail x height).
 
 - 3-4 perimeter walls, 20%+ infill
 - PETG or ABS recommended (drives run warm); PLA is fine for a desk build
-- **No supports needed** — the comb floor and the mounting plate both sit
-  flat on the bed, and the key's 3.2mm horizontal protrusion is short
-  enough to print clean
-- Print the plate and key with clean, well-adhered first layers — that's
-  the load-bearing interface with the rail
+- **No supports needed** — the comb floor sits flat on the bed and the
+  key's 3.2mm horizontal protrusion is short enough to print clean
+- Print the mount wall and key with clean, well-adhered first layers —
+  that's the load-bearing interface with the rail
 
 ## Regenerating the STL
 
