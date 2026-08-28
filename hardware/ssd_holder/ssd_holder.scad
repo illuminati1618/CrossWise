@@ -68,6 +68,8 @@ slot_gap    = drive_t + drive_t_clearance;
 bay_depth   = drive_w + drive_y_clearance; // how far each bay reaches away from the rail
 
 // ---- Rail mount: one flat plate, one key ----
+mount_side    = "back"; // which face of the comb the rail mount sits on:
+                        // "back" (far side) or "front" (near side)
 rail_size     = 20;    // T-slot extrusion cross-section (square)
 plate_t       = 3;     // mounting plate thickness
 plate_len     = 70;    // how far the plate runs ALONG the rail (engagement length)
@@ -150,14 +152,24 @@ module set_screw_holes() {
                 cylinder(d = set_screw_d, h = plate_t + 2);
 }
 
+// The mount is modeled against the comb's front face (-Y). For
+// mount_side = "back" it is mirrored across to the far face, so
+// the plate lands flush on the back wall and the key points away
+// from the bays instead of toward them.
+module mount_placed() {
+    if (mount_side == "back")
+        translate([0, bay_depth, 0]) mirror([0, 1, 0]) children();
+    else
+        children();
+}
+
 module ssd_holder() {
     difference() {
         union() {
             base_body();
-            mount_plate();
-            t_slot_key();
+            mount_placed() { mount_plate(); t_slot_key(); }
         }
-        if (set_screw) set_screw_holes();
+        if (set_screw) mount_placed() set_screw_holes();
     }
 }
 

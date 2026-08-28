@@ -24,6 +24,10 @@ extrusion.
 - **Lean** — the mount projects only 6.2mm from the comb (plate + key),
   versus 23.6mm for the previous wrap-around cradle, and uses roughly a
   third of the material.
+- **Mount side is a switch** — `mount_side = "back"` (default) puts the
+  plate on the comb's far face with the key pointing away from the bays;
+  `"front"` puts it on the near face. Nothing else changes, and both
+  produce the same volume.
 
 ![section](preview_section.png)
 
