@@ -8,42 +8,52 @@ extrusion.
 
 ## Design
 
-- **Drives side-by-side along the rail** — all three bays sit the same
+- **Drives side by side along the rail** — all three bays sit the same
   distance out from the rail, spread along its length, rather than
-  receding front-to-back. No drive hangs off the end of a long lever arm,
-  so the load stays close to the mount.
+  receding front-to-back. No drive hangs off the end of a long lever arm.
 - **Fully enclosed bays, open top only** — each drive drops into a boxed-in
   tub: floor + left/right dividers + front/back walls, all 40mm tall. Only
   the top (where the SATA/power connectors are, on a 100mm-tall drive) is
   open, for cable routing.
-- **Cradle wraps 3 faces, keyed on all 3** — a U-shaped cradle wraps the
-  rail's top, bottom, and back faces, leaving the outward face open.
-  T-shaped keys are molded into all three wrapped faces and engage the
-  rail's top, bottom, and back channels, each trapped by its own channel's
-  back wall and side lips. Three keyed faces resist pull-off, twist, *and*
-  rock. No bolts, no separate T-nuts.
-- **Long engagement** — the cradle runs `cradle_len` along the rail
-  (default 70mm) even though the comb itself is only 39.2mm wide, so
-  restacking the drives side-by-side doesn't cost mounting length. It
-  overhangs the comb by ~15mm at each end; reduce `cradle_len` if space is
-  tight.
+- **One plate, one key** — a single flat plate carrying a single T-shaped
+  key running its full 70mm length. The key slides into the rail's channel
+  from the end of the extrusion and is trapped by that channel's back wall
+  and both side lips; the plate bears flat against the rail face. Tapered
+  lead-ins at both ends let it start from either direction and back
+  straight off the way it went on.
+- **Lean** — the mount projects only 6.2mm from the comb (plate + key),
+  versus 23.6mm for the previous wrap-around cradle, and uses roughly a
+  third of the material.
 
 ![section](preview_section.png)
 
-*Cross-section through the cradle: the C-channel opens to the left, with
-all three T-keys protruding into the rail pocket.*
+*Cross-section: the plate with its single T-key, joined to the comb floor.*
 
-## Sliding it on and off
+## About "the longer side"
 
-The cradle slides on and off from the **end of the rail**. Every key runs
-straight along the rail's axis and has a tapered lead-in at both ends
-(`key_lead_in`), so it starts easily and can be backed straight off the way
-it went on — nothing to unbolt.
+With the drives side by side, the comb's mounting face is its **39.2mm**
+one. The 70mm faces are the two *ends* of the stack — mounting there is
+exactly what puts the drives back in a front-to-back line.
 
-Because the back face is keyed too, the holder can *only* come off the
-rail's end, not be lifted off sideways. If your rail's ends turn out to be
-blocked, the fix is to make the top arm a separate removable cap — a small
-change, just ask.
+So rather than move the mount, the plate is **extended to 70mm along the
+rail**, overhanging the comb by ~15mm at each end. That's the longest rail
+engagement available while keeping the drives side by side. If the
+overhang is in the way, set `plate_len = comb_width` for a flush 39.2mm
+plate.
+
+## Set screws
+
+Two optional M3 set screws (`set_screw = true`) run through the plate's
+overhanging ends, where nothing is behind them so a driver reaches with the
+drives still installed. Driving them against the rail face pushes the
+bracket out and pulls the key's head up against the slot lips, taking the
+play out of the slide fit.
+
+They're worth using. A single sliding key with clearance on all sides will
+rock a little under three loaded drives — the key alone stops the bracket
+coming off the rail, but it doesn't clamp it. The screws sit low on the
+plate, below the key, so they also lean against the direction a loaded
+holder wants to tip. Set `set_screw = false` to omit them.
 
 ## Fitting your rail
 
@@ -55,23 +65,18 @@ Defaults match common 20-series T-slot/V-slot extrusion:
 | `slot_mouth` | 6.2 | Width of the narrow opening on the rail face |
 | `channel_w` | 9.4 | Internal width of the T-slot channel |
 | `lip_thickness` | 1.6 | Depth of the mouth before it opens into the channel |
-| `head_depth` | 1.6 | How far a key's wide part sits inside its channel |
-| `key_clearance` | 0.3 | Per-side slack so keys slide freely |
-| `rail_pocket_clear` | 0.6 | Total slack around the rail inside the pocket |
+| `head_depth` | 1.6 | How far the key's wide part sits inside the channel |
+| `key_clearance` | 0.3 | Per-side slack so the key slides freely |
+| `key_lead_in` | 2.5 | Taper at each end of the key |
 
 **Measure your actual rail** before printing the whole thing — a wrong fit
-either won't slide in or will be loose. Test the cradle on a scrap of rail
-first if you can: too tight, bump `key_clearance` up in 0.1-0.2mm steps;
-sloppy, reduce it. `lip_thickness` + `head_depth` (each key's insertion
-depth, 3.2mm total) must stay shallower than the rail's actual channel
-depth or it won't seat.
+either won't slide in or will be loose. Test on a scrap of rail first if
+you can: too tight, bump `key_clearance` up in 0.1-0.2mm steps; sloppy,
+reduce it. `lip_thickness` + `head_depth` (the key's insertion depth,
+3.2mm total) must stay shallower than the rail's actual channel depth or it
+won't seat.
 
-`add_back_key` assumes the rail is slotted on **all four faces**, which is
-standard for 20-series extrusion. If the face that lands against the
-cradle's back wall is solid in your rail, set `add_back_key = false` so the
-cradle clamps it flat instead of jamming a key into solid aluminum.
-
-Footprint: **70 x 96.8 x 43 mm** (along rail x out from rail x height).
+Footprint: **70 x 79.4 x 43 mm** (along rail x out from rail x height).
 
 ## Files
 
@@ -83,11 +88,10 @@ Footprint: **70 x 96.8 x 43 mm** (along rail x out from rail x height).
 
 - 3-4 perimeter walls, 20%+ infill
 - PETG or ABS recommended (drives run warm); PLA is fine for a desk build
-- Print as oriented — the comb floor and the cradle's bottom arm both sit
-  flat on the bed
-- **Light support is needed under the cradle's top arm**, which reaches out
-  over the rail pocket. Everything else is support-free.
-- Print the cradle and keys with clean, well-adhered first layers — that's
+- **No supports needed** — the comb floor and the mounting plate both sit
+  flat on the bed, and the key's 3.2mm horizontal protrusion is short
+  enough to print clean
+- Print the plate and key with clean, well-adhered first layers — that's
   the load-bearing interface with the rail
 
 ## Regenerating the STL
